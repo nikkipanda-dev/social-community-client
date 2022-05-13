@@ -5,7 +5,11 @@ import { message, Dropdown, Menu, } from 'antd';
 import { isAuth, key, showAlert, } from '../../../util';
 import { axiosInstance } from "../../../requests";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBell, faCircleCheck, } from '@fortawesome/free-solid-svg-icons';
+import { 
+    faBell, 
+    faCircleCheck,
+    faEnvelope,
+} from '@fortawesome/free-solid-svg-icons';
 import { styled } from "../../../stitches.config";
 
 import Row from '../../core/Row';
@@ -58,9 +62,7 @@ export const Navbar = ({
     css,
     handleLogIn,
     handleLogOut,
-}) => {
-    console.log('isauth ', isAuth());
-    
+}) => {    
     const navigate = useNavigate();
     const [isVisible, setIsVisible] = useState(false);
     const [notifications, setNotifications] = useState('');
@@ -178,7 +180,6 @@ export const Navbar = ({
             <Row className="m-0 g-0 mx-auto" css={{
                 maxWidth: '1700px',
                 minHeight: '7vh',
-                // background: 'violet',
                 padding: '$space-3',
             }}>
                 <Column className="col-sm-auto">
@@ -199,7 +200,7 @@ export const Navbar = ({
                                 <NavLink to="/home" className={({ isActive }) => isActive ? 'active-nav' : undefined}>
                                     <Text type="span" size="medium">Home</Text>
                                 </NavLink>
-                                <NavLink to="profile" className={({ isActive }) => isActive ? 'active-nav' : undefined}>
+                                <NavLink to={"/profile/" + JSON.parse(Cookies.get('auth_user')).username} className={({ isActive }) => isActive ? 'active-nav' : undefined}>
                                     <Text type="span" size="medium">Profile</Text>
                                 </NavLink>
                                 <NavLink to="/community-blog" className={({ isActive }) => isActive ? 'active-nav' : undefined}>
@@ -210,6 +211,9 @@ export const Navbar = ({
                                 </NavLink>
                                 <NavLink to="/events" className={({ isActive }) => isActive ? 'active-nav' : undefined}>
                                     <Text type="span" size="medium">Events</Text>
+                                </NavLink>
+                                <NavLink to="/messages" className={({ isActive }) => isActive ? 'active-nav' : undefined}>
+                                    <FontAwesomeIcon icon={faEnvelope} className="ms-3 fa-xl" />
                                 </NavLink>
                                 <Dropdown overlay={notifications} arrow>
                                     <a onClick={e => e.preventDefault()}>

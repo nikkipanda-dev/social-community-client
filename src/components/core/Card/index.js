@@ -13,7 +13,15 @@ const CardWrapper = styled('div', {
             large: {
                 maxWidth: '800px',
             },
-        }
+        },
+        color: {
+            white: {
+                background: '$white',
+            },
+            transparent: {
+                background: 'transparent',
+            },
+        },
     },
 });
 
@@ -30,11 +38,13 @@ export const Card = ({
     children,
     footer,
     size,
+    color,
 }) => {
     return (
         <CardWrapper 
         className={' ' + (className ? (' ' + className) : '')} 
         css={{ ...css }}
+        {...color && { color: color }}
         {...size && { size: size }}>
         {
             header &&

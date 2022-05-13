@@ -12,8 +12,13 @@ import CommunityBlog from './components/pages/community-blog';
 import Discussions from './components/pages/discussions';
 import Profile from './components/pages/profile';
 import Microblog from './components/sections/Microblog';
+import About from './components/pages/about';
+import Friends from './components/pages/friends';
+import DiscussionPosts from './components/widgets/DiscussionPosts';
+import CommunityBlogEntries from './components/widgets/CommunityBlogEntries';
 import Journal from './components/sections/Journal';
 import Events from './components/pages/events';
+import Messages from './components/pages/messages';
 import Settings from './components/pages/settings';
 import NotFound from './components/widgets/NotFound';
 
@@ -68,11 +73,17 @@ function App() {
                     <Route path="/home" element={<Home />} />
                     <Route path="/community-blog" element={<CommunityBlog />} />
                     <Route path="/profile/:username" element={<Profile />}>
+                        <Route index element={<Microblog />} />
                         <Route path="microblog" element={<Microblog />} />
                         <Route path="journal" element={<Journal />} />
+                        <Route path="about" element={<About />} />
+                        <Route path="friends" element={<Friends />} />
+                        <Route path="discussions" element={<DiscussionPosts />} />
+                        <Route path="community-blog" element={<CommunityBlogEntries />} />
                     </Route>
                     <Route path="/discussions" element={<Discussions />} />
                     <Route path="/events" element={<Events />} />     
+                    <Route path="/messages" element={<Messages />} />
                     <Route path="/:username/settings" element={<Settings />} />
                     <Route path="/:path" element={<NotFound />} />
                 </Routes>

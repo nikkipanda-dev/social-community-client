@@ -17,6 +17,10 @@ const ButtonWrapper = styled('button', {
     '&.button-lg': {
         fontSize: '$large',
     },
+    '&.button-plain:hover': {
+        background: 'transparent',
+        color: '$pineGreen',
+    },
     variants: {
         color: {
             brown: {

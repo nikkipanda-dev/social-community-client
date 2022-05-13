@@ -69,7 +69,6 @@ export const HomeActivityTicker = ({
                 }
                 </Text>
             </>}
-            className="m-1"
             css={{ padding: '$space-3', borderRadius: '$default', }}>
                 <HomeActivityPreviewWrapper className={(activity && !(activity.type === "comment")) ? 'text-center' : 'none'}>
                     <Text 

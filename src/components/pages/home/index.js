@@ -68,8 +68,8 @@ export const Home = () => {
     ];
 
     return (
-        <Section className="">
-            <HomeWrapper className="mx-auto" css={{ paddingTop: '100px', }}>
+        <Section>
+            <HomeWrapper className="mx-auto" css={{ paddingTop: '$space-5', }}>
                 <Row className="m-0 g-0" css={{ padding: '$space-3', }}>
                     <Column className="col">
                         <HomeActivities activities={testType} />

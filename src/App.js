@@ -34,16 +34,13 @@ function App() {
         background: !(isAuth) ? "center / cover no-repeat url('/backdrop_ver_1.png')" : "transparent",
     });
 
-    const handleLogIn = () => {
-        setIsAuth(true);
-    }
+    const handleLogIn = () => setIsAuth(true);
 
-    const handleLogOut = () => {
-        setIsAuth(false);
-    }
+    const handleLogOut = () => setIsAuth(false);
 
     useEffect(() => {
         let loading = true;
+        
         if (loading) {
             if (isAuthenticated()) {
                 handleLogIn();

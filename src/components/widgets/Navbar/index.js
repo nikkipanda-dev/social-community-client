@@ -2,7 +2,7 @@ import { useState, useEffect, } from 'react';
 import { useNavigate, NavLink, } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { message, Dropdown, Menu, } from 'antd';
-import { isAuth, key, showAlert, } from '../../../util';
+import { key, showAlert, } from '../../../util';
 import { axiosInstance } from "../../../requests";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -18,12 +18,6 @@ import Text from '../../core/Text';
 import Image from '../../core/Image';
 import Modal from '../Modal';
 import Login from '../LogIn';
-
-const NavbarWrapper = styled('div', {
-    width: '100%',
-    zIndex: '$default',
-    background: isAuth() ? "50% 80% / cover no-repeat url('/navbar_backdrop.png')" : "transparent",
-});
 
 const LogoWrapper = styled('div', {});
 
@@ -60,6 +54,7 @@ const NavLinkGroupWrapper = styled('div', {
 export const Navbar = ({
     className,
     css,
+    isAuth,
     handleLogIn,
     handleLogOut,
 }) => {    
@@ -69,6 +64,12 @@ export const Navbar = ({
 
     const handleShowModal = () => setIsVisible(true);
     const handleHideModal = () => setIsVisible(false);
+
+    const NavbarWrapper = styled('div', {
+        width: '100%',
+        zIndex: '$default',
+        background: isAuth ? "50% 80% / cover no-repeat url('/navbar_backdrop.png')" : "transparent",
+    });
 
     const logout = () => {
         if (isAuth()) {
@@ -195,7 +196,7 @@ export const Navbar = ({
                     <NavGroupWrapper className="flex-grow-1 d-flex justify-content-center justify-content-sm-end align-items-center">
                         <NavLinkGroupWrapper className="mt-3 mt-sm-0">
                         {
-                            isAuth() ? 
+                            isAuth ? 
                             <>
                                 <NavLink to="/home" className={({ isActive }) => isActive ? 'active-nav' : undefined}>
                                     <Text type="span" size="medium">Home</Text>

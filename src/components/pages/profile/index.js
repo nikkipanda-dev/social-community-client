@@ -5,8 +5,6 @@ import Section from "../../core/Section";
 import Row from "../../core/Row";
 import Column from "../../core/Column";
 import ProfileHeader from "../../widgets/ProfileHeader";
-import Microblog from "../../sections/Microblog";
-import Journal from "../../sections/Journal";
 import ProfileSidebar from '../../widgets/ProfileSidebar';
 
 const ProfileWrapper = styled('div', {
@@ -26,8 +24,8 @@ export const Profile = () => {
                         <ProfileHeader />
                     </Column>
                     <Column className="col-12">
-                        <ProfileContentWrapper className="d-flex">
-                            <ProfileSidebar />
+                        <ProfileContentWrapper className="d-flex bg-danger">
+                            <ProfileSidebar className="flex-shrink-0"/>
                             <Outlet />
                         </ProfileContentWrapper>
                     </Column>

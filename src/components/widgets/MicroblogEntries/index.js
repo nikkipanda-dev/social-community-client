@@ -1,3 +1,4 @@
+import ReactPaginate from 'react-paginate';
 import { styled } from "../../../stitches.config";
 
 import MicroblogEntry from "../MicroblogEntry";
@@ -9,75 +10,14 @@ const MicroblogEntriesWrapper = styled('div', {
     },
 });
 
-export const MicroblogEntries = () => {
-    const microblogEntries = [
-        {
-            id: 1,
-            body: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Magnam quibusdam facilis provident cumque illum, neque magni rerum maxime dolores, ab tempora eveniet itaque debitis ad quos, quasi minima asperiores rem dolorem quia distinctio eligendi ex perspiciatis ea.",
-            created_at: "Jan 1, 2022, 00:00",
-            user: {
-                id: 1,
-                username: "narutouzumaki",
-                first_name: "Naruto",
-                last_name: "Uzumaki",
-            },
-        },
-        {
-            id: 2,
-            body: "Lorem, ipsum dolor sit amet consectetur adipisicing elit.",
-            created_at: "Jan 1, 2022, 00:00",
-            user: {
-                id: 2,
-                username: "arianagrande",
-                first_name: "Ariana",
-                last_name: "Grande",
-            },
-        },
-        {
-            id: 3,
-            body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus ratione perspiciatis qui enim laborum sunt ex optio! Sint, excepturi ipsa?",
-            created_at: "Jan 1, 2022, 00:00",
-            user: {
-                id: 2,
-                username: "arianagrande",
-                first_name: "Ariana",
-                last_name: "Grande",
-            },
-        },
-        {
-            id: 4,
-            body: "Lorem ipsum dolor sit amet consectetur adipisicing elit?",
-            created_at: "Jan 1, 2022, 00:00",
-            user: {
-                id: 3,
-                username: "tomerichsen",
-                first_name: "Tom",
-                last_name: "Erichsen",
-            },
-        },
-        {
-            id: 5,
-            body: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Nobis, voluptate. Mollitia at fugit quaerat aut, a dolores vero, illo aperiam consequuntur pariatur magni aliquid! At repellat omnis qui tempore tempora!",
-            created_at: "Jan 1, 2022, 00:00",
-            user: {
-                id: 4,
-                username: "tyrabanks",
-                first_name: "Tyra",
-                last_name: "Banks",
-            },
-        },
-        {
-            id: 6,
-            body: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Nobis, voluptate!",
-            created_at: "Jan 1, 2022, 00:00",
-            user: {
-                id: 5,
-                username: "mariasantos",
-                first_name: "Maria",
-                last_name: "Santos",
-            },
-        },
-    ]
+export const MicroblogEntries = ({ 
+    microblogEntries, 
+    pageCount,
+    handlePageClick,
+}) => {
+    const onClick = evt => {
+        handlePageClick(evt.selected)
+    };
 
     return (
         <MicroblogEntriesWrapper>
@@ -87,6 +27,14 @@ export const MicroblogEntries = () => {
                 return <MicroblogEntry key={Object.values(microblogEntries)[val].id} microblogEntry={Object.values(microblogEntries)[val]} />
             })
         }
+        <ReactPaginate
+        breakLabel="..."
+        nextLabel="next >"
+        onPageChange={onClick}
+        pageRangeDisplayed={10}
+        pageCount={pageCount}
+        previousLabel="< previous"
+        renderOnZeroPageCount={null} />
         </MicroblogEntriesWrapper>
     )
 }

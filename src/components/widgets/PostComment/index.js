@@ -124,7 +124,7 @@ export const PostComment = () => {
                     <Input.TextArea
                     allowClear
                     maxLength={300}
-                    rows={5}
+                    rows={2}
                     showCount />
                 </Form.Item>
 

@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import Cookies from 'js-cookie';
+import { isAuth } from "../../../util";
+import { axiosInstance } from "../../../requests";
 import { styled } from "../../../stitches.config";
 
 import HomeActivities from "../../widgets/HomeActivities";
@@ -66,6 +69,11 @@ export const Home = () => {
             title: "My Truth",
         },
     ];
+
+    // TODO:: retreieve friends' microblog posts
+    const [microblogEntries, setMicroblogEntries] = useState('');
+
+    const handleMicroblogEntries = microblogEntries => setMicroblogEntries(microblogEntries);
 
     return (
         <Section>

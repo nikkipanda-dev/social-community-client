@@ -66,11 +66,14 @@ export const Comment = ({ comment, omitComments, }) => {
                         <CommentContentWrapper>
                             <Text type="paragraph" css={{ textAlign: 'justify', }}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic, ab. Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate tenetur est ipsa soluta blanditiis harum numquam illo iusto ex beatae?</Text>
                         </CommentContentWrapper>
-                        <CommentActionWrapper className="d-flex justify-content-between align-items-center">
+                        <CommentActionWrapper className={"d-flex" + (!(omitComments) ? " justify-content-between " : " justify-content-end ") + "align-items-center"}>
+                        {
+                            !(omitComments) && 
                             <Button
                             type="button"
                             text="Comment"
                             color="white" />
+                        }
                             <CommentStatWrapper className="d-flex flex-wrap">
                                 <Text type="span" color="darkGray">
                                     5

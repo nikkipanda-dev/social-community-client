@@ -1,11 +1,4 @@
-import { 
-    faQuoteLeft,
-    faBook,
-    faIdCard,
-    faUserGroup,
-    faChalkboardUser,
-    faBlog, 
-} from '@fortawesome/free-solid-svg-icons';
+import { ProfileSidebarItems } from '../../../util/NavLinks/Profile';
 import { styled } from "../../../stitches.config";
 
 import Sidebar from "../Sidebar";
@@ -24,49 +17,11 @@ const ProfileSidebarWrapper = styled('div', {
     },
 });
 
-export const ProfileSidebar = () => {
-    const items = [
-        {
-            id: 1,
-            section: "Microblog",
-            link: "microblog",
-            icon: faQuoteLeft,
-        },
-        {
-            id: 2,
-            section: "Journal",
-            link: "journal",
-            icon: faBook,
-        },
-        {
-            id: 3,
-            section: "About",
-            link: "about",
-            icon: faIdCard,
-        },
-        {
-            id: 4,
-            section: "Friends",
-            link: "friends",
-            icon: faUserGroup,
-        },
-        {
-            id: 5,
-            section: "Discussions",
-            link: "discussions",
-            icon: faChalkboardUser,
-        },
-        {
-            id: 6,
-            section: "Community Blog Posts",
-            link: "community-blog",
-            icon: faBlog,
-        },
-    ];
+export const ProfileSidebar = ({ className, css, }) => {
 
     return (
-        <ProfileSidebarWrapper>
-            <Sidebar items={items}/>
+        <ProfileSidebarWrapper className={' ' + (className ? (' ' + className) : '')} {...css && { css: { ...css } }}>
+            <Sidebar items={ProfileSidebarItems} className="d-flex flex-column" />
             <ProfileGeneralInformation />
             <Badges />
             <Achievements />

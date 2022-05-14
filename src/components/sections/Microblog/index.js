@@ -1,5 +1,4 @@
-import React from "react";
-import { useState, useEffect, createRef, } from "react";
+import { useState, useEffect, useRef, } from "react";
 import { useParams, } from "react-router-dom";
 import { isAuth } from "../../../util";
 import Cookies from 'js-cookie';
@@ -19,21 +18,25 @@ const MicroblogContentWrapper = styled('div', {
 });
 
 const MicroblogStatWrapper = styled('div', {
+    width: '100%',
     maxWidth: '400px',
     padding: '0px 0px 0px $space-3',
 });
 
 export const Microblog = () => {
     const params = useParams();
-    const entriesRef = React.createRef();
+    const entriesRef = useRef();
 
+    const [isPostMicroblogVisible, setIsPostMicroblogVisible] = useState(false);
     const [microblogEntries, setMicroblogEntries] = useState('');
     const [pageCount, setPageCount] = useState(0);
-    const [offset, setOffset] = useState('');
+    const [offset, setOffset] = useState(null);
 
+    const handleShowPostMicroblog = () => setIsPostMicroblogVisible(true);
+    const handleHidePostMicroblog = () => setIsPostMicroblogVisible(false);
+    const handleMicroblogEntries = microblogEntries => setMicroblogEntries(microblogEntries);
     const handlePageCount = pageCount => setPageCount(pageCount);
     const handleOffset = offset => setOffset(offset);
-    const handleMicroblogEntries = microblogEntries => setMicroblogEntries(microblogEntries);
 
     const getMicroblogEntries = () => {
         if (isAuth()) {
@@ -50,6 +53,7 @@ export const Microblog = () => {
 
             .then(response => {
                 if (response.data.isSuccess) {
+                    console.log(response.data.data.details);
                     handleMicroblogEntries(response.data.data.details.slice(0, 10));
                     (response.data.data.details.length > 10) ? handlePageCount(Math.ceil(response.data.data.details.length / 10)) : handlePageCount(1);
                 } else {
@@ -82,7 +86,7 @@ export const Microblog = () => {
 
             .then(response => {
                 if (response.data.isSuccess) {
-                    entriesRef.current.scrollIntoView();
+                    window.scrollTo(0, ((entriesRef.current.getBoundingClientRect().top + window.scrollY)) - 100);
 
                     setTimeout(() => {
                         handleMicroblogEntries(response.data.data.details);                        
@@ -108,7 +112,9 @@ export const Microblog = () => {
     useEffect(() => {
         let loading = true;
 
-        if (loading) {
+        if (loading && isAuth()) {
+            (JSON.parse(Cookies.get('auth_user')).username === params.username) ? handleShowPostMicroblog() : handleHidePostMicroblog();
+
             getMicroblogEntries();
         }
 
@@ -120,7 +126,7 @@ export const Microblog = () => {
     useEffect(() => {
         let loading = true;
 
-        if (loading) {
+        if (loading && Number.isInteger(offset)) {
             paginateMicroblogEntries();
         }
 
@@ -132,13 +138,16 @@ export const Microblog = () => {
     return (
         <MicroblogWrapper className="bg-primary d-flex p-1">
             <MicroblogContentWrapper className="bg-secondary flex-grow-1" ref={entriesRef}>
+            {
+                isPostMicroblogVisible && 
                 <PostMicroblog handleMicroblogEntries={handleMicroblogEntries} />
+            }
                 <MicroblogEntries 
                 microblogEntries={microblogEntries}
                 pageCount={pageCount}
                 handlePageClick={handlePageClick} />
             </MicroblogContentWrapper>
-            <MicroblogStatWrapper className="bg-success d-flex">
+            <MicroblogStatWrapper className="bg-success">
                 <MicroblogStat />
             </MicroblogStatWrapper>
         </MicroblogWrapper>

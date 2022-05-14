@@ -1,4 +1,8 @@
 import { useState, useEffect, } from 'react';
+import { isAuth, key, showAlert, } from '../../../util';
+import Cookies from 'js-cookie';
+import { message, } from 'antd';
+import { axiosInstance } from '../../../requests';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComments, faHeart, } from '@fortawesome/free-solid-svg-icons';
 import { styled } from "../../../stitches.config";
@@ -26,7 +30,7 @@ const MicroblogActionWrapper = styled('div', {
 });
 
 const MicroblogStatWrapper = styled('div', {
-    'span.toggle-comment:hover': {
+    'span.toggle-comment:hover, span.toggle-heart:hover': {
         cursor: 'pointer',
     },
 });
@@ -40,9 +44,68 @@ const MicroblogPostCommentWrapper = styled('div', {
 export const MicroblogEntry = ({ microblogEntry }) => {
     const [isPostCommentVisible, setIsPostCommentVisible] = useState(false);
     const [isCommentsGroupVisible, setIsCommentsGroupVisible] = useState(false);
+    const [heartCount, setHeartCount] = useState(0);
 
+    const handleHeartCount = heartCount => setHeartCount(heartCount);
     const handleTogglePostComment = () => setIsPostCommentVisible(!isPostCommentVisible);
     const handleToggleCommentsGroup = () => setIsCommentsGroupVisible(!isCommentsGroupVisible);
+
+    const onHeartClick = () => {
+        const microblogLoveForm = new FormData();
+
+        if (isAuth() && (microblogEntry && microblogEntry.slug)) {
+            const authToken = JSON.parse(Cookies.get('auth_user_token'));
+
+            microblogLoveForm.append('username', JSON.parse(Cookies.get('auth_user')).username);
+            microblogLoveForm.append('slug', microblogEntry.slug);
+
+            axiosInstance.post(process.env.REACT_APP_BASE_URL + "microblog-entries/user/entry/hearts/update", microblogLoveForm, {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                }
+            })
+
+            .then(response => {
+                if (response.data.isSuccess) {
+                    handleHeartCount(Number.isInteger(response.data.data.details) ? response.data.data.details : 0);
+                } else {
+                    showAlert();
+                    setTimeout(() => {
+                        message.info({
+                            content: <Text type="span">{response.data.data.errorText}</Text>,
+                            key,
+                            duration: 2,
+                            style: {
+                                marginTop: '10vh',
+                                zIndex: '999999',
+                            }
+                        });
+                    }, 1000);
+                }
+            })
+
+            .catch(err => {
+                console.log('err ', err.response ? err.response.data.errors : err);
+                // if (err.response && err.response.data.errors && err.response.data.errors.body) {
+                //     setHelp(<Text type="span" color="red">{err.response.data.errors.body[0]}</Text>);
+                // }
+            });
+        } else {
+            console.log('on microblog heart: no cookies');
+        }
+    }
+
+    useEffect(() => {
+        let loading = true;
+
+        if (loading && microblogEntry) {
+            handleHeartCount(microblogEntry.hearts ? microblogEntry.hearts : 0);
+        }
+
+        return () => {
+            loading = false;
+        }
+    }, []);
 
     return (
         <MicroblogEntryWrapper>
@@ -53,7 +116,19 @@ export const MicroblogEntry = ({ microblogEntry }) => {
                     type="span" 
                     color="darkGray" 
                     css={{ margin: '$space-2', }}>
-                        Jan 1, 2022, 00:00
+                    {
+                        (microblogEntry && microblogEntry.created_at) && 
+                        new Intl.DateTimeFormat('en-US', {
+                            timeZone: 'Asia/Manila',
+                            hourCycle: 'h12',
+                            weekday: 'short',
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                        }).format(new Date(microblogEntry.created_at))
+                    }
                     </Text>
                 </MicroblogHeaderWrapper>
             }
@@ -69,8 +144,12 @@ export const MicroblogEntry = ({ microblogEntry }) => {
                     onClick={() => handleTogglePostComment()}
                     color="white" />
                     <MicroblogStatWrapper className="d-flex flex-wrap">
-                        <Text type="span" color="darkGray">
-                            5
+                        <Text 
+                        type="span" 
+                        color="darkGray" 
+                        className="toggle-heart"
+                        onClick={() => onHeartClick()}>
+                            {heartCount}
                             <FontAwesomeIcon 
                             icon={faHeart} 
                             className="ms-1" />

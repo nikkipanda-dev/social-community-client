@@ -55,6 +55,7 @@ export const Navbar = ({
     className,
     css,
     isAuth,
+    handleForceRender,
     handleLogIn,
     handleLogOut,
 }) => {    
@@ -201,7 +202,10 @@ export const Navbar = ({
                                 <NavLink to="/home" className={({ isActive }) => isActive ? 'active-nav' : undefined}>
                                     <Text type="span" size="medium">Home</Text>
                                 </NavLink>
-                                <NavLink to={"/profile/" + JSON.parse(Cookies.get('auth_user')).username} className={({ isActive }) => isActive ? 'active-nav' : undefined}>
+                                <NavLink 
+                                to={"/profile/" + JSON.parse(Cookies.get('auth_user')).username} 
+                                className={({ isActive }) => isActive ? 'active-nav' : undefined}
+                                onClick={() => handleForceRender()}>
                                     <Text type="span" size="medium">Profile</Text>
                                 </NavLink>
                                 <NavLink to="/community-blog" className={({ isActive }) => isActive ? 'active-nav' : undefined}>

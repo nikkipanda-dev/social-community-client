@@ -112,7 +112,7 @@ export const PostMicroblog = ({ handleMicroblogEntries, }) => {
                     }
                 });
         } else {
-            console.log('on camp description: no cookies');
+            console.log('on post microblog: no cookies');
         }
     }
 

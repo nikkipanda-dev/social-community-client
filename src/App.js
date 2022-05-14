@@ -28,6 +28,9 @@ function App() {
     globalStyles();
 
     const [isAuth, setIsAuth] = useState(false);
+    const [forceRender, setForceRender] = useState(false);
+
+    const handleForceRender = () => setForceRender(!forceRender);
 
     const Wrapper = styled('div', {
         minHeight: '100vh',
@@ -40,7 +43,7 @@ function App() {
 
     useEffect(() => {
         let loading = true;
-        
+
         if (loading) {
             if (isAuthenticated()) {
                 handleLogIn();
@@ -58,6 +61,7 @@ function App() {
         <Wrapper>
             <Navbar 
             isAuth={isAuth}
+            handleForceRender={handleForceRender}
             handleLogIn={handleLogIn}
             handleLogOut={handleLogOut} />
             <Main>
@@ -69,7 +73,7 @@ function App() {
                         handleLogOut={handleLogOut} />} />
                     <Route path="/home" element={<Home />} />
                     <Route path="/community-blog" element={<CommunityBlog />} />
-                    <Route path="/profile/:username" element={<Profile />}>
+                    <Route path="/profile/:username" element={<Profile />} forceRender={forceRender}>
                         <Route index element={<Microblog />} />
                         <Route path="microblog" element={<Microblog />} />
                         <Route path="journal" element={<Journal />} />

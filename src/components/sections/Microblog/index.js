@@ -45,6 +45,7 @@ export const Microblog = () => {
             axiosInstance.get(process.env.REACT_APP_BASE_URL + "microblog-entries/user", {
                 params: {
                     username: params.username,
+                    auth_username: JSON.parse(Cookies.get('auth_user')).username,
                 },
                 headers: {
                     Authorization: `Bearer ${authToken}`,
@@ -75,6 +76,7 @@ export const Microblog = () => {
             axiosInstance.get(process.env.REACT_APP_BASE_URL + "microblog-entries/user/paginate", {
                 params: {
                     username: params.username,
+                    auth_username: JSON.parse(Cookies.get('auth_user')).username,
                     offset: offset,
                     limit: 10,
                 },
@@ -143,6 +145,7 @@ export const Microblog = () => {
             }
                 <MicroblogEntries 
                 microblogEntries={microblogEntries}
+                handleMicroblogEntries={handleMicroblogEntries}
                 pageCount={pageCount}
                 handlePageClick={handlePageClick} />
             </MicroblogContentWrapper>

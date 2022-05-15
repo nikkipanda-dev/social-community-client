@@ -34,7 +34,11 @@ export const PostComment = ({ storeComment, form, }) => {
 
     return (
         <PostCommentWrapper className="p-2 d-flex">
-            <Image src="/avatar_medium.png" css={{ width: '60px', height: '60px', objectFit: 'cover', }}/>
+            <Image src="/avatar_medium.png" css={{ 
+                width: '60px', 
+                height: '60px', 
+                objectFit: 'cover',
+            }}/>
             <Form
             name="microblog-form"
             className="flex-grow-1 ms-3"

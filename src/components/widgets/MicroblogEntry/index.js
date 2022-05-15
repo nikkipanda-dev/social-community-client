@@ -41,17 +41,19 @@ const MicroblogPostCommentWrapper = styled('div', {
 });
 
 export const MicroblogEntry = ({ microblogEntry, }) => {
-    console.log(microblogEntry.comments);
     const [form] = Form.useForm();
 
     const [isPostCommentVisible, setIsPostCommentVisible] = useState(false);
     const [help, setHelp] = useState('');
+    const [forceRender, setForceRender] = useState(false);
     const [isCommentsGroupVisible, setIsCommentsGroupVisible] = useState(false);
-    const [comments, setComments] = useState('');
+    const [isHeart, setIsHeart] = useState(false);
     const [heartCount, setHeartCount] = useState(0);
 
+    const handleShowHeart = () => setIsHeart(true);
+    const handleHideHeart = () => setIsHeart(false);
     const handleHeartCount = heartCount => setHeartCount(heartCount);
-    const handleComments = comments => setComments(comments);
+    const handleForceRender = () => setForceRender(!forceRender);
     const handleTogglePostComment = () => setIsPostCommentVisible(!isPostCommentVisible);
     const handleToggleCommentsGroup = () => setIsCommentsGroupVisible(!isCommentsGroupVisible);
 
@@ -72,7 +74,9 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
 
             .then(response => {
                 if (response.data.isSuccess) {
-                    handleHeartCount(Number.isInteger(response.data.data.details) ? response.data.data.details : 0);
+                    console.log(response.data.data.details);
+                    (response.data.data.details && response.data.data.details.is_heart) ? handleShowHeart() : handleHideHeart();
+                    handleHeartCount(Number.isInteger(response.data.data.details.count) ? response.data.data.details.count : 0);
                 } else {
                     showAlert();
                     setTimeout(() => {
@@ -100,8 +104,8 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
         }
     }
 
-    const handlePostedComment = comments => {
-        handleComments(comments);
+    const handlePostedComment = () => {
+        handleForceRender();
         form.resetFields();
     }
 
@@ -126,6 +130,7 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
 
             .then(response => {
                 if (response.data.isSuccess) {
+                    console.log(response.data.data.details);
                     handlePostedComment(response.data.data.details);
                     showAlert();
                     setTimeout(() => {
@@ -176,8 +181,8 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
         let loading = true;
 
         if (loading && microblogEntry) {
-            handleHeartCount(microblogEntry.hearts ? microblogEntry.hearts : 0);
-            handleComments((microblogEntry.comments && (Object.keys(microblogEntry.comments).length > 0)) ? microblogEntry.comments : {});
+            (microblogEntry.hearts && microblogEntry.hearts.is_heart) ? handleShowHeart() : handleHideHeart();
+            handleHeartCount((microblogEntry.hearts && microblogEntry.hearts.count) ? microblogEntry.hearts.count : 0);
         }
 
         return () => {
@@ -230,14 +235,15 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
                             {heartCount}
                             <FontAwesomeIcon 
                             icon={faHeart} 
-                            className="ms-1" />
+                            className="ms-1"
+                            {...isHeart && { style: { color: '#F95F5F', } }} />
                         </Text>
                         <Text 
                         type="span" 
                         color="darkGray" 
                         className="ms-2 toggle-comment" 
                         onClick={() => handleToggleCommentsGroup()}>
-                            {(comments && (Object.keys(comments).length > 0)) && Object.keys(comments).length}
+                            {(microblogEntry && microblogEntry.comments) && microblogEntry.comments}
                             <FontAwesomeIcon icon={faComments} className="ms-1"/>
                         </Text>
                     </MicroblogStatWrapper>
@@ -248,8 +254,11 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
                     <PostComment storeComment={storeComment} form={form} />
                 }
                 {
-                    isCommentsGroupVisible && 
-                    <Comments comments={comments} css={{ marginTop: '40px', }} />
+                    (isCommentsGroupVisible && (microblogEntry && microblogEntry.slug)) && 
+                    <Comments 
+                    entrySlug={microblogEntry.slug} 
+                    css={{ marginTop: '40px', }}
+                    forceRender={forceRender} />
                 }
                 </MicroblogPostCommentWrapper>
             </Card>

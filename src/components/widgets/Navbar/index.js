@@ -2,7 +2,7 @@ import { useState, useEffect, } from 'react';
 import { useNavigate, NavLink, } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { message, Dropdown, Menu, } from 'antd';
-import { key, showAlert, } from '../../../util';
+import { isAuth as isAuthenticated, key, showAlert, } from '../../../util';
 import { axiosInstance } from "../../../requests";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -73,7 +73,7 @@ export const Navbar = ({
     });
 
     const logout = () => {
-        if (isAuth()) {
+        if (isAuthenticated()) {
             const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
             const logoutForm = new FormData();

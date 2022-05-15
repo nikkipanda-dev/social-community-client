@@ -69,48 +69,48 @@ export const PostMicroblog = ({ handleMicroblogEntries, }) => {
                 }
             })
 
-                .then(response => {
-                    if (response.data.isSuccess) {
-                        handlePostMicroblog(response.data.data.details);
-                        showAlert();
-                        setTimeout(() => {
-                            message.open({
-                                content: <>
-                                    <FontAwesomeIcon 
-                                    icon={faCircleCheck} 
-                                    className="me-2" 
-                                    style={{ color: '#007B70', }}/>
-                                    <Text type="span">Posted.</Text>
-                                </>,
-                                key,
-                                duration: 2,
-                                style: {
-                                    marginTop: '10vh',
-                                    zIndex: '999999',
-                                }
-                            });
-                        }, 1000);
-                    } else {
-                        showAlert();
-                        setTimeout(() => {
-                            message.info({
-                                content: <Text type="span">{response.data.data.errorText}</Text>,
-                                key,
-                                duration: 2,
-                                style: {
-                                    marginTop: '10vh',
-                                    zIndex: '999999',
-                                }
-                            });
-                        }, 1000);
-                    }
-                })
+            .then(response => {
+                if (response.data.isSuccess) {
+                    handlePostMicroblog(response.data.data.details);
+                    showAlert();
+                    setTimeout(() => {
+                        message.open({
+                            content: <>
+                                <FontAwesomeIcon 
+                                icon={faCircleCheck} 
+                                className="me-2" 
+                                style={{ color: '#007B70', }}/>
+                                <Text type="span">Posted.</Text>
+                            </>,
+                            key,
+                            duration: 2,
+                            style: {
+                                marginTop: '10vh',
+                                zIndex: '999999',
+                            }
+                        });
+                    }, 1000);
+                } else {
+                    showAlert();
+                    setTimeout(() => {
+                        message.info({
+                            content: <Text type="span">{response.data.data.errorText}</Text>,
+                            key,
+                            duration: 2,
+                            style: {
+                                marginTop: '10vh',
+                                zIndex: '999999',
+                            }
+                        });
+                    }, 1000);
+                }
+            })
 
-                .catch(err => {
-                    if (err.response && err.response.data.errors && err.response.data.errors.body) {
-                        setHelp(<Text type="span" color="red">{err.response.data.errors.body[0]}</Text>);
-                    }
-                });
+            .catch(err => {
+                if (err.response && err.response.data.errors && err.response.data.errors.body) {
+                    setHelp(<Text type="span" color="red">{err.response.data.errors.body[0]}</Text>);
+                }
+            });
         } else {
             console.log('on post microblog: no cookies');
         }

@@ -45,7 +45,6 @@ const PaginatorWrapper = styled('div', {
 
 export const MicroblogEntries = ({ 
     microblogEntries, 
-    handleMicroblogEntries,
     pageCount,
     handlePageClick,
 }) => {

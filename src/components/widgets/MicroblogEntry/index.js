@@ -1,4 +1,4 @@
-import { useState, useEffect, } from 'react';
+import { useState, useEffect, useRef, } from 'react';
 import { isAuth, key, showAlert, } from '../../../util';
 import Cookies from 'js-cookie';
 import { message, Form, } from 'antd';
@@ -42,6 +42,7 @@ const MicroblogPostCommentWrapper = styled('div', {
 
 export const MicroblogEntry = ({ microblogEntry, }) => {
     const [form] = Form.useForm();
+    const entryRef = useRef();
 
     const [isPostCommentVisible, setIsPostCommentVisible] = useState(false);
     const [help, setHelp] = useState('');
@@ -56,6 +57,7 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
     const handleForceRender = () => setForceRender(!forceRender);
     const handleTogglePostComment = () => setIsPostCommentVisible(!isPostCommentVisible);
     const handleToggleCommentsGroup = () => setIsCommentsGroupVisible(!isCommentsGroupVisible);
+    const handlePaginateComment = () => window.scrollTo(0, ((entryRef.current.getBoundingClientRect().top + window.scrollY)) - 100);
 
     const onHeartClick = () => {
         const microblogLoveForm = new FormData();
@@ -191,7 +193,7 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
     }, []);
 
     return (
-        <MicroblogEntryWrapper>
+        <MicroblogEntryWrapper ref={entryRef}>
             <Card header={
                 <MicroblogHeaderWrapper className="d-flex justify-content-between">
                     <User type="item" member={(microblogEntry && microblogEntry.user) && microblogEntry.user} />
@@ -257,6 +259,7 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
                     (isCommentsGroupVisible && (microblogEntry && microblogEntry.slug)) && 
                     <Comments 
                     entrySlug={microblogEntry.slug} 
+                    handlePaginateComment={handlePaginateComment}
                     css={{ marginTop: '40px', }}
                     forceRender={forceRender} />
                 }

@@ -57,7 +57,9 @@ export const MicroblogEntries = ({
         {
             (microblogEntries && (Object.keys(microblogEntries).length > 0)) && 
             Object.keys(microblogEntries).map((i, val) => {
-                return <MicroblogEntry key={Object.values(microblogEntries)[val].slug} microblogEntry={Object.values(microblogEntries)[val]} />
+                return <MicroblogEntry 
+                key={Object.values(microblogEntries)[val].slug}
+                microblogEntry={Object.values(microblogEntries)[val]} />
             })
         }
             <PaginatorWrapper>

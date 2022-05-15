@@ -1,10 +1,10 @@
 import { useState, useEffect, } from 'react';
 import { isAuth, key, showAlert, } from '../../../util';
 import Cookies from 'js-cookie';
-import { message, } from 'antd';
+import { message, Form, } from 'antd';
 import { axiosInstance } from '../../../requests';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faComments, faHeart, } from '@fortawesome/free-solid-svg-icons';
+import { faComments, faHeart, faCircleCheck, } from '@fortawesome/free-solid-svg-icons';
 import { styled } from "../../../stitches.config";
 
 import Card from "../../core/Card";
@@ -36,13 +36,14 @@ const MicroblogStatWrapper = styled('div', {
 });
 
 const MicroblogPostCommentWrapper = styled('div', {
-    background: '$white',
     borderRadius: '$small',
     marginTop: '$space-3',
 });
 
-export const MicroblogEntry = ({ microblogEntry }) => {
+export const MicroblogEntry = ({ microblogEntry, }) => {
     console.log(microblogEntry.comments);
+    const [form] = Form.useForm();
+
     const [isPostCommentVisible, setIsPostCommentVisible] = useState(false);
     const [help, setHelp] = useState('');
     const [isCommentsGroupVisible, setIsCommentsGroupVisible] = useState(false);
@@ -99,50 +100,66 @@ export const MicroblogEntry = ({ microblogEntry }) => {
         }
     }
 
-    const storeComment = value => {
-        console.log('value ', value);
+    const handlePostedComment = comments => {
+        handleComments(comments);
+        form.resetFields();
+    }
 
+    const storeComment = value => {
         if (isAuth() && (microblogEntry && microblogEntry.slug)) {
             const microblogCommentForm = new FormData();
 
             for (let i in value) {
                 value[i] && microblogCommentForm.append(i, value[i]);
             }
-
-            for (let [i, val] of microblogCommentForm.entries()) {
-                console.log('i ', i);
-                console.log('val ', val);
-            }
             
-                const authToken = JSON.parse(Cookies.get('auth_user_token'));
+            const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
-                microblogCommentForm.append('username', JSON.parse(Cookies.get('auth_user')).username);
-                microblogCommentForm.append('slug', microblogEntry.slug);
+            microblogCommentForm.append('username', JSON.parse(Cookies.get('auth_user')).username);
+            microblogCommentForm.append('slug', microblogEntry.slug);
 
-                axiosInstance.post(process.env.REACT_APP_BASE_URL + "microblog-entries/user/entry/comment/store", microblogCommentForm, {
-                    headers: {
-                        Authorization: `Bearer ${authToken}`,
-                    }
-                })
+            axiosInstance.post(process.env.REACT_APP_BASE_URL + "microblog-entries/user/entry/comment/store", microblogCommentForm, {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                }
+            })
 
-                .then(response => {
-                    if (response.data.isSuccess) {
-                        console.log('res ', response.data.data.details);
-                    } else {
-                        showAlert();
-                        setTimeout(() => {
-                            message.info({
-                                content: <Text type="span">{response.data.data.errorText}</Text>,
-                                key,
-                                duration: 2,
-                                style: {
-                                    marginTop: '10vh',
-                                    zIndex: '999999',
-                                }
-                            });
-                        }, 1000);
-                    }
-                })
+            .then(response => {
+                if (response.data.isSuccess) {
+                    handlePostedComment(response.data.data.details);
+                    showAlert();
+                    setTimeout(() => {
+                        message.open({
+                            content: <>
+                                <FontAwesomeIcon
+                                    icon={faCircleCheck}
+                                    className="me-2"
+                                    style={{ color: '#007B70', }} />
+                                <Text type="span">Posted.</Text>
+                            </>,
+                            key,
+                            duration: 2,
+                            style: {
+                                marginTop: '25vh',
+                                zIndex: '999999',
+                            }
+                        });
+                    }, 1000);
+                } else {
+                    showAlert();
+                    setTimeout(() => {
+                        message.info({
+                            content: <Text type="span">{response.data.data.errorText}</Text>,
+                            key,
+                            duration: 2,
+                            style: {
+                                marginTop: '25vh',
+                                zIndex: '999999',
+                            }
+                        });
+                    }, 1000);
+                }
+            })
 
             .catch (err => {
                 console.log('err ', err.response ? err.response.data.errors : err);
@@ -228,11 +245,11 @@ export const MicroblogEntry = ({ microblogEntry }) => {
                 <MicroblogPostCommentWrapper>
                 {
                     isPostCommentVisible && 
-                    <PostComment storeComment={storeComment} />
+                    <PostComment storeComment={storeComment} form={form} />
                 }
                 {
                     isCommentsGroupVisible && 
-                    <Comments comments={comments} css={{ marginTop: '30px', }} />
+                    <Comments comments={comments} css={{ marginTop: '40px', }} />
                 }
                 </MicroblogPostCommentWrapper>
             </Card>

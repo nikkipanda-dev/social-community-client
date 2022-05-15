@@ -2,7 +2,11 @@ import { styled } from "../../../stitches.config";
 
 import Comment from '../Comment';
 
-const CommentsWrapper = styled('div', {});
+const CommentsWrapper = styled('div', {
+    '> div:nth-child(n+2)': {
+        marginTop: '$space-3',
+    },
+});
 
 export const Comments = ({ 
     comments, 

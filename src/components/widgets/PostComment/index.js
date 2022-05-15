@@ -1,11 +1,7 @@
-import { useState, useEffect, } from "react";
-import { Form, Input, message, } from "antd";
-import { isAuth, key, showAlert, } from "../../../util";
-import Cookies from 'js-cookie';
-import { axiosInstance } from "../../../requests";
+import { useState, } from "react";
+import { Form, Input, } from "antd";
 import { styled } from "../../../stitches.config";
 
-import Text from "../../core/Text";
 import Button from "../../core/Button";
 import Image from '../../core/Image';
 
@@ -33,8 +29,7 @@ const SubmitButtonWrapper = styled('div', {
     marginTop: '30px',
 });
 
-export const PostComment = ({ storeComment, }) => {
-    const [form] = Form.useForm();
+export const PostComment = ({ storeComment, form, }) => {
     const [help, setHelp] = useState('');
 
     return (
@@ -44,6 +39,7 @@ export const PostComment = ({ storeComment, }) => {
             name="microblog-form"
             className="flex-grow-1 ms-3"
             layout="vertical"
+            form={form}
             onFinish={storeComment}
             autoComplete="off">
                 <Form.Item

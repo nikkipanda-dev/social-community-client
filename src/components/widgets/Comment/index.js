@@ -45,8 +45,10 @@ const CommentPostCommentWrapper = styled('div', {
     marginTop: '$space-3',
 });
 
-export const Comment = ({ comment, omitComments, }) => {
-
+export const Comment = ({ 
+    comment, 
+    omitComments,
+}) => {
     return (
         <CommentWrapper>
             <Card css={{ padding: '$space-2', }}>
@@ -60,11 +62,25 @@ export const Comment = ({ comment, omitComments, }) => {
                     </AvatarWrapper>
                     <CommentBodyWrapper className="flex-grow-1 d-flex flex-column ms-3">
                         <CommentHeaderWrapper className="d-flex justify-content-between">
-                            <Text type="span">@username</Text>
-                            <Text type="span" color="darkGray">Jan 1, 2022, 00:00</Text>
+                            <Text type="span">@{(comment && comment.user.username) && comment.user.username}</Text>
+                            <Text type="span" color="darkGray">
+                            {
+                                (comment && comment.created_at) &&
+                                new Intl.DateTimeFormat('en-US', {
+                                    timeZone: 'Asia/Manila',
+                                    hourCycle: 'h12',
+                                    weekday: 'short',
+                                    month: 'short',
+                                    day: 'numeric',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                }).format(new Date(comment.created_at))
+                            }
+                            </Text>
                         </CommentHeaderWrapper>
                         <CommentContentWrapper>
-                            <Text type="paragraph" css={{ textAlign: 'justify', }}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic, ab. Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate tenetur est ipsa soluta blanditiis harum numquam illo iusto ex beatae?</Text>
+                            <Text type="paragraph" css={{ textAlign: 'justify', }}>{(comment && comment.body) && comment.body}</Text>
                         </CommentContentWrapper>
                         <CommentActionWrapper className={"d-flex" + (!(omitComments) ? " justify-content-between " : " justify-content-end ") + "align-items-center"}>
                         {

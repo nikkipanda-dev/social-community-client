@@ -4,10 +4,22 @@ import Comment from '../Comment';
 
 const CommentsWrapper = styled('div', {});
 
-export const Comments = ({ className, css, }) => {
+export const Comments = ({ 
+    comments, 
+    className, 
+    css,
+}) => {
     return (
         <CommentsWrapper className={' ' + (className ? (' ' + className) : '')} {...css && { css: { ...css } }}>
-            <Comment omitComments/>
+        {
+            (comments && (Object.keys(comments).length > 0)) &&
+            Object.keys(comments).map((i, val) => {
+                return <Comment 
+                omitComments 
+                key={Object.values(comments)[val].slug} 
+                comment={Object.values(comments)[val]} />
+            })
+        }
         </CommentsWrapper>
     )
 }

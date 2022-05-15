@@ -42,11 +42,15 @@ const MicroblogPostCommentWrapper = styled('div', {
 });
 
 export const MicroblogEntry = ({ microblogEntry }) => {
+    console.log(microblogEntry.comments);
     const [isPostCommentVisible, setIsPostCommentVisible] = useState(false);
+    const [help, setHelp] = useState('');
     const [isCommentsGroupVisible, setIsCommentsGroupVisible] = useState(false);
+    const [comments, setComments] = useState('');
     const [heartCount, setHeartCount] = useState(0);
 
     const handleHeartCount = heartCount => setHeartCount(heartCount);
+    const handleComments = comments => setComments(comments);
     const handleTogglePostComment = () => setIsPostCommentVisible(!isPostCommentVisible);
     const handleToggleCommentsGroup = () => setIsCommentsGroupVisible(!isCommentsGroupVisible);
 
@@ -95,11 +99,68 @@ export const MicroblogEntry = ({ microblogEntry }) => {
         }
     }
 
+    const storeComment = value => {
+        console.log('value ', value);
+
+        if (isAuth() && (microblogEntry && microblogEntry.slug)) {
+            const microblogCommentForm = new FormData();
+
+            for (let i in value) {
+                value[i] && microblogCommentForm.append(i, value[i]);
+            }
+
+            for (let [i, val] of microblogCommentForm.entries()) {
+                console.log('i ', i);
+                console.log('val ', val);
+            }
+            
+                const authToken = JSON.parse(Cookies.get('auth_user_token'));
+
+                microblogCommentForm.append('username', JSON.parse(Cookies.get('auth_user')).username);
+                microblogCommentForm.append('slug', microblogEntry.slug);
+
+                axiosInstance.post(process.env.REACT_APP_BASE_URL + "microblog-entries/user/entry/comment/store", microblogCommentForm, {
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                    }
+                })
+
+                .then(response => {
+                    if (response.data.isSuccess) {
+                        console.log('res ', response.data.data.details);
+                    } else {
+                        showAlert();
+                        setTimeout(() => {
+                            message.info({
+                                content: <Text type="span">{response.data.data.errorText}</Text>,
+                                key,
+                                duration: 2,
+                                style: {
+                                    marginTop: '10vh',
+                                    zIndex: '999999',
+                                }
+                            });
+                        }, 1000);
+                    }
+                })
+
+            .catch (err => {
+                console.log('err ', err.response ? err.response.data.errors : err);
+                if (err.response && err.response.data.errors && err.response.data.errors.body) {
+                    setHelp(<Text type="span" color="red">{err.response.data.errors.body[0]}</Text>);
+                }
+            });
+        } else {
+            console.log('on microblog comment: no cookies');
+        }
+    }
+
     useEffect(() => {
         let loading = true;
 
         if (loading && microblogEntry) {
             handleHeartCount(microblogEntry.hearts ? microblogEntry.hearts : 0);
+            handleComments((microblogEntry.comments && (Object.keys(microblogEntry.comments).length > 0)) ? microblogEntry.comments : {});
         }
 
         return () => {
@@ -159,7 +220,7 @@ export const MicroblogEntry = ({ microblogEntry }) => {
                         color="darkGray" 
                         className="ms-2 toggle-comment" 
                         onClick={() => handleToggleCommentsGroup()}>
-                            0
+                            {(comments && (Object.keys(comments).length > 0)) && Object.keys(comments).length}
                             <FontAwesomeIcon icon={faComments} className="ms-1"/>
                         </Text>
                     </MicroblogStatWrapper>
@@ -167,11 +228,11 @@ export const MicroblogEntry = ({ microblogEntry }) => {
                 <MicroblogPostCommentWrapper>
                 {
                     isPostCommentVisible && 
-                    <PostComment />
+                    <PostComment storeComment={storeComment} />
                 }
                 {
                     isCommentsGroupVisible && 
-                    <Comments css={{ marginTop: '30px', }} />
+                    <Comments comments={comments} css={{ marginTop: '30px', }} />
                 }
                 </MicroblogPostCommentWrapper>
             </Card>

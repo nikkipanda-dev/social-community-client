@@ -53,7 +53,6 @@ export const Microblog = () => {
 
             .then(response => {
                 if (response.data.isSuccess) {
-                    console.log(response.data.data.details);
                     handleMicroblogEntries(response.data.data.details.slice(0, 10));
                     (response.data.data.details.length > 10) ? handlePageCount(Math.ceil(response.data.data.details.length / 10)) : handlePageCount(1);
                 } else {

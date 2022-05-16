@@ -3,7 +3,9 @@ import { styled } from '../../../stitches.config';
 
 import Text from '../../core/Text';
 
-const ModalHeaderWrapper = styled('div', {});
+const ModalHeaderWrapper = styled('div', {
+    background: 'red',
+});
 
 const ModalBodyWrapper = styled('div', {});
 
@@ -20,15 +22,15 @@ export const Modal = ({
 }) => {
     return (
         <ModalWrapper
-            closable={closable}
-            footer={null}
-            maskClosable={maskClosable}
-            visible={isVisible}
-            {...width && { width: width }}
-            onCancel={onCancel}
-            {...bodyStyle && { bodyStyle: { ...bodyStyle } }}
-            {...wrapClassName && { wrapClassName: { ...wrapClassName } }}
-            zIndex={99999999}>
+        closable={closable}
+        footer={null}
+        maskClosable={maskClosable}
+        visible={isVisible}
+        {...width && { width: width }}
+        onCancel={onCancel}
+        {...bodyStyle && { bodyStyle: { ...bodyStyle } }}
+        {...wrapClassName && { wrapClassName: wrapClassName }}
+        zIndex={99999999}>
             <ModalHeaderWrapper>
                 <Text type="span" size="medium">{title}</Text>
             </ModalHeaderWrapper>

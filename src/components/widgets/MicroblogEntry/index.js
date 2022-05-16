@@ -1,10 +1,18 @@
 import { useState, useEffect, useRef, } from 'react';
 import { isAuth, key, showAlert, } from '../../../util';
 import Cookies from 'js-cookie';
-import { message, Form, } from 'antd';
+import { message, Form, Menu, Dropdown, } from 'antd';
 import { axiosInstance } from '../../../requests';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faComments, faHeart, faCircleCheck, } from '@fortawesome/free-solid-svg-icons';
+import { 
+    faComments, 
+    faHeart, 
+    faCircleCheck,
+    faCaretDown,
+    faCaretUp,
+    faTrash,
+    faPencil,
+} from '@fortawesome/free-solid-svg-icons';
 import { styled } from "../../../stitches.config";
 
 import Card from "../../core/Card";
@@ -13,6 +21,9 @@ import Text from "../../core/Text";
 import Button from "../../core/Button";
 import PostComment from '../PostComment';
 import Comments from '../Comments';
+import Modal from '../Modal';
+import UpdateMicroblog from '../UpdateMicroblog';
+import DeleteMicroblogEntry from '../DeleteMicroblogEntry';
 
 const MicroblogEntryWrapper = styled('div', {});
 
@@ -44,12 +55,22 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
     const [form] = Form.useForm();
     const entryRef = useRef();
 
+    const [isVisible, setIsVisible] = useState(false);
+    const [values, setValues] = useState('');
+    const [arrowIcon, setArrowIcon] = useState(faCaretDown);
     const [isPostCommentVisible, setIsPostCommentVisible] = useState(false);
+    const [action, setAction] = useState('');
     const [help, setHelp] = useState('');
     const [forceRender, setForceRender] = useState(false);
     const [isCommentsGroupVisible, setIsCommentsGroupVisible] = useState(false);
     const [isHeart, setIsHeart] = useState(false);
     const [heartCount, setHeartCount] = useState(0);
+
+    const handleShowModal = () => setIsVisible(true);
+    const handleHideModal = () => setIsVisible(false);
+    const handleAction = action => setAction(action);
+    const handleValues = values => setValues(values);
+    const handleActionIcon = icon => setArrowIcon(icon);
 
     const handleShowHeart = () => setIsHeart(true);
     const handleHideHeart = () => setIsHeart(false);
@@ -58,6 +79,43 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
     const handleTogglePostComment = () => setIsPostCommentVisible(!isPostCommentVisible);
     const handleToggleCommentsGroup = () => setIsCommentsGroupVisible(!isCommentsGroupVisible);
     const handlePaginateComment = () => window.scrollTo(0, ((entryRef.current.getBoundingClientRect().top + window.scrollY)) - 100);
+
+    const handleShowModalUpdate = () => {
+        handleAction('update');
+        handleShowModal();
+    }
+
+    const handleShowModalDelete = () => {
+        handleAction('delete');
+        handleShowModal();
+    }
+
+    const menu = (
+        <Menu
+            items={[
+                {
+                    label: <Text type="span" onClick={() => handleShowModalUpdate()}><FontAwesomeIcon 
+                    icon={faPencil} 
+                    className="fa-md fa-fw" 
+                    style={{ color: '#666666', }} /> Update</Text>
+                },
+                {
+                    label: <Text type="span" onClick={() => handleShowModalDelete()}><FontAwesomeIcon 
+                    icon={faTrash} 
+                    className="fa-md fa-fw" 
+                    style={{ color: '#F95F5F', }} /> Delete</Text>,
+                },
+            ]}
+        />
+    );
+
+    const handleCaretUpIcon = () => {
+        handleActionIcon(faCaretUp);
+    }
+
+    const handleCaretDownIcon = () => {
+        handleActionIcon(faCaretDown);
+    }
 
     const onHeartClick = () => {
         const microblogLoveForm = new FormData();
@@ -179,11 +237,16 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
         }
     }
 
+    const removeEntry = () => {
+        entryRef.current.remove();
+    }
+
     useEffect(() => {
         let loading = true;
 
-        if (loading && microblogEntry) {
+        if (loading && (microblogEntry && (Object.keys(microblogEntry).length > 0))) {
             (microblogEntry.hearts && microblogEntry.hearts.is_heart) ? handleShowHeart() : handleHideHeart();
+            handleValues(microblogEntry);
             handleHeartCount((microblogEntry.hearts && microblogEntry.hearts.count) ? microblogEntry.hearts.count : 0);
         }
 
@@ -214,12 +277,23 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
                             minute: '2-digit',
                         }).format(new Date(microblogEntry.created_at))
                     }
+                        <Dropdown overlay={menu} trigger={['click', 'hover']}>
+                            <a 
+                            onClick={e => e.preventDefault()} 
+                            onMouseEnter={() => handleCaretUpIcon()}
+                            onMouseLeave={() => handleCaretDownIcon()}>
+                                <FontAwesomeIcon 
+                                icon={arrowIcon} 
+                                className="fa-xl fa-fw" 
+                                style={{ color: '#666666', }}/>
+                            </a>
+                        </Dropdown>
                     </Text>
                 </MicroblogHeaderWrapper>
             }
             css={{ borderRadius: '$default', padding: '$space-2', }}>
                 <MicroblogContentWrapper>
-                    <Text type="paragraph">{(microblogEntry && microblogEntry.body) && microblogEntry.body}</Text>
+                    <Text type="paragraph">{(values && values.body) && values.body}</Text>
                 </MicroblogContentWrapper>
                 <MicroblogActionWrapper className="d-flex justify-content-between align-items-center">
                     <Button 
@@ -265,6 +339,28 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
                 }
                 </MicroblogPostCommentWrapper>
             </Card>
+            <Modal
+            closable
+            maskClosable
+            isVisible={isVisible}
+            width="550px"
+            wrapClassName="test"
+            onCancel={handleHideModal}>
+            {
+                (action && action === 'update') &&
+                <UpdateMicroblog
+                values={microblogEntry}
+                handleValues={handleValues}
+                handleHideModal={handleHideModal} />
+            }
+            {
+                (action && action === 'delete') &&
+                <DeleteMicroblogEntry 
+                values={values} 
+                handleHideModal={handleHideModal}
+                removeEntry={removeEntry} />
+            }
+            </Modal>
         </MicroblogEntryWrapper>
     )
 }

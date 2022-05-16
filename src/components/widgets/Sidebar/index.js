@@ -34,13 +34,17 @@ const SidebarWrapper = styled('div', {
 
 const SidebarItemsWrapper = styled('div', {});
 
-export const Sidebar = ({ items }) => {
+export const Sidebar = ({ 
+    items, 
+    className, 
+    css,
+}) => {
     return (
         <SidebarWrapper>
             <Card css={{ 
                 padding: '$space-3', 
                 borderRadius: '$default', }}>
-                <SidebarItemsWrapper className="d-flex flex-column">
+                <SidebarItemsWrapper className={' ' + (className ? (' ' + className) : '')} {...css && { css: { ...css } }}>
                 {
                     (items && (Object.keys(items).length > 0)) &&
                     Object.keys(items).map((i, val) => {

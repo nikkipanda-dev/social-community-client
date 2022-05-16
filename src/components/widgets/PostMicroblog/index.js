@@ -3,12 +3,15 @@ import { Form, Input, message, } from 'antd';
 import { isAuth, key, showAlert, } from '../../../util';
 import Cookies from 'js-cookie';
 import { axiosInstance, } from '../../../requests'; 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleCheck, } from '@fortawesome/free-solid-svg-icons';
 import { styled } from "../../../stitches.config";
 
 import Text from '../../core/Text';
 import Button from '../../core/Button';
 
 const PostMicroblogWrapper = styled('div', {
+    marginBottom: '$space-5',
     'label.ant-form-item-required': {
         fontFamily: '$manjari',
         marginTop: '35px',
@@ -39,72 +42,78 @@ const validateMessages = {
     }
 };
 
-export const PostMicroblog = ({ microblogPosts, handleMicroblogPosts, }) => {
+export const PostMicroblog = ({ handleMicroblogEntries, }) => {
     const [form] = Form.useForm();
     const [help, setHelp] = useState('');
 
-    const handleDescriptionChange = description => {
-        // handleMicroblogPosts({ ...details, description: description });
+    const handlePostMicroblog = microblogEntries => {
+        handleMicroblogEntries(microblogEntries);
         form.resetFields();
         setHelp('');
     }
 
     const onFinish = value => {
-        const campDescForm = new FormData();
+        const microblogForm = new FormData();
 
         if (isAuth()) {
             const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
             for (let i in value) {
-                value[i] && campDescForm.append(i, value[i]);
+                value[i] && microblogForm.append(i, value[i]);
             }
 
-            campDescForm.append('username', JSON.parse(Cookies.get('auth_user')).username);
+            microblogForm.append('username', JSON.parse(Cookies.get('auth_user')).username);
 
-            axiosInstance.post(process.env.REACT_APP_BASE_URL + "community/update-description", campDescForm, {
+            axiosInstance.post(process.env.REACT_APP_BASE_URL + "microblog-entries/user/store", microblogForm, {
                 headers: {
                     Authorization: `Bearer ${authToken}`,
                 }
             })
 
-                .then(response => {
-                    if (response.data.isSuccess) {
-                        handleDescriptionChange(response.data.data.details);
-                        showAlert();
-                        setTimeout(() => {
-                            message.success({
-                                content: 'Community description updated.',
-                                key,
-                                duration: 2,
-                                style: {
-                                    marginTop: '10vh',
-                                    zIndex: '999999',
-                                }
-                            });
-                        }, 1000);
-                    } else {
-                        showAlert();
-                        setTimeout(() => {
-                            message.info({
-                                content: response.data.data.errorText,
-                                key,
-                                duration: 2,
-                                style: {
-                                    marginTop: '10vh',
-                                    zIndex: '999999',
-                                }
-                            });
-                        }, 1000);
-                    }
-                })
+            .then(response => {
+                if (response.data.isSuccess) {
+                    handlePostMicroblog(response.data.data.details);
+                    showAlert();
+                    setTimeout(() => {
+                        message.open({
+                            content: <>
+                                <FontAwesomeIcon 
+                                icon={faCircleCheck} 
+                                className="me-2" 
+                                style={{ color: '#007B70', }}/>
+                                <Text type="span">Posted.</Text>
+                            </>,
+                            key,
+                            duration: 2,
+                            style: {
+                                marginTop: '10vh',
+                                zIndex: '999999',
+                            }
+                        });
+                    }, 1000);
+                } else {
+                    showAlert();
+                    setTimeout(() => {
+                        message.info({
+                            content: <Text type="span">{response.data.data.errorText}</Text>,
+                            key,
+                            duration: 2,
+                            style: {
+                                marginTop: '10vh',
+                                zIndex: '999999',
+                            }
+                        });
+                    }, 1000);
+                }
+            })
 
-                .catch(err => {
-                    if (err.response && err.response.data.errors) {
-                        setHelp(<Text type="span" color="red">{err.response.data.errors.description[0]}</Text>);
-                    }
-                });
+            .catch(err => {
+                if (err.response && err.response.data.errors && err.response.data.errors.body) {
+                    setHelp(<Text type="span" color="red">{err.response.data.errors.body[0]}</Text>);
+                }
+            });
         } else {
-            console.log('on camp description: no cookies');
+            console.log('on post microblog: no cookies');
         }
     }
 
@@ -112,6 +121,7 @@ export const PostMicroblog = ({ microblogPosts, handleMicroblogPosts, }) => {
         <PostMicroblogWrapper>
             <Form
             name="microblog-form"
+            form={form}
             // className="bg-warning"
             layout="vertical"
             validateMessages={validateMessages}
@@ -130,7 +140,7 @@ export const PostMicroblog = ({ microblogPosts, handleMicroblogPosts, }) => {
                     <Input.TextArea
                     allowClear
                     maxLength={300}
-                    rows={5}
+                    rows={2}
                     showCount />
                 </Form.Item>
 

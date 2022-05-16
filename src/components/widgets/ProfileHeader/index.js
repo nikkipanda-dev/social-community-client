@@ -72,20 +72,11 @@ const ProfileBadgeWrapper = styled('div', {
 
 const ProfileHeaderItemWrapper = styled('div', {});
 
-export const ProfileHeader = () => {
+export const ProfileHeader = ({ member, isActionShown, }) => {
     const [isVerticalAction, setIsVerticalAction] = useState(false);
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [username, setUsername] = useState('');
-    const [id, setId] = useState('');
 
     const handleShowVerticalAction = () => setIsVerticalAction(true);
     const handleHideVerticalAction = () => setIsVerticalAction(false);
-
-    const handleId = id => setId(id);
-    const handleFirstName = firstName => setFirstName(firstName);
-    const handleLastName = lastName => setLastName(lastName);
-    const handleUsername = username => setUsername(username);
 
     const addMember = () => {
         console.log('add member');
@@ -95,28 +86,10 @@ export const ProfileHeader = () => {
         console.log('send');
     }
 
-    useEffect(() => {
-        let loading = true;
-
-        if (loading) {
-            if (isAuth()) {
-                handleId(JSON.parse(Cookies.get('auth_user')).id);
-                handleFirstName(JSON.parse(Cookies.get('auth_user')).first_name);
-                handleLastName(JSON.parse(Cookies.get('auth_user')).last_name);
-                handleUsername(JSON.parse(Cookies.get('auth_user')).username);
-            }
-        }
-
-        return () => {
-            loading = false;
-        }
-    }, []);
-
     useLayoutEffect(() => {
         let loading = true;
 
         const getWidth = () => {
-            // console.log(window.innerWidth);
             if (window.innerWidth <= 1199) {
                 handleShowVerticalAction();
             } else {
@@ -168,29 +141,32 @@ export const ProfileHeader = () => {
                     <ProfileHeaderContentWrapper className="flex-grow-1 d-flex flex-column justify-content-start" css={{ padding: '$space-3', }}>
                         <ProfileHeaderItemWrapper className="d-flex flex-column flex-xl-row align-items-start">
                             <ProfileHeaderNameWrapper className="text-center text-sm-start">
-                                <Heading type={5} text="Jane Doe" />
-                                <Text type="span">@janedoe</Text>
+                                <Heading type={5} text={(member && member.first_name && member.last_name) && member.first_name + ' ' + member.last_name} />
+                                <Text type="span">{(member && member.username) && ('@' + member.username)}</Text>
                             </ProfileHeaderNameWrapper>
+                        {
+                            isActionShown && 
                             <ProfileHeaderActionWrapper className="d-none flex-grow-1 d-xl-flex justify-content-center justify-content-sm-start justify-content-xl-end align-items-start">
-                                <Button 
-                                type="button" 
-                                color="transparent" 
-                                className="button-plain" 
+                                <Button
+                                type="button"
+                                color="transparent"
+                                className="button-plain"
                                 text={<Text type="span">
                                     <FontAwesomeIcon icon={faUserPlus} className="fa-2xl fa-fw me-1" />
                                     Add
-                                </Text>} 
+                                </Text>}
                                 onClick={() => addMember()} />
-                                <Button 
-                                type="button" 
-                                color="transparent" 
-                                className="button-plain" 
+                                <Button
+                                type="button"
+                                color="transparent"
+                                className="button-plain"
                                 text={<Text type="span">
                                     <FontAwesomeIcon icon={faEnvelope} className="fa-2xl fa-fw me-1" />
                                     Message
-                                </Text>} 
+                                </Text>}
                                 onClick={() => sendMessage()} />
                             </ProfileHeaderActionWrapper>
+                        }
                         </ProfileHeaderItemWrapper>
                         <ProfileHeaderIntroWrapper className="text-center text-sm-start">
                             <Text type="span" size="medium">

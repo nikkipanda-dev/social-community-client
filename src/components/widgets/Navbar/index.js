@@ -2,7 +2,7 @@ import { useState, useEffect, } from 'react';
 import { useNavigate, NavLink, } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { message, Dropdown, Menu, } from 'antd';
-import { isAuth, key, showAlert, } from '../../../util';
+import { isAuth as isAuthenticated, key, showAlert, } from '../../../util';
 import { axiosInstance } from "../../../requests";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -18,12 +18,6 @@ import Text from '../../core/Text';
 import Image from '../../core/Image';
 import Modal from '../Modal';
 import Login from '../LogIn';
-
-const NavbarWrapper = styled('div', {
-    width: '100%',
-    zIndex: '$default',
-    background: isAuth() ? "50% 80% / cover no-repeat url('/navbar_backdrop.png')" : "transparent",
-});
 
 const LogoWrapper = styled('div', {});
 
@@ -60,6 +54,8 @@ const NavLinkGroupWrapper = styled('div', {
 export const Navbar = ({
     className,
     css,
+    isAuth,
+    handleForceRender,
     handleLogIn,
     handleLogOut,
 }) => {    
@@ -70,8 +66,14 @@ export const Navbar = ({
     const handleShowModal = () => setIsVisible(true);
     const handleHideModal = () => setIsVisible(false);
 
+    const NavbarWrapper = styled('div', {
+        width: '100%',
+        zIndex: '$default',
+        background: isAuth ? "50% 80% / cover no-repeat url('/navbar_backdrop.png')" : "transparent",
+    });
+
     const logout = () => {
-        if (isAuth()) {
+        if (isAuthenticated()) {
             const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
             const logoutForm = new FormData();
@@ -195,12 +197,15 @@ export const Navbar = ({
                     <NavGroupWrapper className="flex-grow-1 d-flex justify-content-center justify-content-sm-end align-items-center">
                         <NavLinkGroupWrapper className="mt-3 mt-sm-0">
                         {
-                            isAuth() ? 
+                            isAuth ? 
                             <>
                                 <NavLink to="/home" className={({ isActive }) => isActive ? 'active-nav' : undefined}>
                                     <Text type="span" size="medium">Home</Text>
                                 </NavLink>
-                                <NavLink to={"/profile/" + JSON.parse(Cookies.get('auth_user')).username} className={({ isActive }) => isActive ? 'active-nav' : undefined}>
+                                <NavLink 
+                                to={"/profile/" + JSON.parse(Cookies.get('auth_user')).username} 
+                                className={({ isActive }) => isActive ? 'active-nav' : undefined}
+                                onClick={() => handleForceRender()}>
                                     <Text type="span" size="medium">Profile</Text>
                                 </NavLink>
                                 <NavLink to="/community-blog" className={({ isActive }) => isActive ? 'active-nav' : undefined}>

@@ -1,11 +1,7 @@
-import { useState, useEffect, } from "react";
-import { Form, Input, message, } from "antd";
-import { isAuth, key, showAlert, } from "../../../util";
-import Cookies from 'js-cookie';
-import { axiosInstance } from "../../../requests";
+import { useState, } from "react";
+import { Form, Input, } from "antd";
 import { styled } from "../../../stitches.config";
 
-import Text from "../../core/Text";
 import Button from "../../core/Button";
 import Image from '../../core/Image';
 
@@ -33,83 +29,22 @@ const SubmitButtonWrapper = styled('div', {
     marginTop: '30px',
 });
 
-export const PostComment = () => {
-    const [form] = Form.useForm();
+export const PostComment = ({ storeComment, form, }) => {
     const [help, setHelp] = useState('');
-
-    const handleDescriptionChange = description => {
-        // handleMicroblogPosts({ ...details, description: description });
-        form.resetFields();
-        setHelp('');
-    }
-
-    const onFinish = value => {
-        const campDescForm = new FormData();
-
-        if (isAuth()) {
-            const authToken = JSON.parse(Cookies.get('auth_user_token'));
-
-            for (let i in value) {
-                value[i] && campDescForm.append(i, value[i]);
-            }
-
-            campDescForm.append('username', JSON.parse(Cookies.get('auth_user')).username);
-
-            axiosInstance.post(process.env.REACT_APP_BASE_URL + "community/update-description", campDescForm, {
-                headers: {
-                    Authorization: `Bearer ${authToken}`,
-                }
-            })
-
-                .then(response => {
-                    if (response.data.isSuccess) {
-                        handleDescriptionChange(response.data.data.details);
-                        showAlert();
-                        setTimeout(() => {
-                            message.success({
-                                content: 'Community description updated.',
-                                key,
-                                duration: 2,
-                                style: {
-                                    marginTop: '10vh',
-                                    zIndex: '999999',
-                                }
-                            });
-                        }, 1000);
-                    } else {
-                        showAlert();
-                        setTimeout(() => {
-                            message.info({
-                                content: response.data.data.errorText,
-                                key,
-                                duration: 2,
-                                style: {
-                                    marginTop: '10vh',
-                                    zIndex: '999999',
-                                }
-                            });
-                        }, 1000);
-                    }
-                })
-
-                .catch(err => {
-                    if (err.response && err.response.data.errors) {
-                        setHelp(<Text type="span" color="red">{err.response.data.errors.description[0]}</Text>);
-                    }
-                });
-        } else {
-            console.log('on camp description: no cookies');
-        }
-    }
 
     return (
         <PostCommentWrapper className="p-2 d-flex">
-            <Image src="/avatar_medium.png" css={{ width: '60px', height: '60px', objectFit: 'cover', }}/>
+            <Image src="/avatar_medium.png" css={{ 
+                width: '60px', 
+                height: '60px', 
+                objectFit: 'cover',
+            }}/>
             <Form
             name="microblog-form"
             className="flex-grow-1 ms-3"
             layout="vertical"
-            onFinish={onFinish}
+            form={form}
+            onFinish={storeComment}
             autoComplete="off">
                 <Form.Item
                 name="body"
@@ -124,7 +59,7 @@ export const PostComment = () => {
                     <Input.TextArea
                     allowClear
                     maxLength={300}
-                    rows={5}
+                    rows={2}
                     showCount />
                 </Form.Item>
 

@@ -50,8 +50,6 @@ export const MicroblogEntries = ({
     offset,
     handlePageClick,
 }) => {
-    console.log('offset ', (offset + 10));
-    console.log('microblogEntriesLen ', microblogEntriesLen);
     const onClick = evt => {
         handlePageClick(evt.selected)
     };

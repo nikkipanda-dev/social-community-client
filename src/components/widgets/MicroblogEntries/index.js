@@ -2,9 +2,9 @@ import ReactPaginate from 'react-paginate';
 import { styled } from "../../../stitches.config";
 
 import MicroblogEntry from "../MicroblogEntry";
+import Text from "../../core/Text";
 
 const MicroblogEntriesWrapper = styled('div', {
-    marginTop: '$space-5',
     '> div:nth-child(n+2)': {
         marginTop: '$space-5',
     },
@@ -46,8 +46,12 @@ const PaginatorWrapper = styled('div', {
 export const MicroblogEntries = ({ 
     microblogEntries, 
     pageCount,
+    microblogEntriesLen,
+    offset,
     handlePageClick,
 }) => {
+    console.log('offset ', (offset + 10));
+    console.log('microblogEntriesLen ', microblogEntriesLen);
     const onClick = evt => {
         handlePageClick(evt.selected)
     };
@@ -62,9 +66,9 @@ export const MicroblogEntries = ({
                 microblogEntry={Object.values(microblogEntries)[val]} />
             })
         }
+        {
+            (pageCount && Number.isInteger(pageCount)) && 
             <PaginatorWrapper>
-            {
-                (pageCount && Number.isInteger(pageCount)) && 
                 <ReactPaginate
                 breakLabel="..."
                 previousLabel="&#x2039;"
@@ -82,8 +86,13 @@ export const MicroblogEntries = ({
                 pageRangeDisplayed={10}
                 pageCount={pageCount}
                 renderOnZeroPageCount={null} />
-            }
+                    <Text 
+                    type="span" 
+                    color="darkGray">Showing {(offset + 1)} - {(((offset + 10) - 1) < microblogEntriesLen) ? (offset + 10) : 
+                    (((offset + 10) >= microblogEntriesLen) && microblogEntriesLen)} of {microblogEntriesLen + ((microblogEntriesLen > 1) ? ' posts' : ' post')}</Text>
             </PaginatorWrapper>
+        }
+
         </MicroblogEntriesWrapper>
     )
 }

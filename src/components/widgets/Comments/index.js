@@ -6,6 +6,8 @@ import ReactPaginate from 'react-paginate';
 import { styled } from "../../../stitches.config";
 
 import Comment from '../Comment';
+import Button from "../../core/Button";
+import Text from "../../core/Text";
 
 const CommentsWrapper = styled('div', {
     '> div:nth-child(n+2)': {
@@ -13,61 +15,23 @@ const CommentsWrapper = styled('div', {
     },
 });
 
-const PaginatorWrapper = styled('div', {
-    '.paginator': {
-        width: '100%',
-        background: '$lightGray',
-        listStyleType: 'none',
-        borderRadius: '$default',
-    },
-    '.paginator > .paginator-item:nth-child(n+2)': {
-        marginLeft: '$space-1',
-    },
-    '.paginator-item': {
-        fontFamily: '$manjari',
-        padding: '$space-3',
-    },
-    '.prev-link-item, .next-link-item': {
-        fontSize: '40px',
-        textDecoration: 'none',
-        color: '$sealBrown',
-    },
-    '.paginator-link-item': {
-        fontSize: '$medium',
-        textDecoration: 'none',
-        color: '$darkGray',
-    },
-    '.paginator-active-item': {
-        background: '$white',
-        borderRadius: '$small',
-    },
-    '.paginator-link-active-item': {
-        color: '$black',
-    },
-});
+const CommentsFooterWrapper = styled('div', {});
+
+const SubmitButtonWrapper = styled('div', {});
 
 export const Comments = ({ 
     entrySlug,
     forceRender,
     className, 
-    handlePaginateComment,
     css,
 }) => {
     const [comments, setComments] = useState('');
-    const [pageCount, setPageCount] = useState(0);
-    const [offset, setOffset] = useState(null);
+    const [commentsLen, setCommentsLen] = useState(0);
+    const [limit, setLimit] = useState(0);
 
     const handleComments = comments => setComments(comments);
-    const handleOffset = offset => setOffset(offset);
-    const handlePageCount = pageCount => setPageCount(pageCount);
-
-    const onClick = evt => {
-        handlePageClick(evt.selected)
-    };
-
-    const handlePageClick = evt => {
-        (!(evt < 0) && (evt < pageCount)) && handleOffset((((evt + 1) * 5) - 5));
-    };
+    const handleLimit = limit => setLimit(limit);
+    const handleCommentsLen = commentsLen => setCommentsLen(commentsLen);
 
     const getMicroblogEntryComments = () => {
         if (isAuth() && entrySlug) {
@@ -85,8 +49,8 @@ export const Comments = ({
 
             .then(response => {
                 if (response.data.isSuccess) {
+                    handleCommentsLen(Object.keys(response.data.data.details).length);
                     handleComments(response.data.data.details.slice(0, 5));
-                    (response.data.data.details.length > 5) ? handlePageCount(Math.ceil(response.data.data.details.length / 5)) : handlePageCount(1);
                 } else {
                     console.log(response.data.data.errorText);
                 }
@@ -108,8 +72,7 @@ export const Comments = ({
                 params: {
                     username: JSON.parse(Cookies.get('auth_user')).username,
                     slug: entrySlug,
-                    offset: offset,
-                    limit: 5,
+                    limit: limit,
                 },
                 headers: {
                     Authorization: `Bearer ${authToken}`,
@@ -118,22 +81,24 @@ export const Comments = ({
 
             .then(response => {
                 if (response.data.isSuccess) {
-                    handlePaginateComment();
-
-                    setTimeout(() => {
-                        handleComments(response.data.data.details);
-                    }, 500);
+                    handleComments(response.data.data.details);
                 } else {
                     console.log(response.data.data.errorText);
                 }
             })
 
             .catch(err => {
-                console.log('err ', err.response ? err.response.data.errors : err);
+                if (err.response && err.response.data.errors) {
+                    console.log(err.response.data.errors);
+                }
             });
         } else {
             console.log('on microblog comments: no cookies');
         }
+    }
+
+    const updateLimit = () => {
+        ((limit && (limit + 5)) <= commentsLen) ? handleLimit(limit + 5) : handleLimit(commentsLen);
     }
 
     useEffect(() => {
@@ -151,15 +116,27 @@ export const Comments = ({
     useEffect(() => {
         let loading = true;
 
-        if (loading && Number.isInteger(offset)) {
+        if (loading && Number.isInteger(limit)) {
             getPaginatedMicroblogEntryComments();
         }
 
         return () => {
             loading = false;
         }
-    }, [offset]);
+    }, [limit]);
 
+    useEffect(() => {
+        let loading = true;
+
+        if (loading) {
+            (commentsLen > 5) && handleLimit(5);
+        }
+
+        return () => {
+            loading = false;
+        }
+    }, [commentsLen]);
+    
     return (
         <CommentsWrapper className={' ' + (className ? (' ' + className) : '')} {...css && { css: { ...css } }}>
         {
@@ -171,28 +148,21 @@ export const Comments = ({
                 comment={Object.values(comments)[val]} />
             })
         }
-            <PaginatorWrapper>
+            <hr />
+            <CommentsFooterWrapper className="d-flex flex-column flex-lg-row justify-content-between align-items-center">
+                <Text type="span" color="darkGray">Showing {limit} of {commentsLen} comments</Text>
             {
-                (pageCount && Number.isInteger(pageCount)) &&
-                <ReactPaginate
-                breakLabel="..."
-                previousLabel="&#x2039;"
-                nextLabel="&#x203A;"
-                onPageChange={onClick}
-                className="paginator d-flex justify-content-center align-items-center"
-                previousClassName="paginator-item"
-                nextClassName="paginator-item"
-                pageClassName="paginator-item"
-                activeClassName="paginator-active-item"
-                activeLinkClassName="paginator-link-active-item"
-                pageLinkClassName="paginator-link-item"
-                previousLinkClassName="prev-link-item"
-                nextLinkClassName="next-link-item"
-                pageRangeDisplayed={10}
-                pageCount={pageCount}
-                renderOnZeroPageCount={null} />
+                !(limit === commentsLen) &&
+                <SubmitButtonWrapper>
+                    <Button
+                    type="button"
+                    text="Load more"
+                    color="white"
+                    className="flex-grow-1 flex-md-grow-0"
+                    onClick={() => updateLimit()} />
+                </SubmitButtonWrapper>
             }
-            </PaginatorWrapper>
+            </CommentsFooterWrapper>
         </CommentsWrapper>
     )
 }

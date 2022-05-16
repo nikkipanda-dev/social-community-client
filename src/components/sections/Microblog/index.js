@@ -29,11 +29,13 @@ export const Microblog = () => {
 
     const [isPostMicroblogVisible, setIsPostMicroblogVisible] = useState(false);
     const [microblogEntries, setMicroblogEntries] = useState('');
+    const [microblogEntriesLen, setMicroblogEntriesLen] = useState(0);
     const [pageCount, setPageCount] = useState(0);
     const [offset, setOffset] = useState(null);
 
     const handleShowPostMicroblog = () => setIsPostMicroblogVisible(true);
     const handleHidePostMicroblog = () => setIsPostMicroblogVisible(false);
+    const handleMicroblogEntriesLen = len => setMicroblogEntriesLen(len);
     const handleMicroblogEntries = microblogEntries => setMicroblogEntries(microblogEntries);
     const handlePageCount = pageCount => setPageCount(pageCount);
     const handleOffset = offset => setOffset(offset);
@@ -54,8 +56,10 @@ export const Microblog = () => {
 
             .then(response => {
                 if (response.data.isSuccess) {
+                    console.log('len ', Object.keys(response.data.data.details).length);
+                    handleMicroblogEntriesLen(Object.keys(response.data.data.details).length);
                     handleMicroblogEntries(response.data.data.details.slice(0, 10));
-                    (response.data.data.details.length > 10) ? handlePageCount(Math.ceil(response.data.data.details.length / 10)) : handlePageCount(1);
+                    (Object.keys(response.data.data.details).length > 10) ? handlePageCount(Math.ceil(Object.keys(response.data.data.details).length / 10)) : handlePageCount(1);
                 } else {
                     console.log(response.data.data.errorText);
                 }
@@ -87,7 +91,9 @@ export const Microblog = () => {
 
             .then(response => {
                 if (response.data.isSuccess) {
-                    window.scrollTo(0, ((entriesRef.current.getBoundingClientRect().top + window.scrollY)) - 100);
+                    if (entriesRef.current) {
+                        window.scrollTo(0, ((entriesRef.current.getBoundingClientRect().top + window.scrollY)) - 100);
+                    }
 
                     setTimeout(() => {
                         handleMicroblogEntries(response.data.data.details);                        
@@ -106,7 +112,6 @@ export const Microblog = () => {
     }
 
     const handlePageClick = evt => {
-        console.log('evt ', (((evt + 1) * 10) - 10));
         (!(evt < 0) && (evt < pageCount)) && handleOffset((((evt + 1) * 10) - 10));
     };
 
@@ -137,8 +142,8 @@ export const Microblog = () => {
     }, [offset]);
 
     return (
-        <MicroblogWrapper className="bg-primary d-flex p-1">
-            <MicroblogContentWrapper className="bg-secondary flex-grow-1" ref={entriesRef}>
+        <MicroblogWrapper className="d-flex p-1">
+            <MicroblogContentWrapper className="flex-grow-1" ref={entriesRef}>
             {
                 isPostMicroblogVisible && 
                 <PostMicroblog handleMicroblogEntries={handleMicroblogEntries} />
@@ -146,10 +151,12 @@ export const Microblog = () => {
                 <MicroblogEntries 
                 microblogEntries={microblogEntries}
                 handleMicroblogEntries={handleMicroblogEntries}
+                microblogEntriesLen={microblogEntriesLen}
                 pageCount={pageCount}
+                offset={offset}
                 handlePageClick={handlePageClick} />
             </MicroblogContentWrapper>
-            <MicroblogStatWrapper className="bg-success">
+            <MicroblogStatWrapper>
                 <MicroblogStat />
             </MicroblogStatWrapper>
         </MicroblogWrapper>

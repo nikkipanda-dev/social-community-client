@@ -89,7 +89,7 @@ export const Profile = ({ forceRender, }) => {
     return (
         <Section>
             <ProfileWrapper className="mx-auto" css={{ paddingTop: '$space-5', }}>
-                <Row className="m-0 g-0 bg-warning" css={{ padding: '$space-3', }}>
+                <Row className="m-0 g-0" css={{ padding: '$space-3', }}>
                     <Column className="col-12">
                         <ProfileHeader 
                         forceRender={forceRender} 
@@ -97,7 +97,7 @@ export const Profile = ({ forceRender, }) => {
                         isActionShown={isActionShown} />
                     </Column>
                     <Column className="col-12">
-                        <ProfileContentWrapper className="d-flex bg-danger">
+                        <ProfileContentWrapper className="d-flex">
                             <ProfileSidebar className="flex-shrink-0"/>
                             <Outlet />
                         </ProfileContentWrapper>

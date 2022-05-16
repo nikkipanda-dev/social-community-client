@@ -11,6 +11,7 @@ import Text from '../../core/Text';
 import Button from '../../core/Button';
 
 const PostMicroblogWrapper = styled('div', {
+    marginBottom: '$space-5',
     'label.ant-form-item-required': {
         fontFamily: '$manjari',
         marginTop: '35px',

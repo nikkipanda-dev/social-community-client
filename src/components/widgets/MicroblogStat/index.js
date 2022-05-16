@@ -70,7 +70,7 @@ export const MicroblogStat = ({ mostLovedMicroblogEntry, mostActiveMicroblogEntr
                             </div>
                             <MostLovedPostContentWrapper>
                                 <Text type="paragraph">
-                                    {(mostLovedMicroblogEntry && mostLovedMicroblogEntry.body) ? ((mostLovedMicroblogEntry.body).slice(0,100) + '...') : "None yet."}
+                                    {(mostLovedMicroblogEntry && mostLovedMicroblogEntry.body) ? ((mostLovedMicroblogEntry.body.length > 100) ? (mostLovedMicroblogEntry.body.slice(0, 100) + '...') : mostLovedMicroblogEntry.body) : 'None yet.'}
                                 </Text>
                             </MostLovedPostContentWrapper>
                             <ButtonWrapper className="d-flex justify-content-md-center align-items-center">
@@ -91,7 +91,7 @@ export const MicroblogStat = ({ mostLovedMicroblogEntry, mostActiveMicroblogEntr
                                 </Text>
                             </div>
                             <MostActivePostContentWrapper>
-                                <Text type="paragraph">{(mostActiveMicroblogEntry && mostActiveMicroblogEntry.body) ? (mostActiveMicroblogEntry.body.slice(0,100) + '...') : 'None yet.'}</Text>
+                                <Text type="paragraph">{(mostActiveMicroblogEntry && mostActiveMicroblogEntry.body) ? ((mostActiveMicroblogEntry.body.length > 100) ? (mostActiveMicroblogEntry.body.slice(0, 100) + '...') : mostActiveMicroblogEntry.body) : 'None yet.'}</Text>
                             </MostActivePostContentWrapper>
                             <ButtonWrapper className="d-flex justify-content-md-center align-items-center">
                                 <Button 

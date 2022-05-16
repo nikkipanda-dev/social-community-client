@@ -215,7 +215,6 @@ export const Microblog = () => {
             }
                 <MicroblogEntries 
                 microblogEntries={microblogEntries}
-                handleMicroblogEntries={handleMicroblogEntries}
                 microblogEntriesLen={microblogEntriesLen}
                 pageCount={pageCount}
                 offset={offset}

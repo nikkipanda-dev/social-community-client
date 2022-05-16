@@ -95,5 +95,8 @@ export const globalStyles = globalCss({
         fontFamily: '$manjari',
         fontSize: '$small',
     },
+    'div.ant-modal-content': {
+        borderRadius: '$small',
+    },
     '@import': ["https://fonts.googleapis.com/css2?family=Manjari&family=Patua+One&display=swap"],
 });

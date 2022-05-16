@@ -2,16 +2,15 @@ import { useState, useEffect, } from 'react';
 import { Form, Input, message, } from 'antd';
 import { isAuth, key, showAlert, } from '../../../util';
 import Cookies from 'js-cookie';
-import { axiosInstance, } from '../../../requests'; 
+import { axiosInstance } from '../../../requests';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleCheck, } from '@fortawesome/free-solid-svg-icons';
+import { faCircleCheck, faCircleInfo, } from '@fortawesome/free-solid-svg-icons';
 import { styled } from "../../../stitches.config";
 
 import Text from '../../core/Text';
 import Button from '../../core/Button';
 
-const PostMicroblogWrapper = styled('div', {
-    marginBottom: '$space-5',
+const UpdateMicroblogWrapper = styled('div', {
     'label.ant-form-item-required': {
         fontFamily: '$manjari',
         marginTop: '35px',
@@ -42,20 +41,22 @@ const validateMessages = {
     }
 };
 
-export const PostMicroblog = ({ handleMicroblogEntries, }) => {
+export const UpdateMicroblog = ({ 
+    values, 
+    handleValues,
+    handleHideModal,
+}) => {
     const [form] = Form.useForm();
     const [help, setHelp] = useState('');
 
-    const handlePostMicroblog = microblogEntries => {
-        handleMicroblogEntries(microblogEntries);
-        form.resetFields();
-        setHelp('');
-    }
+    const [initialValues, setInitialValues] = useState({});
+
+    const handleInitialValues = initialValues => setInitialValues(initialValues);
 
     const onFinish = value => {
         const microblogForm = new FormData();
 
-        if (isAuth()) {
+        if (isAuth() && (values && values.slug)) {
             const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
             for (let i in value) {
@@ -63,8 +64,9 @@ export const PostMicroblog = ({ handleMicroblogEntries, }) => {
             }
 
             microblogForm.append('username', JSON.parse(Cookies.get('auth_user')).username);
+            microblogForm.append('slug', values.slug);
 
-            axiosInstance.post(process.env.REACT_APP_BASE_URL + "microblog-entries/user/store", microblogForm, {
+            axiosInstance.post(process.env.REACT_APP_BASE_URL + "microblog-entries/user/entry/update", microblogForm, {
                 headers: {
                     Authorization: `Bearer ${authToken}`,
                 }
@@ -72,16 +74,17 @@ export const PostMicroblog = ({ handleMicroblogEntries, }) => {
 
             .then(response => {
                 if (response.data.isSuccess) {
-                    handlePostMicroblog(response.data.data.details);
+                    handleValues({...values, body: response.data.data.details.body});
                     showAlert();
+                    handleHideModal();
                     setTimeout(() => {
                         message.open({
                             content: <>
-                                <FontAwesomeIcon 
-                                icon={faCircleCheck} 
-                                className="me-2" 
-                                style={{ color: '#007B70', }}/>
-                                <Text type="span">Posted.</Text>
+                                <FontAwesomeIcon
+                                icon={faCircleCheck}
+                                className="me-2"
+                                style={{ color: '#007B70', }} />
+                                <Text type="span">Updated.</Text>
                             </>,
                             key,
                             duration: 2,
@@ -94,8 +97,11 @@ export const PostMicroblog = ({ handleMicroblogEntries, }) => {
                 } else {
                     showAlert();
                     setTimeout(() => {
-                        message.info({
-                            content: <Text type="span">{response.data.data.errorText}</Text>,
+                        message.open({
+                            content: <><Text type="span"><FontAwesomeIcon
+                                icon={faCircleInfo}
+                                className="me-2"
+                                style={{ color: '#666666', }} /> {response.data.data.errorText}</Text></>,
                             key,
                             duration: 2,
                             style: {
@@ -113,20 +119,35 @@ export const PostMicroblog = ({ handleMicroblogEntries, }) => {
                 }
             });
         } else {
-            console.log('on post microblog: no cookies');
+            console.log('on update microblog: no cookies');
         }
     }
 
+    useEffect(() => {
+        let loading = true;
+
+        if (loading && (values && Object.keys(values).length > 0)) {
+            handleInitialValues({
+                body: values.body,
+            });
+        }
+
+        return () => {
+            loading = false;
+        }
+    }, []);
+
     return (
-        <PostMicroblogWrapper>
+        <UpdateMicroblogWrapper>
+        {
+            (initialValues && (Object.keys(initialValues).length > 0)) && 
             <Form
             name="microblog-form"
             form={form}
-            // className="bg-warning"
+            initialValues={initialValues}
             layout="vertical"
             validateMessages={validateMessages}
-            onFinish={onFinish}
-            autoComplete="off">
+            onFinish={onFinish}>
                 <Form.Item
                 label="Microblog"
                 name="body"
@@ -152,8 +173,9 @@ export const PostMicroblog = ({ handleMicroblogEntries, }) => {
                     color="brown" />
                 </SubmitButtonWrapper>
             </Form>
-        </PostMicroblogWrapper>
+        }
+        </UpdateMicroblogWrapper>
     )
 }
 
-export default PostMicroblog;
+export default UpdateMicroblog;

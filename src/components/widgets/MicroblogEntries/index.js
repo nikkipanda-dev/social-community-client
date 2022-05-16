@@ -44,7 +44,7 @@ const PaginatorWrapper = styled('div', {
 });
 
 export const MicroblogEntries = ({ 
-    microblogEntries, 
+    microblogEntries,
     pageCount,
     microblogEntriesLen,
     offset,

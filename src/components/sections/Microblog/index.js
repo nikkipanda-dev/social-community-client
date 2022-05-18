@@ -1,3 +1,4 @@
+import { useOutletContext, } from "react-router-dom";
 import { useState, useEffect, useRef, } from "react";
 import { useParams, } from "react-router-dom";
 import { isAuth } from "../../../util";
@@ -26,6 +27,7 @@ const MicroblogStatWrapper = styled('div', {
 export const Microblog = () => {
     const params = useParams();
     const entriesRef = useRef();
+    const isContentShown = useOutletContext();
 
     const [isPostMicroblogVisible, setIsPostMicroblogVisible] = useState(false);
     const [microblogEntries, setMicroblogEntries] = useState('');
@@ -208,21 +210,29 @@ export const Microblog = () => {
 
     return (
         <MicroblogWrapper className="d-flex p-1">
-            <MicroblogContentWrapper className="flex-grow-1" ref={entriesRef}>
-            {
-                isPostMicroblogVisible && 
-                <PostMicroblog handleMicroblogEntries={handleMicroblogEntries} />
-            }
-                <MicroblogEntries 
-                microblogEntries={microblogEntries}
-                microblogEntriesLen={microblogEntriesLen}
-                pageCount={pageCount}
-                offset={offset}
-                handlePageClick={handlePageClick} />
-            </MicroblogContentWrapper>
-            <MicroblogStatWrapper>
-                <MicroblogStat mostLovedMicroblogEntry={mostLovedMicroblogEntry} mostActiveMicroblogEntry={mostActiveMicroblogEntry} />
-            </MicroblogStatWrapper>
+        {
+            ((isAuth() && (JSON.parse(Cookies.get('auth_user')).username === params.username)) || isContentShown) ? 
+            <>
+                <MicroblogContentWrapper className="flex-grow-1" ref={entriesRef}>
+                    {
+                        isPostMicroblogVisible &&
+                        <PostMicroblog handleMicroblogEntries={handleMicroblogEntries} />
+                    }
+                    <MicroblogEntries
+                        microblogEntries={microblogEntries}
+                        microblogEntriesLen={microblogEntriesLen}
+                        pageCount={pageCount}
+                        offset={offset}
+                        handlePageClick={handlePageClick} />
+                </MicroblogContentWrapper>
+                <MicroblogStatWrapper>
+                    <MicroblogStat mostLovedMicroblogEntry={mostLovedMicroblogEntry} mostActiveMicroblogEntry={mostActiveMicroblogEntry} />
+                </MicroblogStatWrapper>   
+            </> : 
+            <>
+                You and @{params.username} must be friends to view their content.
+            </>
+        }
         </MicroblogWrapper>
     )
 }

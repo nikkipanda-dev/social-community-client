@@ -21,6 +21,10 @@ const ButtonWrapper = styled('button', {
         background: 'transparent',
         color: '$pineGreen',
     },
+    '&.button-plain-red:hover': {
+        background: 'transparent',
+        color: '$orangeRedCrayola',
+    },
     variants: {
         color: {
             brown: {

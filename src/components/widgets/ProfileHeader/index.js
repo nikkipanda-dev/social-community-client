@@ -1,8 +1,19 @@
+import { useParams, useOutletContext, } from 'react-router-dom';
 import { useState, useEffect, useLayoutEffect, } from 'react';
-import { isAuth } from '../../../util';
+import { isAuth, key, showAlert, } from '../../../util';
 import Cookies from 'js-cookie';
+import { message, } from 'antd';
+import { axiosInstance } from '../../../requests';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserPlus, faEnvelope, } from '@fortawesome/free-solid-svg-icons';
+import { 
+    faUserPlus, 
+    faBan,
+    faUserMinus, 
+    faEnvelope, 
+    faCircleCheck,
+    faHourglass,
+    faL,
+} from '@fortawesome/free-solid-svg-icons';
 import { styled } from "../../../stitches.config";
 
 import Heading from '../../core/Heading';
@@ -10,6 +21,8 @@ import Text from '../../core/Text';
 import Card from "../../core/Card";
 import Image from "../../core/Image";
 import Button from '../../core/Button';
+import Modal from '../Modal';
+import InvitationAccept from '../FriendInvitationAccept';
 
 const ProfileHeaderWrapper = styled('div', {});
 
@@ -72,19 +85,197 @@ const ProfileBadgeWrapper = styled('div', {
 
 const ProfileHeaderItemWrapper = styled('div', {});
 
-export const ProfileHeader = ({ member, isActionShown, }) => {
-    const [isVerticalAction, setIsVerticalAction] = useState(false);
+export const ProfileHeader = ({ 
+    member, 
+    isActionShown,
+    handleShowContent,
+    handleHideContent,
+}) => {
+    const params = useParams();
 
+    const [isVisible, setIsVisible] = useState(false);
+    const [isVerticalAction, setIsVerticalAction] = useState(false);
+    const [isSender, setIsSender] = useState(false);
+    const [friendStatus, setFriendStatus] = useState('');
+
+    const handleShowModal = () => setIsVisible(true);
+    const handleHideModal = () => setIsVisible(false);
+    const handleIsSender = () => setIsSender(true);
+    const handleFriendStatus = friendStatus => setFriendStatus(friendStatus);
     const handleShowVerticalAction = () => setIsVerticalAction(true);
     const handleHideVerticalAction = () => setIsVerticalAction(false);
 
-    const addMember = () => {
-        console.log('add member');
+    const addFriend = () => {
+        if (isAuth()) {
+            const addFriendForm = new FormData();
+
+            const authToken = JSON.parse(Cookies.get('auth_user_token'));
+
+            addFriendForm.append('auth_username', JSON.parse(Cookies.get('auth_user')).username);
+            addFriendForm.append('username', params.username);
+
+            axiosInstance.post(process.env.REACT_APP_BASE_URL + "friends/user/store", addFriendForm, {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                }
+            })
+
+            .then(response => {
+                if (response.data.isSuccess) {
+                    handleFriendStatus(response.data.data.details.status);
+                    handleIsSender(response.data.data.details.is_sender);
+                    showAlert();
+                    setTimeout(() => {
+                        message.open({
+                            content: <>
+                                <FontAwesomeIcon
+                                    icon={faCircleCheck}
+                                    className="me-2"
+                                    style={{ color: '#007B70', }} />
+                                <Text type="span">Invitation sent.</Text>
+                            </>,
+                            key,
+                            duration: 2,
+                            style: {
+                                marginTop: '25vh',
+                                zIndex: '999999',
+                            }
+                        });
+                    }, 1000);
+                } else {
+                    console.log(response.data.data.errorText);
+                }
+            })
+
+            .catch(err => {
+                if (err.response && err.response.data.errors) {
+                    console.log('err add friend', err.response.data.errors);
+                }
+            });
+        } else {
+            console.log('on profile add friend: no cookies');
+        }
+    }
+
+    const removeFriend = () => {
+        console.log('remove ')
+        if (isAuth()) {
+            const removeFriendForm = new FormData();
+
+            const authToken = JSON.parse(Cookies.get('auth_user_token'));
+
+            removeFriendForm.append('auth_username', JSON.parse(Cookies.get('auth_user')).username);
+            removeFriendForm.append('username', params.username);
+
+            axiosInstance.post(process.env.REACT_APP_BASE_URL + "friends/user/destroy", removeFriendForm, {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                }
+            })
+
+            .then(response => {
+                if (response.data.isSuccess) {
+                    handleFriendStatus('');
+                    handleHideContent();
+                    setIsSender(false); 
+                    showAlert();
+                    setTimeout(() => {
+                        isVisible && handleHideModal();
+
+                        message.open({
+                            content: <>
+                                <FontAwesomeIcon
+                                icon={faCircleCheck}
+                                className="me-2"
+                                style={{ color: '#007B70', }} />
+                                <Text type="span">{response.data.data.details}</Text>
+                            </>,
+                            key,
+                            duration: 2,
+                            style: {
+                                marginTop: '25vh',
+                                zIndex: '999999',
+                            }
+                        });
+                    }, 1000);
+                } else {
+                    console.log(response.data.data.errorText);
+                }
+            })
+
+            .catch(err => {
+                if (err.response && err.response.data.errors) {
+                    console.log('err remove friend', err.response.data.errors);
+                }
+            });
+        } else {
+            console.log('on profile remove friend: no cookies');
+        }
     }
 
     const sendMessage = () => {
         console.log('send');
     }
+
+    const getFriendStatus = () => {
+        if (isAuth()) {
+            const authToken = JSON.parse(Cookies.get('auth_user_token'));
+
+            axiosInstance.get(process.env.REACT_APP_BASE_URL + "friends/user/get-friend", {
+                params: {
+                    auth_username: JSON.parse(Cookies.get('auth_user')).username,
+                    username: params.username,
+                },
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                }
+            })
+
+            .then(response => {
+                console.log('response get friend ', response.data);
+                if (response.data.isSuccess) {
+                    (response.data.data.details.status === 'accepted') ? handleShowContent() : handleHideContent();
+
+                    (response.data.data.details.is_sender) && handleIsSender();
+                    handleFriendStatus(response.data.data.details.status);
+                } else {
+                    handleFriendStatus('not friend');
+                }
+            })
+
+            .catch(err => {
+                if (err.response && err.response.data.errors) {
+                    console.log('err is friend', err.response.data.errors);
+                }
+            });
+        } else {
+            console.log('on profile is friend: no cookies');
+        }
+    }
+
+    useEffect(() => {
+        let loading = true;
+
+        if (loading) {
+            getFriendStatus();
+        }
+
+        return () => {
+            loading = false;
+        }
+    }, []);
+
+    useEffect(() => {
+        let loading = true;
+
+        if (loading && (friendStatus && (friendStatus === 'accepted'))) {
+            handleShowContent();
+        }
+
+        return () => {
+            loading = false;
+        }
+    }, [friendStatus]);
 
     useLayoutEffect(() => {
         let loading = true;
@@ -92,8 +283,10 @@ export const ProfileHeader = ({ member, isActionShown, }) => {
         const getWidth = () => {
             if (window.innerWidth <= 1199) {
                 handleShowVerticalAction();
+                console.log('show');
             } else {
                 handleHideVerticalAction();
+                console.log('hide');
             }
         };
 
@@ -103,6 +296,10 @@ export const ProfileHeader = ({ member, isActionShown, }) => {
 
         return () => window.removeEventListener('resize', getWidth);
     }, []);
+
+    console.log('friend stat ', friendStatus);
+    console.log('isSender ', isSender);
+    console.log('isVerticalAction ', isVerticalAction);
 
     return (
         <ProfileHeaderWrapper>
@@ -117,16 +314,23 @@ export const ProfileHeader = ({ member, isActionShown, }) => {
                             objectFit: 'cover',
                         }}/>
                     {
-                        isVerticalAction && 
+                        (isVerticalAction) && 
                         <ProfileHeaderActionWrapper className="d-flex justify-content-center">
                             <Button
                             type="button"
                             color="transparent"
-                            className="button-plain"
+                            className={(friendStatus === 'accepted') ? "button-plain-red" : "button-plain"}
                             text={<Text type="span">
-                                <FontAwesomeIcon icon={faUserPlus} className="fa-2xl fa-fw me-1" />
+                                <FontAwesomeIcon icon={
+                                    (isSender && (friendStatus === 'pending')) ? faBan :
+                                    (!(isSender) && (friendStatus === 'pending')) ? faHourglass :
+                                    (friendStatus === 'accepted') ? faUserMinus : faUserPlus
+                                } className="fa-2xl fa-fw me-1" />
                             </Text>}
-                                onClick={() => addMember()} />
+                            onClick={() => 
+                                ((isSender && (friendStatus === 'pending')) || (friendStatus === 'accepted')) ? removeFriend() :
+                                (!(isSender) && (friendStatus === 'pending')) ? handleShowModal() : addFriend()
+                            } />
                             <Button
                             type="button"
                             color="transparent"
@@ -145,17 +349,30 @@ export const ProfileHeader = ({ member, isActionShown, }) => {
                                 <Text type="span">{(member && member.username) && ('@' + member.username)}</Text>
                             </ProfileHeaderNameWrapper>
                         {
-                            isActionShown && 
+                            (isActionShown) && 
                             <ProfileHeaderActionWrapper className="d-none flex-grow-1 d-xl-flex justify-content-center justify-content-sm-start justify-content-xl-end align-items-start">
                                 <Button
                                 type="button"
                                 color="transparent"
-                                className="button-plain"
+                                className={
+                                    (friendStatus && (friendStatus === 'accepted')) ? "button-plain-red" : "button-plain"
+                                }
                                 text={<Text type="span">
-                                    <FontAwesomeIcon icon={faUserPlus} className="fa-2xl fa-fw me-1" />
-                                    Add
+                                    <FontAwesomeIcon icon={
+                                        (isSender && (friendStatus === 'pending')) ? faBan :
+                                        (!(isSender) && (friendStatus === 'pending')) ? faHourglass :
+                                        (friendStatus === 'accepted') ? faUserMinus : faUserPlus
+                                    } className="fa-2xl fa-fw me-1" />
+                                {
+                                    (isSender && (friendStatus === 'pending')) ? 'Cancel invitation' :
+                                    (!(isSender) && (friendStatus === 'pending')) ? 'Pending invitation' : 
+                                    (friendStatus === 'accepted') ? 'Remove' : 'Add'
+                                }
                                 </Text>}
-                                onClick={() => addMember()} />
+                                onClick={() => 
+                                    ((isSender && (friendStatus === 'pending')) || (friendStatus === 'accepted')) ? removeFriend() :
+                                    (!(isSender) && (friendStatus === 'pending')) ? handleShowModal() : addFriend()
+                                } />
                                 <Button
                                 type="button"
                                 color="transparent"
@@ -187,6 +404,18 @@ export const ProfileHeader = ({ member, isActionShown, }) => {
                     </ProfileBadgeWrapper>
                 </ProfileHeaderBodyWrapper>
             </Card>
+            <Modal 
+            closable
+            maskClosable
+            title="Confirmation"
+            isVisible={isVisible}
+            onCancel={handleHideModal}>
+                <InvitationAccept 
+                member={member} 
+                removeFriend={removeFriend}
+                handleHideModal={handleHideModal}
+                handleFriendStatus={handleFriendStatus} />
+            </Modal>
         </ProfileHeaderWrapper>
     )
 }

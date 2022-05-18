@@ -51,7 +51,7 @@ const MicroblogPostCommentWrapper = styled('div', {
     marginTop: '$space-3',
 });
 
-export const MicroblogEntry = ({ microblogEntry, }) => {
+export const MicroblogEntry = ({ microblogEntry, }) => {    
     const [form] = Form.useForm();
     const entryRef = useRef();
 
@@ -277,17 +277,20 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
                             minute: '2-digit',
                         }).format(new Date(microblogEntry.created_at))
                     }
+                    {
+                        (isAuth() && (values && values.user && values.user.username) && (JSON.parse(Cookies.get('auth_user')).username ===  values.user.username)) && 
                         <Dropdown overlay={menu} trigger={['click', 'hover']}>
-                            <a 
-                            onClick={e => e.preventDefault()} 
+                            <a
+                            onClick={e => e.preventDefault()}
                             onMouseEnter={() => handleCaretUpIcon()}
                             onMouseLeave={() => handleCaretDownIcon()}>
-                                <FontAwesomeIcon 
-                                icon={arrowIcon} 
-                                className="fa-xl fa-fw" 
-                                style={{ color: '#666666', }}/>
+                                <FontAwesomeIcon
+                                icon={arrowIcon}
+                                className="fa-xl fa-fw"
+                                style={{ color: '#666666', }} />
                             </a>
                         </Dropdown>
+                    }
                     </Text>
                 </MicroblogHeaderWrapper>
             }
@@ -347,14 +350,14 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
             wrapClassName="test"
             onCancel={handleHideModal}>
             {
-                (action && action === 'update') &&
+                (action && (action === 'update')) &&
                 <UpdateMicroblog
                 values={microblogEntry}
                 handleValues={handleValues}
                 handleHideModal={handleHideModal} />
             }
             {
-                (action && action === 'delete') &&
+                (action && (action === 'delete')) &&
                 <DeleteMicroblogEntry 
                 values={values} 
                 handleHideModal={handleHideModal}

@@ -75,12 +75,12 @@ function App() {
                         handleLogOut={handleLogOut} />} />
                     <Route path="/home" element={<Home />} />
                     <Route path="/community-blog" element={<CommunityBlog />} />
-                    <Route path="/profile/:username" element={<Profile />} forceRender={forceRender}>
+                    <Route path="/profile/:username" element={<Profile forceRender={forceRender} handleForceRender={handleForceRender}/>}>
                         <Route index element={<Microblog />} />
                         <Route path="microblog" element={<Microblog />} />
                         <Route path="journal" element={<Journal />} />
                         <Route path="about" element={<About />} />
-                        <Route path="friends" element={<Friends />}>
+                        <Route path="friends" element={<Friends />} >
                             <Route index element={<FriendsSection />} />
                             <Route path="invitations" element={<FriendInvitations />} />
                             <Route path="all" element={<FriendsSection />} />

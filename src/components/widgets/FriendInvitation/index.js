@@ -1,15 +1,10 @@
-import { useParams, } from "react-router-dom";
-import { useState, useEffect, useRef, } from "react";
+import { useRef, } from "react";
 import Cookies from 'js-cookie';
 import { message, } from "antd";
 import { isAuth, key, showAlert, } from "../../../util";
 import { axiosInstance } from "../../../requests";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-    faUserPlus,
-    faBan,
-    faCircleCheck,
-} from '@fortawesome/free-solid-svg-icons';
+import { faCircleCheck, } from '@fortawesome/free-solid-svg-icons';
 import { styled } from "../../../stitches.config";
 
 import Column from "../../core/Column";
@@ -37,8 +32,6 @@ const ActionWrapper = styled('div', {
 });
 
 export const FriendInvitation = ({ invitation, }) => {
-    console.log('invi ', invitation);
-
     const ref = useRef();
     
     const acceptInvitation = () => {

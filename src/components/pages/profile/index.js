@@ -20,7 +20,7 @@ const ProfileContentWrapper = styled('div', {
     marginTop: '$space-4',
 });
 
-export const Profile = ({ forceRender, }) => {
+export const Profile = ({ forceRender, handleForceRender, }) => {
     const params = useParams();
 
     const [isContentShown, setIsContentShown] = useState('');
@@ -105,7 +105,11 @@ export const Profile = ({ forceRender, }) => {
                     <Column className="col-12">
                         <ProfileContentWrapper className="d-flex">
                             <ProfileSidebar className="flex-shrink-0"/>
-                            <Outlet context={isContentShown}/>
+                            <Outlet context={{
+                                isContentShown: isContentShown,
+                                handleForceRender: handleForceRender,
+                                forceRender: forceRender,
+                            }}/>
                         </ProfileContentWrapper>
                     </Column>
                 </Row>

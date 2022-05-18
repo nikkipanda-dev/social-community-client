@@ -1,4 +1,3 @@
-import { useParams, } from "react-router-dom";
 import { useOutletContext, } from "react-router-dom";
 import { useState, useEffect, useRef, } from 'react';
 import Cookies from 'js-cookie';
@@ -57,7 +56,7 @@ const PaginatorWrapper = styled('div', {
 
 export const FriendInvitations = () => {
     const ref = useRef('');
-    const isContentShown = useOutletContext();
+    const context = useOutletContext();
 
     const [invitations, setInvitations] = useState('');
     const [invitationsLen, setInvitationsLen] = useState(0);
@@ -91,7 +90,6 @@ export const FriendInvitations = () => {
             })
 
             .then(response => {
-                console.log('res invi', response.data);
                 if (response.data.isSuccess) {
                     handleInvitationsLen(Object.keys(response.data.data.details).length);
                     handleInvitations(response.data.data.details.slice(0, 5));
@@ -112,7 +110,7 @@ export const FriendInvitations = () => {
     }
 
     const paginateInvitations = () => {
-        if (isContentShown && Number.isInteger(offset)) {
+        if (context.isFriendsInvitationShown && Number.isInteger(offset)) {
             const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
             axiosInstance.get(process.env.REACT_APP_BASE_URL + "friends/user/invitations/paginate", {
@@ -128,7 +126,6 @@ export const FriendInvitations = () => {
 
             .then(response => {
                 if (response.data.isSuccess) {
-                    console.log('res ', response.data);
                     if (ref.current) {
                         window.scrollTo(0, ((ref.current.getBoundingClientRect().top + window.scrollY)) - 100);
                     }
@@ -173,16 +170,13 @@ export const FriendInvitations = () => {
         }
     }, [offset]);
 
-    console.log('invi ', invitations);
-
     return (
-        isContentShown && 
+        (context.isFriendsInvitationShown) && 
         <FriendInvitationsWrapper ref={ref}>
             <Row className="g-0 m-0 row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
             {
                 (invitations && (Object.keys(invitations).length > 0)) &&
                 Object.keys(invitations).map((i, val) => {
-                    // console.log('val ', Object.values(invitations)[val])
                     return <FriendInvitation key={i} invitation={Object.values(invitations)[val]} />
                 })
             }

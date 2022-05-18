@@ -3,6 +3,7 @@ import {
     Outlet, 
     NavLink, 
     useParams,
+    useOutletContext,
 } from "react-router-dom";
 import Cookies from 'js-cookie';
 import { isAuth } from "../../../util";
@@ -45,17 +46,20 @@ const FriendsNavWrapper = styled('div', {
 
 export const Friends = () => {
     const params = useParams();
+    const context = useOutletContext();
 
-    const [isContentShown, setIsContentShown] = useState(false);
+    const [isFriendsInvitationShown, setIsFriendsInvitationShown] = useState(false);
 
-    const handleShowContent = () => setIsContentShown(true);
-    const handleHideContent = () => setIsContentShown(false);
+    const handleShownInvitationShown = () => setIsFriendsInvitationShown(true);
+    const handleHideInvitationShown = () => setIsFriendsInvitationShown(false);
+
+    const handleForceRender = () => context.handleForceRender(!context.forceRender);
 
     useEffect(() => {
         let loading = true;
 
         if (loading) {
-            (isAuth() && (params.username === JSON.parse(Cookies.get('auth_user')).username)) ? handleShowContent() : handleHideContent();
+            (isAuth() && (params.username === JSON.parse(Cookies.get('auth_user')).username)) ? handleShownInvitationShown() : handleHideInvitationShown();
         }
 
         return () => {
@@ -67,7 +71,7 @@ export const Friends = () => {
         <Section>
             <FriendsWrapper className="mx-auto">
             {
-                isContentShown &&
+                isFriendsInvitationShown &&
                 <FriendsNavWrapper>
                     <NavLink to="invitations" className={({ isActive }) => isActive ? 'active-nav' : undefined}>
                         <Text type="span" size="medium"><FontAwesomeIcon className="me-2 fa-fw" icon={faHourglass} />Invitations</Text>
@@ -77,7 +81,11 @@ export const Friends = () => {
                     </NavLink>
                 </FriendsNavWrapper>
             }
-                <Outlet context={isContentShown}/>
+                <Outlet context={{
+                    isFriendsInvitationShown: isFriendsInvitationShown,
+                    isContentShown: context.isContentShown,
+                    handleForceRender: handleForceRender,
+                }}/>
             </FriendsWrapper>
         </Section>
     )

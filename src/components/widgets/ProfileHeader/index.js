@@ -231,9 +231,8 @@ export const ProfileHeader = ({
             })
 
             .then(response => {
-                console.log('response get friend ', response.data);
                 if (response.data.isSuccess) {
-                    (response.data.data.details.status === 'accepted') ? handleShowContent() : handleHideContent();
+                    ((response.data.data.details.status === 'accepted') || (params.username === JSON.parse(Cookies.get('auth_user')).username)) ? handleShowContent() : handleHideContent();
 
                     (response.data.data.details.is_sender) && handleIsSender();
                     handleFriendStatus(response.data.data.details.status);

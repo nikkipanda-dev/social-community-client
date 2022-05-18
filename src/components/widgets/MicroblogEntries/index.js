@@ -22,7 +22,7 @@ const PaginatorWrapper = styled('div', {
     },
     '.paginator-item': {
         fontFamily: '$manjari',
-        padding: '$space-3',
+        padding: '$space-2 $space-2 $space-1'
     },
     '.prev-link-item, .next-link-item': {
         fontSize: '40px',
@@ -85,9 +85,11 @@ export const MicroblogEntries = ({
                 pageCount={pageCount}
                 renderOnZeroPageCount={null} />
                     <Text 
-                    type="span" 
-                    color="darkGray">Showing {(offset + 1)} - {(((offset + 10) - 1) < microblogEntriesLen) ? (offset + 10) : 
-                    (((offset + 10) >= microblogEntriesLen) && microblogEntriesLen)} of {microblogEntriesLen + ((microblogEntriesLen > 1) ? ' posts' : ' post')}</Text>
+                    type="span"
+                    color="darkGray">
+                        Showing {(offset + 1)} - {(((offset + 10) - 1) < microblogEntriesLen) ? (offset + 10) : 
+                        (((offset + 10) >= microblogEntriesLen) && microblogEntriesLen)} of {microblogEntriesLen + ((microblogEntriesLen > 1) ? ' posts' : ' post')}
+                    </Text>
             </PaginatorWrapper>
         }
         </MicroblogEntriesWrapper>

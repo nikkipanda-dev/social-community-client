@@ -214,16 +214,16 @@ export const Microblog = () => {
             ((isAuth() && (JSON.parse(Cookies.get('auth_user')).username === params.username)) || isContentShown) ? 
             <>
                 <MicroblogContentWrapper className="flex-grow-1" ref={entriesRef}>
-                    {
-                        isPostMicroblogVisible &&
-                        <PostMicroblog handleMicroblogEntries={handleMicroblogEntries} />
-                    }
+                {
+                    isPostMicroblogVisible &&
+                    <PostMicroblog handleMicroblogEntries={handleMicroblogEntries} />
+                }
                     <MicroblogEntries
-                        microblogEntries={microblogEntries}
-                        microblogEntriesLen={microblogEntriesLen}
-                        pageCount={pageCount}
-                        offset={offset}
-                        handlePageClick={handlePageClick} />
+                    microblogEntries={microblogEntries}
+                    microblogEntriesLen={microblogEntriesLen}
+                    pageCount={pageCount}
+                    offset={offset}
+                    handlePageClick={handlePageClick} />
                 </MicroblogContentWrapper>
                 <MicroblogStatWrapper>
                     <MicroblogStat mostLovedMicroblogEntry={mostLovedMicroblogEntry} mostActiveMicroblogEntry={mostActiveMicroblogEntry} />

@@ -12,7 +12,6 @@ import {
     faEnvelope, 
     faCircleCheck,
     faHourglass,
-    faL,
 } from '@fortawesome/free-solid-svg-icons';
 import { styled } from "../../../stitches.config";
 

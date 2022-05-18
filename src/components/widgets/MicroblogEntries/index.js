@@ -58,14 +58,14 @@ export const MicroblogEntries = ({
         <MicroblogEntriesWrapper>
         {
             (microblogEntries && (Object.keys(microblogEntries).length > 0)) && 
-            Object.keys(microblogEntries).map((i, val) => {
+            Object.keys(microblogEntries).map((_, val) => {
                 return <MicroblogEntry 
                 key={Object.values(microblogEntries)[val].slug}
                 microblogEntry={Object.values(microblogEntries)[val]} />
             })
         }
         {
-            (pageCount && Number.isInteger(pageCount)) && 
+            (Number.isInteger(pageCount) && (pageCount !== 0)) && 
             <PaginatorWrapper>
                 <ReactPaginate
                 breakLabel="..."
@@ -90,7 +90,6 @@ export const MicroblogEntries = ({
                     (((offset + 10) >= microblogEntriesLen) && microblogEntriesLen)} of {microblogEntriesLen + ((microblogEntriesLen > 1) ? ' posts' : ' post')}</Text>
             </PaginatorWrapper>
         }
-
         </MicroblogEntriesWrapper>
     )
 }

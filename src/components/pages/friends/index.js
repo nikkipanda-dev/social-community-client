@@ -1,12 +1,22 @@
 import { styled } from "../../../stitches.config";
 
-const FriendsWrapper = styled('div', {});
+import Section from "../../core/Section";
+import { Friends as FriendsSection } from "../../sections/Friends";
+import FriendInvitations from "../../widgets/FriendInvitations";
+
+const FriendsWrapper = styled('div', {
+    background: '$lightGray',
+    maxWidth: '1700px',
+});
 
 export const Friends = () => {
     return (
-        <FriendsWrapper>
-            Friends
-        </FriendsWrapper>
+        <Section>
+            <FriendsWrapper className="mx-auto">
+                <FriendInvitations />
+                <FriendsSection />
+            </FriendsWrapper>
+        </Section>
     )
 }
 

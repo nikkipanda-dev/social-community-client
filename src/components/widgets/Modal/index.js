@@ -3,9 +3,7 @@ import { styled } from '../../../stitches.config';
 
 import Text from '../../core/Text';
 
-const ModalHeaderWrapper = styled('div', {
-    background: 'red',
-});
+const ModalHeaderWrapper = styled('div', {});
 
 const ModalBodyWrapper = styled('div', {});
 

@@ -1,5 +1,5 @@
 import { useEffect, useState, } from "react";
-import { Outlet, Link, useParams, } from "react-router-dom";
+import { Outlet, useParams, } from "react-router-dom";
 import { isAuth } from "../../../util";
 import Cookies from 'js-cookie';
 import { axiosInstance } from "../../../requests";
@@ -13,6 +13,7 @@ import ProfileSidebar from '../../widgets/ProfileSidebar';
 
 const ProfileWrapper = styled('div', {
     maxWidth: '1700px',
+    paddingTop: '$space-5',
 });
 
 const ProfileContentWrapper = styled('div', {
@@ -22,9 +23,12 @@ const ProfileContentWrapper = styled('div', {
 export const Profile = ({ forceRender, }) => {
     const params = useParams();
 
+    const [isContentShown, setIsContentShown] = useState('');
     const [member, setMember] = useState('');
     const [isActionShown, setIsActionShown] = useState(false);
 
+    const handleShowContent = () => setIsContentShown(true);
+    const handleHideContent = () => setIsContentShown(false);
     const handleMember = member => setMember(member);
     const handleShowAction = () => setIsActionShown(true);
     const handleHideAction = () => setIsActionShown(false);
@@ -84,14 +88,16 @@ export const Profile = ({ forceRender, }) => {
         return () => {
             loading = false;
         }
-    }, [forceRender]); 
+    }, [forceRender, isContentShown]); 
 
     return (
         <Section>
-            <ProfileWrapper className="mx-auto" css={{ paddingTop: '$space-5', }}>
+            <ProfileWrapper className="mx-auto">
                 <Row className="m-0 g-0" css={{ padding: '$space-3', }}>
                     <Column className="col-12">
                         <ProfileHeader 
+                        handleShowContent={handleShowContent}
+                        handleHideContent={handleHideContent}
                         forceRender={forceRender} 
                         member={member}
                         isActionShown={isActionShown} />
@@ -99,7 +105,7 @@ export const Profile = ({ forceRender, }) => {
                     <Column className="col-12">
                         <ProfileContentWrapper className="d-flex">
                             <ProfileSidebar className="flex-shrink-0"/>
-                            <Outlet />
+                            <Outlet context={isContentShown}/>
                         </ProfileContentWrapper>
                     </Column>
                 </Row>

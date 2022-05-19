@@ -1,6 +1,6 @@
 import { useParams, useOutletContext, } from 'react-router-dom';
 import { useState, useEffect, useLayoutEffect, } from 'react';
-import { isAuth, key, showAlert, } from '../../../util';
+import { key, showAlert, } from '../../../util';
 import Cookies from 'js-cookie';
 import { message, } from 'antd';
 import { axiosInstance } from '../../../requests';
@@ -85,6 +85,7 @@ const ProfileBadgeWrapper = styled('div', {
 const ProfileHeaderItemWrapper = styled('div', {});
 
 export const ProfileHeader = ({ 
+    isAuth,
     member, 
     isActionShown,
     handleShowContent,
@@ -105,7 +106,7 @@ export const ProfileHeader = ({
     const handleHideVerticalAction = () => setIsVerticalAction(false);
 
     const addFriend = () => {
-        if (isAuth()) {
+        if (isAuth) {
             const addFriendForm = new FormData();
 
             const authToken = JSON.parse(Cookies.get('auth_user_token'));
@@ -158,7 +159,7 @@ export const ProfileHeader = ({
 
     const removeFriend = () => {
         console.log('remove ')
-        if (isAuth()) {
+        if (isAuth) {
             const removeFriendForm = new FormData();
 
             const authToken = JSON.parse(Cookies.get('auth_user_token'));
@@ -217,7 +218,7 @@ export const ProfileHeader = ({
     }
 
     const getFriendStatus = () => {
-        if (isAuth()) {
+        if (isAuth) {
             const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
             axiosInstance.get(process.env.REACT_APP_BASE_URL + "friends/user/get-friend", {
@@ -294,10 +295,6 @@ export const ProfileHeader = ({
 
         return () => window.removeEventListener('resize', getWidth);
     }, []);
-
-    console.log('friend stat ', friendStatus);
-    console.log('isSender ', isSender);
-    console.log('isVerticalAction ', isVerticalAction);
 
     return (
         <ProfileHeaderWrapper>

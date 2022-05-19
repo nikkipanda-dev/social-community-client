@@ -69,7 +69,7 @@ export const FriendInvitations = () => {
     const handleOffset = offset => setOffset(offset);
 
     const handlePageClick = evt => {
-        (!(evt < 0) && (evt < pageCount)) && handleOffset((((evt + 1) * 5) - 5));
+        (!(evt < 0) && (evt < pageCount)) && handleOffset((((evt + 1) * 12) - 12));
     };
 
     const onClick = evt => {
@@ -92,8 +92,8 @@ export const FriendInvitations = () => {
             .then(response => {
                 if (response.data.isSuccess) {
                     handleInvitationsLen(Object.keys(response.data.data.details).length);
-                    handleInvitations(response.data.data.details.slice(0, 5));
-                    (Object.keys(response.data.data.details).length > 5) ? handlePageCount(Math.ceil(Object.keys(response.data.data.details).length / 5)) : handlePageCount(1);
+                    handleInvitations(response.data.data.details.slice(0, 12));
+                    (Object.keys(response.data.data.details).length > 12) ? handlePageCount(Math.ceil(Object.keys(response.data.data.details).length / 12)) : handlePageCount(1);
                 } else {
                     console.log(response.data.data.errorText);
                 }
@@ -117,7 +117,7 @@ export const FriendInvitations = () => {
                 params: {
                     username: JSON.parse(Cookies.get('auth_user')).username,
                     offset: offset,
-                    limit: 5,
+                    limit: 12,
                 },
                 headers: {
                     Authorization: `Bearer ${authToken}`,
@@ -198,13 +198,13 @@ export const FriendInvitations = () => {
                     pageLinkClassName="paginator-link-item"
                     previousLinkClassName="prev-link-item"
                     nextLinkClassName="next-link-item"
-                    pageRangeDisplayed={5}
+                    pageRangeDisplayed={12}
                     pageCount={pageCount}
                     renderOnZeroPageCount={null} />
                     <Text
                     type="span"
-                    color="darkGray">Showing {(offset + 1)} - {(((offset + 5) - 1) < invitationsLen) ? (offset + 5) :
-                    (((offset + 5) >= invitationsLen) && invitationsLen)} of {invitationsLen + ((invitationsLen > 1) ? ' invitations' : ' invitation')}</Text>
+                    color="darkGray">Showing {(offset + 1)} - {(((offset + 12) - 1) < invitationsLen) ? (offset + 12) :
+                    (((offset + 12) >= invitationsLen) && invitationsLen)} of {invitationsLen + ((invitationsLen > 1) ? ' invitations' : ' invitation')}</Text>
                 </PaginatorWrapper>
             }
         </FriendInvitationsWrapper>

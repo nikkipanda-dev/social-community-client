@@ -1,6 +1,5 @@
 import { useEffect, useState, } from "react";
 import { Outlet, useParams, } from "react-router-dom";
-import { isAuth } from "../../../util";
 import Cookies from 'js-cookie';
 import { axiosInstance } from "../../../requests";
 import { styled } from "../../../stitches.config";
@@ -20,7 +19,11 @@ const ProfileContentWrapper = styled('div', {
     marginTop: '$space-4',
 });
 
-export const Profile = ({ forceRender, handleForceRender, }) => {
+export const Profile = ({ 
+    isAuth,
+    forceRender, 
+    handleForceRender,
+}) => {
     const params = useParams();
 
     const [isContentShown, setIsContentShown] = useState('');
@@ -34,7 +37,7 @@ export const Profile = ({ forceRender, handleForceRender, }) => {
     const handleHideAction = () => setIsActionShown(false);
 
     const getMember = () => {
-        if (isAuth()) {
+        if (isAuth) {
             const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
             axiosInstance.get(process.env.REACT_APP_BASE_URL + "user", {
@@ -69,7 +72,7 @@ export const Profile = ({ forceRender, handleForceRender, }) => {
     useEffect(() => {
         let loading = true;
 
-        if (loading && isAuth() && (member && member.username)) {
+        if (loading && isAuth && (member && member.username)) {
             (JSON.parse(Cookies.get('auth_user')).username === member.username) ? handleHideAction() : handleShowAction();
         }
 
@@ -96,6 +99,7 @@ export const Profile = ({ forceRender, handleForceRender, }) => {
                 <Row className="m-0 g-0" css={{ padding: '$space-3', }}>
                     <Column className="col-12">
                         <ProfileHeader 
+                        isAuth={isAuth}
                         handleShowContent={handleShowContent}
                         handleHideContent={handleHideContent}
                         forceRender={forceRender} 
@@ -104,11 +108,15 @@ export const Profile = ({ forceRender, handleForceRender, }) => {
                     </Column>
                     <Column className="col-12">
                         <ProfileContentWrapper className="d-flex">
-                            <ProfileSidebar className="flex-shrink-0"/>
+                            <ProfileSidebar 
+                            className="flex-shrink-0" 
+                            isAuth={isAuth} 
+                            isContentShown={isContentShown} />
                             <Outlet context={{
                                 isContentShown: isContentShown,
                                 handleForceRender: handleForceRender,
                                 forceRender: forceRender,
+                                isAuth: isAuth,
                             }}/>
                         </ProfileContentWrapper>
                     </Column>

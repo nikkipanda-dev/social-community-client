@@ -158,9 +158,12 @@ export const FriendCard = ({ values }) => {
                         }} />
                         <Text type="span" size="medium">{values && (values.first_name && values.last_name) && (values.first_name + ' ' + values.last_name)}</Text>
                         <Button 
-                        type="button" text={values && (values.username) && ('@' + values.username) } 
-                        onClick={() => handleProfileNavigator(values.username)}/>
-                        <Text type="span" size="medium">{values && (values.username) && ('@' + values.username)}</Text>
+                        type="button" 
+                        className="button-plain"
+                        text={values && (values.username) && ('@' + values.username) } 
+                        onClick={() => handleProfileNavigator(values.username)} 
+                        color="transparent" />
+                        {/* <Text type="span" size="medium">{values && (values.username) && ('@' + values.username)}</Text> */}
                         {
                             (context.isFriendsInvitationShown) && 
                             <ActionWrapper className="d-flex flex-column flex-sm-row justify-content-sm-evenly align-items-sm-center">

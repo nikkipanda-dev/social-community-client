@@ -1,4 +1,5 @@
-import { NavLink, } from "react-router-dom";
+import { useParams, } from "react-router-dom";
+import Cookies from 'js-cookie';
 import { styled } from "../../../stitches.config";
 
 import Card from "../../core/Card";
@@ -35,11 +36,16 @@ const SidebarWrapper = styled('div', {
 const SidebarItemsWrapper = styled('div', {});
 
 export const Sidebar = ({ 
+    isAuth,
+    isContentShown,
     items, 
     className, 
     css,
 }) => {
+    const params = useParams();
+
     return (
+        isContentShown && 
         <SidebarWrapper>
             <Card css={{ 
                 padding: '$space-3', 
@@ -47,8 +53,20 @@ export const Sidebar = ({
                 <SidebarItemsWrapper className={' ' + (className ? (' ' + className) : '')} {...css && { css: { ...css } }}>
                 {
                     (items && (Object.keys(items).length > 0)) &&
-                    Object.keys(items).map((i, val) => {
-                        return <SidebarItem key={Object.values(items)[val].id} item={Object.values(items)[val]} />
+                    Object.keys(items).map((_, val) => {
+                        if (((Object.values(items)[val].section.toLowerCase() === 'journal') && isAuth && (params.username === JSON.parse(Cookies.get('auth_user')).username))) {
+                            return <SidebarItem
+                            key={Object.values(items)[val].id}
+                            item={Object.values(items)[val]}
+                            isAuth={isAuth} /> 
+                        }
+                        
+                        if (Object.values(items)[val].section.toLowerCase() !== 'journal') {
+                            return <SidebarItem
+                            key={Object.values(items)[val].id}
+                            item={Object.values(items)[val]}
+                            isAuth={isAuth} /> 
+                        }
                     })
                 }
                 </SidebarItemsWrapper>

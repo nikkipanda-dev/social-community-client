@@ -1,7 +1,6 @@
 import { useOutletContext, } from "react-router-dom";
 import { useState, useEffect, useRef, } from "react";
 import { useParams, } from "react-router-dom";
-import { isAuth } from "../../../util";
 import Cookies from 'js-cookie';
 import { axiosInstance } from "../../../requests";
 import { styled } from "../../../stitches.config";
@@ -27,7 +26,7 @@ const MicroblogStatWrapper = styled('div', {
 export const Microblog = () => {
     const params = useParams();
     const entriesRef = useRef();
-    const isContentShown = useOutletContext();
+    const context = useOutletContext();
 
     const [isPostMicroblogVisible, setIsPostMicroblogVisible] = useState(false);
     const [microblogEntries, setMicroblogEntries] = useState('');
@@ -47,7 +46,7 @@ export const Microblog = () => {
     const handleOffset = offset => setOffset(offset);
 
     const getMicroblogEntries = () => {
-        if (isAuth()) {
+        if (context.isAuth) {
             const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
             axiosInstance.get(process.env.REACT_APP_BASE_URL + "microblog-entries/user", {
@@ -79,7 +78,7 @@ export const Microblog = () => {
     }
 
     const paginateMicroblogEntries = () => {
-        if (isAuth() && Number.isInteger(offset)) {
+        if (context.isAuth && Number.isInteger(offset)) {
             const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
             axiosInstance.get(process.env.REACT_APP_BASE_URL + "microblog-entries/user/paginate", {
@@ -121,7 +120,7 @@ export const Microblog = () => {
     };
 
     const getMostLovedEntry = () => {
-        if (isAuth()) {
+        if (context.isAuth) {
             const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
             axiosInstance.get(process.env.REACT_APP_BASE_URL + "microblog-entries/user/entry/most-loved", {
@@ -151,7 +150,7 @@ export const Microblog = () => {
     }
 
     const getMostActiveEntry = () => {
-        if (isAuth()) {
+        if (context.isAuth) {
             const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
             axiosInstance.get(process.env.REACT_APP_BASE_URL + "microblog-entries/user/entry/most-active", {
@@ -183,7 +182,7 @@ export const Microblog = () => {
     useEffect(() => {
         let loading = true;
 
-        if (loading && isAuth()) {
+        if (loading && context.isAuth) {
             (JSON.parse(Cookies.get('auth_user')).username === params.username) ? handleShowPostMicroblog() : handleHidePostMicroblog();
 
             getMicroblogEntries();
@@ -211,7 +210,7 @@ export const Microblog = () => {
     return (
         <MicroblogWrapper className="d-flex p-1">
         {
-            ((isAuth() && (JSON.parse(Cookies.get('auth_user')).username === params.username)) || isContentShown) ? 
+            ((context.isAuth && (JSON.parse(Cookies.get('auth_user')).username === params.username)) || context.isContentShown) ? 
             <>
                 <MicroblogContentWrapper className="flex-grow-1" ref={entriesRef}>
                 {

@@ -73,9 +73,12 @@ function App() {
                         isAuth={isAuth}
                         handleLogIn={handleLogIn}
                         handleLogOut={handleLogOut} />} />
-                    <Route path="/home" element={<Home />} />
+                    <Route path="/home" element={<Home isAuth={isAuth}/>} />
                     <Route path="/community-blog" element={<CommunityBlog />} />
-                    <Route path="/profile/:username" element={<Profile forceRender={forceRender} handleForceRender={handleForceRender}/>}>
+                    <Route path="/profile/:username" element={<Profile 
+                    isAuth={isAuth}
+                    forceRender={forceRender} 
+                    handleForceRender={handleForceRender}/>}>
                         <Route index element={<Microblog />} />
                         <Route path="microblog" element={<Microblog />} />
                         <Route path="journal" element={<Journal />} />

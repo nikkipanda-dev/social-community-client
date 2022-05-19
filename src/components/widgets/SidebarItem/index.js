@@ -8,12 +8,17 @@ const SidebarItemWrapper = styled('div', {
     padding: '$space-2',
 });
 
-export const SidebarItem = ({ item, }) => {
+export const SidebarItem = ({ item, isAuth, }) => {
+    console.log('item ', item);
+
     return (
         <NavLink to={(item && item.link) && item.link} className={({ isActive }) => isActive ? 'active-nav ' : undefined}>
             <SidebarItemWrapper>
                 <FontAwesomeIcon icon={(item && item.icon) && item.icon} className="fa-xl fa-fw" />
-                <Text type="span" size="medium" className="ms-3">
+                <Text 
+                type="span" 
+                size="medium"
+                className="ms-3">
                     {(item && item.section) && item.section}
                 </Text>
             </SidebarItemWrapper>

@@ -14,6 +14,8 @@ import Profile from './components/pages/profile';
 import Microblog from './components/sections/Microblog';
 import About from './components/pages/about';
 import Friends from './components/pages/friends';
+import FriendInvitations from './components/widgets/FriendInvitations';
+import { Friends as FriendsSection } from './components/sections/Friends';
 import DiscussionPosts from './components/widgets/DiscussionPosts';
 import CommunityBlogEntries from './components/widgets/CommunityBlogEntries';
 import Journal from './components/sections/Journal';
@@ -71,14 +73,21 @@ function App() {
                         isAuth={isAuth}
                         handleLogIn={handleLogIn}
                         handleLogOut={handleLogOut} />} />
-                    <Route path="/home" element={<Home />} />
+                    <Route path="/home" element={<Home isAuth={isAuth}/>} />
                     <Route path="/community-blog" element={<CommunityBlog />} />
-                    <Route path="/profile/:username" element={<Profile />} forceRender={forceRender}>
+                    <Route path="/profile/:username" element={<Profile 
+                    isAuth={isAuth}
+                    forceRender={forceRender} 
+                    handleForceRender={handleForceRender}/>}>
                         <Route index element={<Microblog />} />
                         <Route path="microblog" element={<Microblog />} />
                         <Route path="journal" element={<Journal />} />
                         <Route path="about" element={<About />} />
-                        <Route path="friends" element={<Friends />} />
+                        <Route path="friends" element={<Friends />} >
+                            <Route index element={<FriendsSection />} />
+                            <Route path="invitations" element={<FriendInvitations />} />
+                            <Route path="all" element={<FriendsSection />} />
+                        </Route>
                         <Route path="discussions" element={<DiscussionPosts />} />
                         <Route path="community-blog" element={<CommunityBlogEntries />} />
                     </Route>

@@ -1,13 +1,17 @@
+import React, { forwardRef } from "react";
 import { styled } from "../../../stitches.config";
 
 const ColumnWrapper = styled('div', {});
 
-export const Column = ({ className, css, children }) => {
+export const Column = forwardRef(({ className, css, children }, ref) => {
     return (
-        <ColumnWrapper className={className} css={{ ...css }}>
+        <ColumnWrapper 
+        ref={ref}
+        className={className} 
+        css={{ ...css }}>
             {children}
         </ColumnWrapper>
     )
-}
+});
 
 export default Column;

@@ -8,6 +8,7 @@ import Badges from '../Badges';
 import Achievements from '../Achievements';
 
 const ProfileSidebarWrapper = styled('div', {
+    width: '400px',
     maxWidth: '500px',
     '> div:nth-child(n+2)': {
         marginTop: '$space-4',
@@ -17,15 +18,26 @@ const ProfileSidebarWrapper = styled('div', {
     },
 });
 
-export const ProfileSidebar = ({ className, css, }) => {
-
+export const ProfileSidebar = ({ 
+    isAuth,
+    isContentShown,
+    className, 
+    css, 
+}) => {
     return (
         <ProfileSidebarWrapper className={' ' + (className ? (' ' + className) : '')} {...css && { css: { ...css } }}>
-            <Sidebar items={ProfileSidebarItems} className="d-flex flex-column" />
+            <Sidebar 
+            isAuth={isAuth}
+            isContentShown={isContentShown}
+            items={ProfileSidebarItems} 
+            className="d-flex flex-column" />
             <ProfileGeneralInformation />
             <Badges />
             <Achievements />
-            <ProfileRecentActivities />
+            {
+                isContentShown && 
+                <ProfileRecentActivities />
+            }
         </ProfileSidebarWrapper>
     )
 }

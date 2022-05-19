@@ -1,6 +1,6 @@
 import { useParams, useOutletContext, } from 'react-router-dom';
 import { useState, useEffect, useLayoutEffect, } from 'react';
-import { isAuth, key, showAlert, } from '../../../util';
+import { key, showAlert, } from '../../../util';
 import Cookies from 'js-cookie';
 import { message, } from 'antd';
 import { axiosInstance } from '../../../requests';
@@ -12,7 +12,6 @@ import {
     faEnvelope, 
     faCircleCheck,
     faHourglass,
-    faL,
 } from '@fortawesome/free-solid-svg-icons';
 import { styled } from "../../../stitches.config";
 
@@ -86,6 +85,7 @@ const ProfileBadgeWrapper = styled('div', {
 const ProfileHeaderItemWrapper = styled('div', {});
 
 export const ProfileHeader = ({ 
+    isAuth,
     member, 
     isActionShown,
     handleShowContent,
@@ -106,7 +106,7 @@ export const ProfileHeader = ({
     const handleHideVerticalAction = () => setIsVerticalAction(false);
 
     const addFriend = () => {
-        if (isAuth()) {
+        if (isAuth) {
             const addFriendForm = new FormData();
 
             const authToken = JSON.parse(Cookies.get('auth_user_token'));
@@ -159,7 +159,7 @@ export const ProfileHeader = ({
 
     const removeFriend = () => {
         console.log('remove ')
-        if (isAuth()) {
+        if (isAuth) {
             const removeFriendForm = new FormData();
 
             const authToken = JSON.parse(Cookies.get('auth_user_token'));
@@ -218,7 +218,7 @@ export const ProfileHeader = ({
     }
 
     const getFriendStatus = () => {
-        if (isAuth()) {
+        if (isAuth) {
             const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
             axiosInstance.get(process.env.REACT_APP_BASE_URL + "friends/user/get-friend", {
@@ -232,9 +232,8 @@ export const ProfileHeader = ({
             })
 
             .then(response => {
-                console.log('response get friend ', response.data);
                 if (response.data.isSuccess) {
-                    (response.data.data.details.status === 'accepted') ? handleShowContent() : handleHideContent();
+                    ((response.data.data.details.status === 'accepted') || (params.username === JSON.parse(Cookies.get('auth_user')).username)) ? handleShowContent() : handleHideContent();
 
                     (response.data.data.details.is_sender) && handleIsSender();
                     handleFriendStatus(response.data.data.details.status);
@@ -296,10 +295,6 @@ export const ProfileHeader = ({
 
         return () => window.removeEventListener('resize', getWidth);
     }, []);
-
-    console.log('friend stat ', friendStatus);
-    console.log('isSender ', isSender);
-    console.log('isVerticalAction ', isVerticalAction);
 
     return (
         <ProfileHeaderWrapper>

@@ -9,8 +9,6 @@ const SidebarItemWrapper = styled('div', {
 });
 
 export const SidebarItem = ({ item, isAuth, }) => {
-    console.log('item ', item);
-
     return (
         <NavLink to={(item && item.link) && item.link} className={({ isActive }) => isActive ? 'active-nav ' : undefined}>
             <SidebarItemWrapper>

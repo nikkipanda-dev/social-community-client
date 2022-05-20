@@ -6,7 +6,6 @@ import {
     useOutletContext,
 } from "react-router-dom";
 import Cookies from 'js-cookie';
-import { isAuth } from "../../../util";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHourglass, faUserGroup, } from '@fortawesome/free-solid-svg-icons';
 import { styled } from "../../../stitches.config";
@@ -48,10 +47,12 @@ export const Friends = () => {
     const params = useParams();
     const context = useOutletContext();
 
+    console.log('context friends ', context);
+
     const [isFriendsInvitationShown, setIsFriendsInvitationShown] = useState(false);
 
-    const handleShownInvitationShown = () => setIsFriendsInvitationShown(true);
-    const handleHideInvitationShown = () => setIsFriendsInvitationShown(false);
+    const handleShowInvitation = () => setIsFriendsInvitationShown(true);
+    const handleHideInvitation = () => setIsFriendsInvitationShown(false);
 
     const handleForceRender = () => context.handleForceRender(!context.forceRender);
 
@@ -59,7 +60,7 @@ export const Friends = () => {
         let loading = true;
 
         if (loading) {
-            (isAuth() && (params.username === JSON.parse(Cookies.get('auth_user')).username)) ? handleShownInvitationShown() : handleHideInvitationShown();
+            (context.isAuth && (params.username === JSON.parse(Cookies.get('auth_user')).username)) ? handleShowInvitation() : handleHideInvitation();
         }
 
         return () => {
@@ -85,6 +86,7 @@ export const Friends = () => {
                     isFriendsInvitationShown: isFriendsInvitationShown,
                     isContentShown: context.isContentShown,
                     handleForceRender: handleForceRender,
+                    isAuth: context.isAuth,
                 }}/>
             </FriendsWrapper>
         </Section>

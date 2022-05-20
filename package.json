@@ -11,6 +11,8 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.2.0",
     "@testing-library/user-event": "^13.5.0",
+    "@tiptap/extension-character-count": "^2.0.0-beta.26",
+    "@tiptap/html": "^2.0.0-beta.175",
     "@tiptap/react": "^2.0.0-beta.109",
     "@tiptap/starter-kit": "^2.0.0-beta.185",
     "antd": "^4.20.4",

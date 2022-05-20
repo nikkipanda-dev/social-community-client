@@ -18,6 +18,7 @@ export const {
             darkGray: '#666666',
             lightGray: '#F6F6F6',
             lightGray1: '#f0f0f0',
+            lightGray2: '#b2b2b2',
             sealBrown: '#552D03',
             orangePeel: '#FF9F1C',
             mellowApricot: '#FFBF69',

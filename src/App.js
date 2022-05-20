@@ -12,17 +12,20 @@ import CommunityBlog from './components/pages/community-blog';
 import Discussions from './components/pages/discussions';
 import Profile from './components/pages/profile';
 import Microblog from './components/sections/Microblog';
+import Journal from './components/pages/journal';
+import { Journal as JournalSection } from './components/sections/Journal';
+import JournalEntry from './components/widgets/JournalEntry';
 import About from './components/pages/about';
 import Friends from './components/pages/friends';
 import FriendInvitations from './components/widgets/FriendInvitations';
 import { Friends as FriendsSection } from './components/sections/Friends';
 import DiscussionPosts from './components/widgets/DiscussionPosts';
 import CommunityBlogEntries from './components/widgets/CommunityBlogEntries';
-import Journal from './components/sections/Journal';
 import Events from './components/pages/events';
 import Messages from './components/pages/messages';
 import Settings from './components/pages/settings';
 import NotFound from './components/widgets/NotFound';
+import PostJournal from './components/widgets/PostJournal';
 
 const Main = styled('main', {});
 
@@ -81,7 +84,12 @@ function App() {
                     handleForceRender={handleForceRender}/>}>
                         <Route index element={<Microblog />} />
                         <Route path="microblog" element={<Microblog />} />
-                        <Route path="journal" element={<Journal />} />
+                        <Route path="journal" element={<Journal />}>
+                            <Route index element={<JournalSection />} />
+                            <Route path="editor" element={<PostJournal />} />
+                            <Route path="all" element={<JournalSection />} />
+                            <Route path=":slug" element={<JournalEntry />} />
+                        </Route>
                         <Route path="about" element={<About />} />
                         <Route path="friends" element={<Friends />} >
                             <Route index element={<FriendsSection />} />

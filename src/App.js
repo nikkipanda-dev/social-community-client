@@ -10,7 +10,9 @@ import LandingPage from './components/pages/landing-page';
 import Home from './components/pages/home';
 import CommunityBlog from './components/pages/community-blog';
 import Discussions from './components/pages/discussions';
+import { Discussions as DiscussionsSection } from './components/sections/Discussions';
 import UserDiscussions from './components/sections/UserDiscussions';
+import DiscussionsCategory from './components/widgets/DiscussionsCategory';
 import Profile from './components/pages/profile';
 import Microblog from './components/sections/Microblog';
 import Journal from './components/pages/journal';
@@ -102,7 +104,11 @@ function App() {
                         </Route>
                         <Route path="community-blog" element={<CommunityBlogEntries />} />
                     </Route>
-                    <Route path="/discussions" element={<Discussions />} />
+                    <Route path="/discussions" element={<Discussions isAuth={isAuth} />}>
+                        <Route index element={<DiscussionsSection />} />
+                        <Route path="all" element={<DiscussionsSection />} />
+                        <Route path=":slug" element={<DiscussionsCategory />} />
+                    </Route>
                     <Route path="/events" element={<Events />} />     
                     <Route path="/messages" element={<Messages />} />
                     <Route path="/:username/settings" element={<Settings />} />

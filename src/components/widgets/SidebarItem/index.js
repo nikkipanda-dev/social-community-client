@@ -9,15 +9,13 @@ const SidebarItemWrapper = styled('div', {
 });
 
 export const SidebarItem = ({ item, isAuth, }) => {
-    console.log('item ', item);
-
     return (
         <NavLink to={(item && item.link) && item.link} className={({ isActive }) => isActive ? 'active-nav ' : undefined}>
             <SidebarItemWrapper>
                 <FontAwesomeIcon icon={(item && item.icon) && item.icon} className="fa-xl fa-fw" />
                 <Text 
                 type="span" 
-                size="medium"
+                size="small"
                 className="ms-3">
                     {(item && item.section) && item.section}
                 </Text>

@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, } from "react";
-import { useParams, } from "react-router-dom";
-import { isAuth } from "../../../util";
+import { useParams, useOutletContext, } from "react-router-dom";
 import { axiosInstance } from "../../../requests";
 import Cookies from 'js-cookie';
 import ReactPaginate from 'react-paginate';
@@ -57,6 +56,7 @@ const PaginatorWrapper = styled('div', {
 export const Friends = ({ className, css, }) => {
     const params = useParams();
     const ref = useRef('');
+    const context = useOutletContext();
 
     const [friends, setFriends] = useState('');
     const [friendsLen, setFriendsLen] = useState(0);
@@ -77,7 +77,7 @@ export const Friends = ({ className, css, }) => {
     };
 
     const getFriends = () => {
-        if (isAuth()) {
+        if (context.isAuth) {
             const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
             axiosInstance.get(process.env.REACT_APP_BASE_URL + "friends/user/all", {
@@ -111,7 +111,7 @@ export const Friends = ({ className, css, }) => {
     }
 
     const paginateFriends = () => {
-        if (Number.isInteger(offset)) {
+        if (context.isAuth && Number.isInteger(offset)) {
             const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
             axiosInstance.get(process.env.REACT_APP_BASE_URL + "friends/user/paginate", {

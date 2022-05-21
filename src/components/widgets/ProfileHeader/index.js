@@ -282,10 +282,8 @@ export const ProfileHeader = ({
         const getWidth = () => {
             if (window.innerWidth <= 1199) {
                 handleShowVerticalAction();
-                console.log('show');
             } else {
                 handleHideVerticalAction();
-                console.log('hide');
             }
         };
 

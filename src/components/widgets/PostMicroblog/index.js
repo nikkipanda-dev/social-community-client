@@ -15,19 +15,19 @@ const PostMicroblogWrapper = styled('div', {
     'label.ant-form-item-required': {
         fontFamily: '$manjari',
         marginTop: '35px',
-        fontWeight: 'bold',
         fontSize: '$default',
     },
-    '.ant-form-item-control-input-content > div.ant-input-textarea > span.ant-input-affix-wrapper > textarea': {
+    '.ant-form-item-control-input-content > div.ant-input-textarea > span.ant-input-affix-wrapper > textarea, .ant-form-item-control-input-content > div.ant-input-textarea > span.ant-input-affix-wrapper > textarea:focus': {
+        boxShadow: 'unset',
         borderRadius: '$small',
         padding: '$space-3',
-        border: 'unset',
     },
-    '.ant-form-item-control-input-content > input, .ant-form-item-control-input-content > div.ant-input-textarea > span.ant-input-affix-wrapper, .ant-form-item-control-input-content > span.ant-input-affix-wrapper-focused': {
-        border: '5px solid $black !important',
-        borderRadius: '$default',
-        boxShadow: 'unset !important',
-        padding: '$space-3',
+    '.ant-form-item-control-input-content > div.ant-input-textarea > span.ant-input-affix-wrapper > textarea': {
+        border: '1px solid $lightGray1 !important',
+    },
+    '.ant-form-item-control-input-content > div.ant-input-textarea > span.ant-input-affix-wrapper > textarea:focus': {
+        outline: 'unset',
+        border: '1px solid $lightGray2 !important',
     },
 });
 
@@ -122,13 +122,12 @@ export const PostMicroblog = ({ handleMicroblogEntries, }) => {
             <Form
             name="microblog-form"
             form={form}
-            // className="bg-warning"
             layout="vertical"
             validateMessages={validateMessages}
             onFinish={onFinish}
             autoComplete="off">
                 <Form.Item
-                label="Microblog"
+                label="How's it going?"
                 name="body"
                 {...help && { help: help }}
                 rules={[{

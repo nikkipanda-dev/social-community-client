@@ -23,6 +23,9 @@ const textStyle = {
             }
         },
         size: {
+            tiny: {
+                fontSize: '$tiny',
+            },
             medium: {
                 fontSize: '$medium',
             },

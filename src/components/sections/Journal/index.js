@@ -186,8 +186,8 @@ export const Journal = () => {
                 renderOnZeroPageCount={null} />
                 <Text
                 type="span"
-                    color="darkGray">Showing {(offset + 1)} - {(((offset + 10) - 1) < journalEntriesLen) ? (offset + 10) :
-                    (((offset + 10) >= journalEntriesLen) && journalEntriesLen)} of {journalEntriesLen + ((journalEntriesLen > 1) ? ' entries' : ' entry')}</Text>
+                color="darkGray">Showing {(offset + 1)} - {(((offset + 10) - 1) < journalEntriesLen) ? (offset + 10) :
+                (((offset + 10) >= journalEntriesLen) && journalEntriesLen)} of {journalEntriesLen + ((journalEntriesLen > 1) ? ' entries' : ' entry')}</Text>
             </PaginatorWrapper>
         </JournalWrapper>
     )

@@ -15,7 +15,7 @@ export const SidebarItem = ({ item, isAuth, }) => {
                 <FontAwesomeIcon icon={(item && item.icon) && item.icon} className="fa-xl fa-fw" />
                 <Text 
                 type="span" 
-                size="medium"
+                size="small"
                 className="ms-3">
                     {(item && item.section) && item.section}
                 </Text>

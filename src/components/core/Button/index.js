@@ -8,6 +8,9 @@ const ButtonWrapper = styled('button', {
     border: 'none',
     borderRadius: '$default',
     padding: '$space-2 $space-3 $space-1',
+    '&.button-xs': {
+        fontSize: '$tiny',
+    },
     '&.button-sm': {
         fontSize: '$small',
     },

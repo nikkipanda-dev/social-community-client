@@ -10,6 +10,7 @@ import LandingPage from './components/pages/landing-page';
 import Home from './components/pages/home';
 import CommunityBlog from './components/pages/community-blog';
 import Discussions from './components/pages/discussions';
+import UserDiscussions from './components/sections/UserDiscussions';
 import Profile from './components/pages/profile';
 import Microblog from './components/sections/Microblog';
 import Journal from './components/pages/journal';
@@ -96,7 +97,9 @@ function App() {
                             <Route path="invitations" element={<FriendInvitations />} />
                             <Route path="all" element={<FriendsSection />} />
                         </Route>
-                        <Route path="discussions" element={<DiscussionPosts />} />
+                        <Route path="discussions" element={<DiscussionPosts />}>
+                            <Route path="all" element={<UserDiscussions />} />
+                        </Route>
                         <Route path="community-blog" element={<CommunityBlogEntries />} />
                     </Route>
                     <Route path="/discussions" element={<Discussions />} />

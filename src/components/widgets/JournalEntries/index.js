@@ -2,7 +2,11 @@ import { styled } from "../../../stitches.config";
 
 import JournalEntryCard from "../JournalEntryCard";
 
-const JournalEntriesWrapper = styled('div', {});
+const JournalEntriesWrapper = styled('div', {
+    '> div:nth-child(n+2)': {
+        marginTop: '$space-3',
+    },
+});
 
 export const JournalEntries = ({ journalEntries, handleJournalEntries, }) => {
     return (

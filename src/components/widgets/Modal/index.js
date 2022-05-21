@@ -32,7 +32,7 @@ export const Modal = ({
             <ModalHeaderWrapper>
                 <Text type="span" size="medium">{title}</Text>
             </ModalHeaderWrapper>
-            <ModalBodyWrapper className={('mt-5')}>
+            <ModalBodyWrapper className={closable && ('mt-5')}>
                 {children}
             </ModalBodyWrapper>
         </ModalWrapper>

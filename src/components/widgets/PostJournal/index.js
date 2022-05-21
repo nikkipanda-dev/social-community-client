@@ -1,21 +1,21 @@
 import { useState, } from "react";
-import { useOutletContext, } from "react-router-dom";
+import { useOutletContext, useNavigate, } from "react-router-dom";
 import { Form, Input, message, } from "antd";
 import { key, showAlert, } from "../../../util";
 import Cookies from 'js-cookie';
 import { axiosInstance } from "../../../requests";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleCheck, } from '@fortawesome/free-solid-svg-icons';
-import { styled } from "../../../stitches.config";
+import { styled, richTextStyle, } from "../../../stitches.config";
 
 import Button from "../../core/Button";
+import Heading from "../../core/Heading";
 import Alert from "../../core/Alert";
 import Text from "../../core/Text";
 import { TipTapEditor, } from "../TipTapEditor";
+import JournalEntryPreview from "../JournalEntryPreview";
 
 const PostJournalWrapper = styled('div', {
-    background: '$lightGray ',
-    marginBottom: '$space-5',
     '.ant-col > label.ant-form-item-required': {
         fontFamily: '$manjari',
         marginTop: '$space-3',
@@ -30,9 +30,9 @@ const PostJournalWrapper = styled('div', {
     },
 });
 
-const SubmitButtonWrapper = styled('div', {
-    marginTop: '30px',
-});
+const SubmitButtonWrapper = styled('div', {});
+
+const PreviewWrapper = styled('div', richTextStyle);
 
 const validateMessages = {
     required: '${label} is required.',
@@ -54,10 +54,12 @@ const formItemLayout = {
 }
 
 export const PostJournal = () => {
+    const navigate = useNavigate();
     const context = useOutletContext();
 
     const [form] = Form.useForm();
     const [titleHelp, setTitleHelp] = useState('');
+    const [showPreview, setShowPreview] = useState(false);
     const [output, setOutput] = useState('');
     const [help, setHelp] = useState('');
     const [status, setStatus] = useState('');
@@ -67,11 +69,19 @@ export const PostJournal = () => {
     const handleHeader = header => setHeader(header);
     const handleHelp = help => setHelp(help);
     const handleTitleHelp = titleHelp => setTitleHelp(titleHelp);
+
+    const handleTogglePreview = () => {
+        setShowPreview(!showPreview);
+        context.handleToggleJournalNav();
+    }
+
     const handleOutput = output => setOutput(output);
 
-    const limit = 10000;
+    const handleSubmitPost = slug => {
+        navigate('../' + slug);
+    }
 
-    console.log('json ', output);
+    const limit = 10000;
 
     const onFinish = value => {
         handleTitleHelp('');
@@ -94,13 +104,6 @@ export const PostJournal = () => {
             journalForm.append('username', JSON.parse(Cookies.get('auth_user')).username);
             journalForm.append('body', JSON.stringify(output));
 
-            console.log('body ', output);
-
-            for (let [i, val] of journalForm.entries()) {
-                console.info('i ', i);
-                console.info('val ', val);
-            }
-
             axiosInstance.post(process.env.REACT_APP_BASE_URL + "journal-entries/user/store", journalForm, {
                 headers: {
                     Authorization: `Bearer ${authToken}`,
@@ -108,16 +111,16 @@ export const PostJournal = () => {
             })
 
             .then(response => {
-                console.log('res ', response.data);
                 if (response.data.isSuccess) {
                     showAlert();
                     setTimeout(() => {
+                        handleSubmitPost(response.data.data.details.slug);
                         message.open({
                             content: <>
                                 <FontAwesomeIcon
-                                    icon={faCircleCheck}
-                                    className="me-2"
-                                    style={{ color: '#007B70', }} />
+                                icon={faCircleCheck}
+                                className="me-2"
+                                style={{ color: '#007B70', }} />
                                 <Text type="span">Posted.</Text>
                             </>,
                             key,
@@ -173,32 +176,54 @@ export const PostJournal = () => {
             onFinish={onFinish}
             {...formItemLayout}
             autoComplete="off">
-                <Form.Item
-                label="Title"
-                name="title"
-                {...titleHelp && { help: titleHelp }}
-                rules={[{
-                    required: true,
-                    type: 'string',
-                    min: 2,
-                    max: 50,
-                }]}>
-                    <Input allowClear />
-                </Form.Item>
+            {
+                !(showPreview) && 
+                <>
+                    <Form.Item
+                    label="Title"
+                    name="title"
+                    {...titleHelp && { help: titleHelp }}
+                    rules={[{
+                        required: true,
+                        type: 'string',
+                        min: 2,
+                        max: 50,
+                    }]}>
+                        <Input allowClear />
+                    </Form.Item>
 
-                <TipTapEditor 
-                limit={limit} 
-                handleOutput={handleOutput}
-                isEditable />
+                    <PreviewWrapper>
+                        <TipTapEditor
+                        limit={limit}
+                        content={output}
+                        handleOutput={handleOutput}
+                        isEditable />   
+                    </PreviewWrapper>
+                </>
+            }
 
-                <SubmitButtonWrapper className="d-flex justify-content-md-end align-items-center">
+                <SubmitButtonWrapper className="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center" css={{ marginTop: showPreview ? '0' : '$space-3' }}>
+                    <Button
+                    type="button"
+                    text={showPreview ? 'Go back' : 'Show preview'}
+                    className="flex-grow-1 flex-md-grow-0"
+                    onClick={() => handleTogglePreview()} />
                     <Button
                     type="submit"
                     text="Post"
-                    className="flex-grow-1 flex-md-grow-0"
+                    className="flex-grow-1 flex-md-grow-0 mt-3 mt-md-0"
                     color="brown" />
                 </SubmitButtonWrapper>
             </Form>
+        {
+            (showPreview && (output && (Object.keys(output).length > 0)) && limit) &&
+            <JournalEntryPreview 
+            title={form.getFieldsValue().title}
+            content={output} 
+            limit={limit}
+            isTitleShown
+            isEditable={false} />
+        }
         </PostJournalWrapper>
     )
 }

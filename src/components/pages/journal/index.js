@@ -45,12 +45,12 @@ export const Journal = () => {
     const params = useParams();
     const context = useOutletContext();
 
+    const [isJournalNavShown, setIsJournalNavShown] = useState(true);
     const [isJournalShown, setIsJournalShown] = useState(false);
 
+    const handleToggleJournalNav = () => setIsJournalNavShown(!isJournalNavShown);
     const handleShowJournalEntries = () => setIsJournalShown(true);
     const handleHideJournalEntries = () => setIsJournalShown(false);
-
-    console.info('context journal ', context);
 
     useEffect(() => {
         let loading = true;
@@ -68,7 +68,7 @@ export const Journal = () => {
         <Section>
             <JournalWrapper className="mx-auto">
             {
-                isJournalShown &&
+                (isJournalShown && isJournalNavShown) &&
                 <JournalNavWrapper>
                     <NavLink to="editor" className={({ isActive }) => isActive ? 'active-nav' : undefined}>
                         <Text type="span" size="medium"><FontAwesomeIcon className="me-2 fa-fw" icon={faFeatherPointed} />Create</Text>
@@ -81,6 +81,7 @@ export const Journal = () => {
                 <Outlet context={{
                     isAuth: context.isAuth,
                     isJournalShown: isJournalShown,
+                    handleToggleJournalNav: handleToggleJournalNav,
                 }} />
             </JournalWrapper>
         </Section>

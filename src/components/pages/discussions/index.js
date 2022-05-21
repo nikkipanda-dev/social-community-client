@@ -1,12 +1,20 @@
+import { Outlet, } from "react-router-dom";
 import { styled } from "../../../stitches.config";
 
-const DiscussionsWrapper = styled('div', {});
+import Section from "../../core/Section";
+import UserDiscussions from "../../sections/UserDiscussions";
+
+const DiscussionsWrapper = styled('div', {
+    maxWidth: '1700px',
+});
 
 export const Discussions = () => {
     return (
-        <DiscussionsWrapper>
-            Discussions
-        </DiscussionsWrapper>
+        <Section>
+            <DiscussionsWrapper>
+                <UserDiscussions />
+            </DiscussionsWrapper>
+        </Section>
     )
 }
 

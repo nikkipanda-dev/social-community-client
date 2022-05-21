@@ -127,7 +127,7 @@ export const PostMicroblog = ({ handleMicroblogEntries, }) => {
             onFinish={onFinish}
             autoComplete="off">
                 <Form.Item
-                label="What's going "
+                label="How's it going?"
                 name="body"
                 {...help && { help: help }}
                 rules={[{

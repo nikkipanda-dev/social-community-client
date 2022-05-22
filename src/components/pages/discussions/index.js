@@ -1,53 +1,63 @@
-import { Outlet, } from "react-router-dom";
-import { DiscussionsSidebarItems } from "../../../util/NavLinks/Discussions";
+import { useState, } from "react";
+import { Outlet, Link, } from "react-router-dom";
 import { styled } from "../../../stitches.config";
 
 import Section from "../../core/Section";
 import Row from "../../core/Row";
 import Column from "../../core/Column";
-import Sidebar from "../../widgets/Sidebar";
+import Button from "../../core/Button";
+import DiscussionsSidebar from "../../widgets/DiscussionsSidebar";
 
 const DiscussionsWrapper = styled('div', {
     maxWidth: '1700px',
     paddingTop: '$space-5',
 });
 
-const ProfileSidebarWrapper = styled('div', {
-    background: 'red',
-    padding: '$space-1',
-    overflow: 'scroll',
-    maxHeight: '100vh',
-    boxSizing: 'border-box',
-    width: '100%',
-    '> div:nth-child(n+2)': {
-        marginTop: '$space-4',
-    },
-    '> div': {
-        padding: '0px $space-3 0px 0px',
-    },
+const DiscussionsContentWrapper = styled('div', {
+    marginTop: '$space-4',
 });
 
+const ActionWrapper = styled('div', {});
+
 export const Discussions = ({ isAuth }) => {
+    const [isPostDiscussionVisible, setIsPostDiscussionVisible] = useState(false);
+
+    const handleIsPostVisible = () => setIsPostDiscussionVisible(!isPostDiscussionVisible);
+
     return (
         <Section>
-            <DiscussionsWrapper className="bg-warning">
-                <Row className="bg-primary g-0 m-0" css={{ padding: '$space-3', }}>
-                    <Column className="col-md-3 bg-secondary">
-                        <ProfileSidebarWrapper className="sticky-top">
-                            <Sidebar
-                            isContentShown
-                            items={DiscussionsSidebarItems} />
-                        </ProfileSidebarWrapper>
-                    </Column>
-                    <Column className="col-md-9 bg-light">
-                        <Outlet context={{
-                            isAuth: isAuth,
-                        }} />
+            <DiscussionsWrapper>
+                <Row className="g-0 m-0" css={{ padding: '$space-3', }}>
+                    <Column className="col-12">
+                        <ActionWrapper className="d-flex flex-column flex-sm-row justify-content-sm-end align-items-md-center">
+                            <Button
+                            type="button"
+                            className="flex-grow-1 flex-sm-grow-0"
+                            color={isPostDiscussionVisible ? '' : 'orange'}
+                            text={isPostDiscussionVisible ? "Cancel" : "Start a new discussion"}
+                            onClick={() => handleIsPostVisible()} />
+                        </ActionWrapper>
+                        <DiscussionsContentWrapper className="d-flex">
+                            <DiscussionsSidebar 
+                            className="flex-shrink-0 sticky-top" 
+                            isAuth={isAuth} 
+                            css={{ position: 'fixed', }}
+                            isContentShown={true}/>
+                            <Outlet context={{
+                                isAuth: isAuth,
+                                isPostDiscussionVisible: isPostDiscussionVisible,
+                                handleIsPostVisible: handleIsPostVisible,
+                            }} />
+                        </DiscussionsContentWrapper>
                     </Column>
                 </Row>
             </DiscussionsWrapper>
         </Section>
     )
+}
+
+function toggleSidebar() {
+    console.info('toggle');
 }
 
 export default Discussions;

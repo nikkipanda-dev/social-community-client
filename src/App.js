@@ -13,6 +13,7 @@ import Discussions from './components/pages/discussions';
 import { Discussions as DiscussionsSection } from './components/sections/Discussions';
 import UserDiscussions from './components/sections/UserDiscussions';
 import DiscussionsCategory from './components/widgets/DiscussionsCategory';
+import DiscussionPost from './components/widgets/DiscussionPost';
 import Profile from './components/pages/profile';
 import Microblog from './components/sections/Microblog';
 import Journal from './components/pages/journal';
@@ -111,6 +112,7 @@ function App() {
                     </Route>
                     <Route path="/events" element={<Events />} />     
                     <Route path="/messages" element={<Messages />} />
+                    <Route path="/discussions/post/:slug" element={<DiscussionPost />} />
                     <Route path="/:username/settings" element={<Settings />} />
                     <Route path="/:path" element={<NotFound />} />
                 </Routes>

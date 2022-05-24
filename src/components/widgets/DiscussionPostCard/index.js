@@ -28,7 +28,7 @@ export const DiscussionPostCard = ({ values }) => {
         <DiscussionPostCardWrapper>
             <Card css={{ borderRadius: '$default', padding: '$space-3', }}>
                 <DiscussionPostBodyWrapper>
-                    <Link to={"post/" + values.slug}>
+                    <Link to={"/discussions/post/" + values.slug}>
                         <Text type="span" size="large">{values.title}</Text>
                     </Link>
                     <DiscussionPostContentWrapper>

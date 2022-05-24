@@ -1,5 +1,5 @@
 import { useState, useEffect, } from 'react';
-import { useOutletContext, } from 'react-router-dom';
+import { useOutletContext, useParams, } from 'react-router-dom';
 import { 
     Form, 
     Input, 
@@ -83,6 +83,7 @@ export const PostDiscussion = ({
 }) => {
     const [form] = Form.useForm();
     const context = useOutletContext();
+    const params = useParams();
 
     const [titleHelp, setTitleHelp] = useState('');
     const [bodyHelp, setBodyHelp] = useState('');
@@ -91,6 +92,15 @@ export const PostDiscussion = ({
     const handleTitleHelp = titleHelp => setTitleHelp(titleHelp);
     const handleBodyHelp = bodyHelp => setBodyHelp(bodyHelp);
     const handleCategoryHelp = categoryHelp => setCategoryHelp(categoryHelp);
+
+    const categories = {
+        hobbies: 'hobby',
+        wellbeing: 'wellbeing',
+        career: 'career',
+        coaching: 'coaching',
+        "science-and-tech": 'science-and-tech',
+        "social-causes": 'social-cause',
+    }
 
     const onFinish = values => {
         handleTitleHelp('');
@@ -105,6 +115,7 @@ export const PostDiscussion = ({
             }
 
             discussionForm.append('username', JSON.parse(Cookies.get('auth_user')).username);
+            params.slug && discussionForm.append('category', categories[params.slug]);
 
             storeDiscussion(discussionForm).then(response => {
                 if (response.data.isSuccess) {

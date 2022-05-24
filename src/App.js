@@ -80,7 +80,7 @@ function App() {
                         isAuth={isAuth}
                         handleLogIn={handleLogIn}
                         handleLogOut={handleLogOut} />} />
-                    <Route path="/home" element={<Home isAuth={isAuth}/>} />
+                    <Route path="/home" element={<Home isAuth={isAuth} />} />
                     <Route path="/community-blog" element={<CommunityBlog />} />
                     <Route path="/profile/:username" element={<Profile 
                     isAuth={isAuth}
@@ -107,12 +107,11 @@ function App() {
                     </Route>
                     <Route path="/discussions" element={<Discussions isAuth={isAuth} />}>
                         <Route index element={<DiscussionsSection />} />
-                        <Route path="all" element={<DiscussionsSection />} />
-                        <Route path=":slug" element={<DiscussionsCategory />} />
+                        <Route path="post/:slug" element={<DiscussionPost />} />
+                        <Route path=":slug" element={<DiscussionsSection />} />
                     </Route>
                     <Route path="/events" element={<Events />} />     
                     <Route path="/messages" element={<Messages />} />
-                    <Route path="/discussions/post/:slug" element={<DiscussionPost />} />
                     <Route path="/:username/settings" element={<Settings />} />
                     <Route path="/:path" element={<NotFound />} />
                 </Routes>

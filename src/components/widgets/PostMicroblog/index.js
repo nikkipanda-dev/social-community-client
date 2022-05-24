@@ -17,6 +17,9 @@ const PostMicroblogWrapper = styled('div', {
         marginTop: '35px',
         fontSize: '$default',
     },
+    '.ant-form-item-control-input-content > div.ant-input-textarea > span.ant-input-affix-wrapper': {
+        background: 'transparent',
+    },
     '.ant-form-item-control-input-content > div.ant-input-textarea > span.ant-input-affix-wrapper > textarea, .ant-form-item-control-input-content > div.ant-input-textarea > span.ant-input-affix-wrapper > textarea:focus': {
         boxShadow: 'unset',
         borderRadius: '$small',

@@ -6,7 +6,6 @@ import { styled } from "../../../stitches.config";
 
 import PostDiscussion from "../../widgets/PostDiscussion";
 import DiscussionPosts from "../../widgets/DiscussionPosts";
-import Button from "../../core/Button";
 
 const DiscussionsWrapper = styled('div', {
     width: '100%',
@@ -39,8 +38,9 @@ export const Discussions = () => {
         let loading = true;
 
         if (loading && context.isAuth) {
-            getDiscussions().then (response => {
+            getDiscussions(context.category ? context.category : null).then (response => {
                 if (response.data.isSuccess) {
+                    console.log('res get all ', response.data.data.details);
                     handleDiscussionsLen(Object.keys(response.data.data.details).length);
                     handleDiscussionPosts(response.data.data.details.slice(0, 10));
                     (Object.keys(response.data.data.details).length > 10) ? handlePageCount(Math.ceil(Object.keys(response.data.data.details).length / 10)) : handlePageCount(1);
@@ -59,13 +59,13 @@ export const Discussions = () => {
         return () => {
             loading = false;
         }
-    }, [forceRender]);
+    }, [forceRender, context.category]);
 
     useEffect(() => {
         let loading = true;
 
         if (loading && context.isAuth && Number.isInteger(offset)) {
-            getPaginatedDiscussions(offset).then(response => {
+            getPaginatedDiscussions(context.category ? context.category : null, offset).then(response => {
                 console.info(response.data);
                 if (response.data.isSuccess) {
                     handleDiscussionPosts(response.data.data.details);
@@ -105,21 +105,25 @@ export const Discussions = () => {
     )
 }
 
-async function getDiscussions() {
+async function getDiscussions(category) {
     const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
     return axiosInstance.get(process.env.REACT_APP_BASE_URL + "discussion-posts", {
+        params: {
+            category: category
+        },
         headers: {
             Authorization: `Bearer ${authToken}`,
         }
     })
 }
 
-async function getPaginatedDiscussions(offset) {
+async function getPaginatedDiscussions(category, offset) {
     const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
     return axiosInstance.get(process.env.REACT_APP_BASE_URL + "discussion-posts/paginate", {
         params: {
+            category: category,
             offset: offset,
             limit: 10,
         },

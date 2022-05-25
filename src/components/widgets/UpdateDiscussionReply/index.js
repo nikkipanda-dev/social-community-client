@@ -1,20 +1,9 @@
-import { useState, } from "react";
 import { Form, Input, } from "antd";
 import { styled } from "../../../stitches.config";
 
 import Button from "../../core/Button";
-import Image from '../../core/Image';
 
-const PostCommentWrapper = styled('div', {
-    'label.ant-form-item-required': {
-        fontFamily: '$manjari',
-        marginTop: '35px',
-        fontWeight: 'bold',
-        fontSize: '$default',
-    },
-    '.ant-form-item-control-input-content > div.ant-input-textarea > span.ant-input-affix-wrapper': {
-        background: 'transparent',
-    },
+const UpdateDiscussionReplyWrapper = styled('div', {
     '.ant-form-item-control-input-content > div.ant-input-textarea > span.ant-input-affix-wrapper > textarea, .ant-form-item-control-input-content > div.ant-input-textarea > span.ant-input-affix-wrapper > textarea:focus': {
         boxShadow: 'unset',
         borderRadius: '$small',
@@ -30,35 +19,43 @@ const PostCommentWrapper = styled('div', {
 });
 
 const SubmitButtonWrapper = styled('div', {
-    marginTop: '30px',
+    marginTop: '$space-5',
 });
 
-export const PostComment = ({ storeFn, form, }) => {
-    const [help, setHelp] = useState('');
+const validateMessages = {
+    required: '${label} is required.',
+    string: {
+        range: "${label} must be at least ${min} and maximum of ${max} characters.",
+    }
+};
 
+export const UpdateDiscussionReply = ({ 
+    form, 
+    values,
+    onUpdateReply, 
+    updateHelp,
+    handleHideModal,
+}) => {
+    console.info(values);
     return (
-        <PostCommentWrapper className="d-flex">
-            <Image src="/avatar_medium.png" css={{ 
-                width: '60px', 
-                height: '60px', 
-                objectFit: 'cover',
-            }}/>
+        (values && values.body && values.slug) &&
+        <UpdateDiscussionReplyWrapper>
             <Form
-            name="microblog-form"
-            className="flex-grow-1 ms-3"
-            layout="vertical"
+            name="update-discussion-reply-form"
             form={form}
-            onFinish={storeFn}
-            autoComplete="off">
+            initialValues={{ body: values.body }}
+            layout="vertical"
+            validateMessages={validateMessages}
+            onFinish={onUpdateReply}>
                 <Form.Item
+                label="Reply"
                 name="body"
-                {...help && { help: help }}
+                {...updateHelp && { help: updateHelp }}
                 rules={[{
                     required: true,
                     type: 'string',
                     min: 2,
                     max: 10000,
-                    message: 'Comment is required.'
                 }]}>
                     <Input.TextArea
                     allowClear
@@ -67,16 +64,21 @@ export const PostComment = ({ storeFn, form, }) => {
                     showCount />
                 </Form.Item>
 
-                <SubmitButtonWrapper className="d-flex justify-content-sm-end align-items-sm-center">
+                <SubmitButtonWrapper className="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
+                    <Button
+                    type="button"
+                    text="Cancel"
+                    className="flex-grow-1 flex-sm-grow-0"
+                    onClick={() => handleHideModal()} />
                     <Button
                     type="submit"
-                    text="Post"
-                    className="flex-grow-1 flex-sm-grow-0"
+                    text="Update"
+                    className="flex-grow-1 flex-sm-grow-0 mt-3 mt-sm-0"
                     color="brown" />
                 </SubmitButtonWrapper>
             </Form>
-        </PostCommentWrapper>
+        </UpdateDiscussionReplyWrapper>
     )
 }
 
-export default PostComment;
+export default UpdateDiscussionReply;

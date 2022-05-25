@@ -11,7 +11,7 @@ const TrendingDiscussionsWrapper = styled('div', {
     },
 });
 
-export const TrendingDiscussions = () => {
+export const TrendingDiscussions = ({ isAuth, }) => {
     const discussions = [
         {
             id: 1,
@@ -45,4 +45,5 @@ export const TrendingDiscussions = () => {
         </TrendingDiscussionsWrapper>
     )
 }
+
 export default TrendingDiscussions;

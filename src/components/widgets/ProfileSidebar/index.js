@@ -9,7 +9,6 @@ import Achievements from '../Achievements';
 
 const ProfileSidebarWrapper = styled('div', {
     width: '400px',
-    maxWidth: '500px',
     '> div:nth-child(n+2)': {
         marginTop: '$space-4',
     },

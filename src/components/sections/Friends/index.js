@@ -203,7 +203,8 @@ export const Friends = ({ className, css, }) => {
                 renderOnZeroPageCount={null} />
                 <Text
                 type="span"
-                    color="darkGray">Showing {(offset + 1)} - {(((offset + 16) - 1) < friendsLen) ? (offset + 16) :
+                color="darkGray">
+                    Showing {(offset + 1)} - {(((offset + 16) - 1) < friendsLen) ? (offset + 16) :
                     (((offset + 16) >= friendsLen) && friendsLen)} of {friendsLen + ((friendsLen > 1) ? ' invitations' : ' invitation')}</Text>
             </PaginatorWrapper>
         }

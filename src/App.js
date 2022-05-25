@@ -10,7 +10,9 @@ import LandingPage from './components/pages/landing-page';
 import Home from './components/pages/home';
 import CommunityBlog from './components/pages/community-blog';
 import Discussions from './components/pages/discussions';
+import { Discussions as DiscussionsSection } from './components/sections/Discussions';
 import UserDiscussions from './components/sections/UserDiscussions';
+import DiscussionPost from './components/widgets/DiscussionPost';
 import Profile from './components/pages/profile';
 import Microblog from './components/sections/Microblog';
 import Journal from './components/pages/journal';
@@ -23,6 +25,7 @@ import { Friends as FriendsSection } from './components/sections/Friends';
 import DiscussionPosts from './components/widgets/DiscussionPosts';
 import CommunityBlogEntries from './components/widgets/CommunityBlogEntries';
 import Events from './components/pages/events';
+import { Events as EventsSection } from './components/sections/Events';
 import Messages from './components/pages/messages';
 import Settings from './components/pages/settings';
 import NotFound from './components/widgets/NotFound';
@@ -77,7 +80,7 @@ function App() {
                         isAuth={isAuth}
                         handleLogIn={handleLogIn}
                         handleLogOut={handleLogOut} />} />
-                    <Route path="/home" element={<Home isAuth={isAuth}/>} />
+                    <Route path="/home" element={<Home isAuth={isAuth} />} />
                     <Route path="/community-blog" element={<CommunityBlog />} />
                     <Route path="/profile/:username" element={<Profile 
                     isAuth={isAuth}
@@ -102,8 +105,15 @@ function App() {
                         </Route>
                         <Route path="community-blog" element={<CommunityBlogEntries />} />
                     </Route>
-                    <Route path="/discussions" element={<Discussions />} />
-                    <Route path="/events" element={<Events />} />     
+                    <Route path="/discussions" element={<Discussions isAuth={isAuth} />}>
+                        <Route index element={<DiscussionsSection />} />
+                        <Route path="post/:slug" element={<DiscussionPost />} />
+                        <Route path=":slug" element={<DiscussionsSection />} />
+                    </Route>
+                    <Route path="/events" element={<Events isAuth={isAuth} />}>
+                        <Route index element={<EventsSection />} />
+                        <Route path=":slug" element={<EventsSection />} />
+                    </Route>     
                     <Route path="/messages" element={<Messages />} />
                     <Route path="/:username/settings" element={<Settings />} />
                     <Route path="/:path" element={<NotFound />} />

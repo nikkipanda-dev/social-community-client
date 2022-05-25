@@ -164,7 +164,7 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
         }
     }
 
-    const handlePostedComment = () => {
+    const handlePostedComment = (comments) => {
         handleForceRender();
         form.resetFields();
     }
@@ -190,7 +190,6 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
 
             .then(response => {
                 if (response.data.isSuccess) {
-                    console.log(response.data.data.details);
                     handlePostedComment(response.data.data.details);
                     showAlert();
                     setTimeout(() => {
@@ -330,7 +329,9 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
                 <MicroblogPostCommentWrapper>
                 {
                     isPostCommentVisible && 
-                    <PostComment storeComment={storeComment} form={form} />
+                    <PostComment 
+                    storeFn={storeComment} 
+                    form={form} />
                 }
                 {
                     (isCommentsGroupVisible && (microblogEntry && microblogEntry.slug)) && 

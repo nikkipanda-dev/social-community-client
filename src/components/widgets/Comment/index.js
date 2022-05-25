@@ -46,9 +46,7 @@ const CommentStatWrapper = styled('div', {
 export const Comment = ({ 
     comment,
     omitComments,
-}) => {
-    // console.log('comment ', comment);
-    
+}) => {    
     const [isHeart, setIsHeart] = useState(false);
     const [commentHeartCount, setCommentHeartCount] = useState(0);
     

@@ -150,9 +150,9 @@ export const Comments = ({
         }
             <hr />
             <CommentsFooterWrapper className="d-flex flex-column flex-lg-row justify-content-between align-items-center">
-                <Text type="span" color="darkGray">Showing {limit} of {commentsLen} comments</Text>
+                <Text type="span" color="darkGray">Showing {(commentsLen <= 5) ? commentsLen : limit} of {commentsLen} comment{(commentsLen > 1) && 's'}</Text>
             {
-                !(limit === commentsLen) &&
+                !((commentsLen <= 5)) &&
                 <SubmitButtonWrapper>
                     <Button
                     type="button"

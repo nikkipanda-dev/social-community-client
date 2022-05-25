@@ -41,6 +41,7 @@ export const Sidebar = ({
     items, 
     className, 
     css,
+    cardcss,
 }) => {
     const params = useParams();
 
@@ -48,8 +49,9 @@ export const Sidebar = ({
         isContentShown && 
         <SidebarWrapper>
             <Card css={{ 
+                ...cardcss,
                 padding: '$space-3', 
-                borderRadius: '$default', }}>
+                borderRadius: '$default' }}>
                 <SidebarItemsWrapper className={' ' + (className ? (' ' + className) : '')} {...css && { css: { ...css } }}>
                 {
                     (items && (Object.keys(items).length > 0)) &&

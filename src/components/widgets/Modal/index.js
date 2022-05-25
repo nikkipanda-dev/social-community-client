@@ -13,6 +13,7 @@ export const Modal = ({
     maskClosable,
     title,
     isVisible,
+    id,
     onCancel,
     width,
     bodyStyle,

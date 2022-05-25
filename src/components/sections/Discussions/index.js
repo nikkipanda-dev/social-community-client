@@ -1,4 +1,8 @@
-import { useState, useEffect, } from "react";
+import { 
+    useState, 
+    useEffect,
+    useRef,
+} from "react";
 import { useOutletContext, } from "react-router-dom";
 import { axiosInstance } from "../../../requests";
 import Cookies from 'js-cookie';
@@ -12,6 +16,7 @@ const DiscussionsWrapper = styled('div', {
 });
 
 export const Discussions = () => {
+    const ref = useRef('');
     const context = useOutletContext();
 
     const [forceRender, setForceRender] = useState('');
@@ -68,7 +73,11 @@ export const Discussions = () => {
             getPaginatedDiscussions(context.category ? context.category : null, offset).then(response => {
                 console.info(response.data);
                 if (response.data.isSuccess) {
-                    handleDiscussionPosts(response.data.data.details);
+                    window.scrollTo(0, 0);
+
+                    setTimeout(() => {
+                        handleDiscussionPosts(response.data.data.details);                        
+                    }, 1000);
                 } else {
                     console.error('get discussions ', response.data.data.errorText);
                 }
@@ -96,6 +105,7 @@ export const Discussions = () => {
             css={{ marginTop: '$space-3', marginBottom: '$space-3', }} />
         }
             <DiscussionPosts 
+            ref={ref}
             onClick={onClick}
             pageCount={pageCount}
             offset={offset}

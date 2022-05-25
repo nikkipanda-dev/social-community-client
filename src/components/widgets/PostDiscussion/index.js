@@ -13,7 +13,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleCheck, faCircleInfo, } from '@fortawesome/free-solid-svg-icons';
 import { styled } from "../../../stitches.config";
 
-import Alert from '../../core/Alert';
 import Text from '../../core/Text';
 import Button from '../../core/Button';
 
@@ -98,8 +97,8 @@ export const PostDiscussion = ({
         wellbeing: 'wellbeing',
         career: 'career',
         coaching: 'coaching',
-        "science-and-tech": 'science-and-tech',
-        "social-causes": 'social-cause',
+        "science-and-tech": 'science_and_tech',
+        "social-causes": 'social_cause',
     }
 
     const onFinish = values => {

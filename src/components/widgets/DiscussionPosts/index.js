@@ -1,4 +1,8 @@
-import { useState, useEffect, } from 'react';
+import { 
+    useState, 
+    useEffect,
+    forwardRef,
+} from 'react';
 import ReactPaginate from 'react-paginate';
 import { styled } from "../../../stitches.config";
 
@@ -45,15 +49,15 @@ const PaginatorWrapper = styled('div', {
     },
 });
 
-export const DiscussionPosts = ({ 
+export const DiscussionPosts = forwardRef(({ 
     discussionPosts, 
     onClick, 
     offset,
     discussionsLen,
     pageCount,
-}) => {
+}, ref) => {
     return (
-        <DiscussionPostsWrapper>
+        <DiscussionPostsWrapper ref={ref}>
         {
             (discussionPosts && (Object.keys(discussionPosts).length > 0)) && 
             Object.keys(discussionPosts).map((_, val) => 
@@ -88,6 +92,6 @@ export const DiscussionPosts = ({
             </PaginatorWrapper>
         </DiscussionPostsWrapper>
     )
-}
+})
 
 export default DiscussionPosts;

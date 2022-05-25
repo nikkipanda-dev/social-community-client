@@ -27,6 +27,9 @@ const DiscussionsBodyWrapper = styled('div', {
 
 const DiscussionsContentWrapper = styled('div', {
     marginTop: '$space-4',
+    '> div': {
+        padding: '0px $space-3',
+    },
 });
 
 const ActionWrapper = styled('div', {});
@@ -54,12 +57,9 @@ const { Option } = Select;
 export const Discussions = ({ isAuth }) => {
     const params = useParams();
     const navigate = useNavigate();
-    const [isSidebarVisible, setIsSidebarVisible] = useState(false);
     const [isPostDiscussionVisible, setIsPostDiscussionVisible] = useState(false);
 
     const handleIsPostVisible = () => setIsPostDiscussionVisible(!isPostDiscussionVisible);
-    const handleShowSidebar = () => setIsSidebarVisible(true);
-    const handleHideSidebar = () => setIsSidebarVisible(false);
 
     const handleNavigator = value => {
         (value === "all") ? navigate("/discussions") : navigate(value);
@@ -70,37 +70,9 @@ export const Discussions = ({ isAuth }) => {
         wellbeing: 'wellbeing',
         career: 'career',
         coaching: 'coaching',
-        "science-and-tech": 'science-and-tech',
-        "social-causes": 'social-cause',
+        "science-and-tech": 'science_and_tech',
+        "social-causes": 'social_cause',
     }
-
-    useEffect(() => {
-        let loading = true;
-
-        if (loading) {
-            (document.body.getBoundingClientRect().width > 900) ? handleShowSidebar() : handleHideSidebar();
-        }
-
-        return (loading) => {
-            loading = false;
-        }
-    }, []);
-
-    useLayoutEffect(() => {
-        let loading = true;
-
-        const onResize = () => {
-            (document.body.getBoundingClientRect().width > 900) ? handleShowSidebar() : handleHideSidebar();
-        }
-
-        if (loading) {
-            window.addEventListener('resize', onResize)
-        }
-
-        return () => {
-            loading = false;
-        };
-    }, []);
 
     return (
         <Section>
@@ -121,7 +93,7 @@ export const Discussions = ({ isAuth }) => {
                         <DiscussionsBodyWrapper className="d-flex flex-column">
                         {
                             ((!(params.slug) || (params.slug === 'hobbies') || (params.slug === 'wellbeing') || (params.slug === 'career') || (params.slug === 'coaching') || (params.slug === 'science-and-tech') || (params.slug === 'social-causes'))) && 
-                            <FilterWrapper className="bg-warning">
+                            <FilterWrapper>
                                 <Text type="span" className="me-3">Filter:</Text>
                                 <Select 
                                 value={params.slug ? params.slug : "all"}
@@ -135,14 +107,17 @@ export const Discussions = ({ isAuth }) => {
                                 </Select>
                             </FilterWrapper>
                         }
-                            <DiscussionsContentWrapper className="bg-secondary d-flex flex-column flex-lg-row">
-                                <DiscussionsSidebar className="flex-lg-shrink-0" />
+                            <DiscussionsContentWrapper className="d-flex flex-column flex-lg-row">
                                 <Outlet context={{
                                     isAuth: isAuth,
                                     isPostDiscussionVisible: isPostDiscussionVisible,
                                     handleIsPostVisible: handleIsPostVisible,
                                     category: params.slug ? categories[params.slug] : null,
                                 }} />
+                                <DiscussionsSidebar 
+                                className="flex-lg-shrink-0" 
+                                isAuth={isAuth} 
+                                slug={params.slug}/>
                             </DiscussionsContentWrapper>
                         </DiscussionsBodyWrapper>
                     </Column>

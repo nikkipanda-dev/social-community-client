@@ -2,6 +2,7 @@ import {
     useState, 
     useEffect, 
 } from "react";
+import { Link, } from "react-router-dom";
 import { Dropdown, Menu, } from "antd";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -32,7 +33,13 @@ const ReplyBodyWrapper = styled('div', {});
 
 const ReplyHeaderWrapper = styled('div', {});
 
-const ReplyContentWrapper = styled('div', {});
+const ReplyContentWrapper = styled('div', {
+    background: '$white',
+    borderRadius: '$small',
+    marginTop: '$space-3',
+    marginBottom: '$space-3',
+    padding: '$space-1 $space-2 0px',
+});
 
 const ReplyActionWrapper = styled('div', {});
 
@@ -255,8 +262,10 @@ export const Reply = ({
                         }} />
                     </AvatarWrapper>
                     <ReplyBodyWrapper className="flex-grow-1 d-flex flex-column ms-3">
-                        <ReplyHeaderWrapper className="d-flex justify-content-between">
-                            <Text type="span">@{(replyValues && replyValues.user.username) && replyValues.user.username}</Text>
+                        <ReplyHeaderWrapper className="d-flex justify-content-between align-items-center">
+                            <Link to={"/profile/" + ((replyValues && replyValues.user.username) && replyValues.user.username)}>
+                                <Text type="span">@{(replyValues && replyValues.user.username) && replyValues.user.username}</Text>
+                            </Link>
                             <Text type="span" color="darkGray">
                             {
                                 (replyValues && replyValues.created_at) &&

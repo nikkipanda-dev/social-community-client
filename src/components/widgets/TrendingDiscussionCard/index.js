@@ -18,19 +18,22 @@ const TrendingDiscussionWrapper = styled('div', {
 
 const TrendingDiscussionDetailsWrapper = styled('div', {});
 
-export const TrendingDiscussionCard = ({ discussion }) => {
+export const TrendingDiscussionCard = ({ values, }) => {
     return (
         <TrendingDiscussionWrapper>
             <Card 
-            header={<Link to="/discussion"><Text type="span" size="medium">{discussion && discussion.title}</Text></Link>} 
-            // size="medium" 
-            css={{ padding: '$space-2', borderRadius: '$default', }}>
+            header={<Link to={"/discussions/post/" + (values && values.slug)}><Text type="span" size="medium">{values && values.title}</Text></Link>} 
+            css={{ 
+                padding: '$space-2', 
+                borderRadius: '$default', 
+                background: 'transparent', 
+            }}>
                 <TrendingDiscussionDetailsWrapper className="d-flex flex-wrap">
                     <Text type="span" color="darkGray" className="mt-2">
-                        {(discussion && discussion.supporters) && discussion.supporters} <FontAwesomeIcon icon={faHandHoldingHeart} /> 
+                        <FontAwesomeIcon icon={faHandHoldingHeart} className="fa-fw" /> {(values && values.supporters) && values.supporters}
                     </Text>
                     <Text type="span" color="darkGray" className="mt-2 ms-2">
-                        {(discussion && discussion.replies) && discussion.replies} <FontAwesomeIcon icon={faComments} />
+                        <FontAwesomeIcon icon={faComments} className="fa-fw" /> {(values && values.replies) && values.replies}
                     </Text>
                 </TrendingDiscussionDetailsWrapper>
             </Card>

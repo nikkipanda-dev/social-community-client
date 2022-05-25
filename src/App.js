@@ -12,7 +12,6 @@ import CommunityBlog from './components/pages/community-blog';
 import Discussions from './components/pages/discussions';
 import { Discussions as DiscussionsSection } from './components/sections/Discussions';
 import UserDiscussions from './components/sections/UserDiscussions';
-import DiscussionsCategory from './components/widgets/DiscussionsCategory';
 import DiscussionPost from './components/widgets/DiscussionPost';
 import Profile from './components/pages/profile';
 import Microblog from './components/sections/Microblog';
@@ -26,6 +25,7 @@ import { Friends as FriendsSection } from './components/sections/Friends';
 import DiscussionPosts from './components/widgets/DiscussionPosts';
 import CommunityBlogEntries from './components/widgets/CommunityBlogEntries';
 import Events from './components/pages/events';
+import { Events as EventsSection } from './components/sections/Events';
 import Messages from './components/pages/messages';
 import Settings from './components/pages/settings';
 import NotFound from './components/widgets/NotFound';
@@ -110,7 +110,10 @@ function App() {
                         <Route path="post/:slug" element={<DiscussionPost />} />
                         <Route path=":slug" element={<DiscussionsSection />} />
                     </Route>
-                    <Route path="/events" element={<Events />} />     
+                    <Route path="/events" element={<Events isAuth={isAuth} />}>
+                        <Route index element={<EventsSection />} />
+                        <Route path=":slug" element={<EventsSection />} />
+                    </Route>     
                     <Route path="/messages" element={<Messages />} />
                     <Route path="/:username/settings" element={<Settings />} />
                     <Route path="/:path" element={<NotFound />} />

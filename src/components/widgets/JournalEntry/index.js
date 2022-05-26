@@ -1,7 +1,6 @@
 import { 
     useState, 
     useEffect, 
-    useRef,
 } from "react";
 import { useParams, useOutletContext, } from "react-router-dom";
 import Cookies from 'js-cookie';
@@ -72,9 +71,6 @@ export const JournalEntry = () => {
     const [form] = Form.useForm();
     const params = useParams();
     const context = useOutletContext();
-    const ref = useRef('');
-
-    console.log('isauth ', context);
 
     const [values, setValues] = useState('');
     const [output, setOutput] = useState('');
@@ -96,8 +92,6 @@ export const JournalEntry = () => {
     const handleHideModal = () => setIsVisible(false);
 
     const limit = 10000;
-
-    console.log('val', values);
 
     const handleToggleEdit = () => {
         form.resetFields();

@@ -105,7 +105,7 @@ export const globalStyles = globalCss({
     '@import': ["https://fonts.googleapis.com/css2?family=Manjari&family=Patua+One&display=swap", "https://fonts.googleapis.com/css2?family=Fira+Code&display=swap"],
 });
 
-export const richTextStyle = styled('div', {
+export const richTextStyle = {
     'p': {
         fontFamily: '$manjari',
         fontSize: '$small',
@@ -153,4 +153,4 @@ export const richTextStyle = styled('div', {
     'blockquote > p': {
         padding: '$space-2',
     },
-});
+};

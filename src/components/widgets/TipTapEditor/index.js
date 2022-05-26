@@ -185,6 +185,7 @@ export const TipTapEditor = ({
     limit, 
     isEditable,
     handleOutput,
+    css,
 }) => {    
     const exportOutput = (editor, output) => {
         (!(editor.isEmpty) && {...handleOutput}) && handleOutput(output);
@@ -209,6 +210,7 @@ export const TipTapEditor = ({
     return (
         editor &&
         <TipTapWrapper css={{
+            ...css,
             '> div > div.ProseMirror': {
                 transition: '$default',
                 border: isEditable ? '1px solid $lightGray1 !important' : 'unset',

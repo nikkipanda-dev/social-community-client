@@ -1,23 +1,23 @@
-import { useState, useEffect, } from "react";
-import { axiosInstance } from "../../../requests";
+import { useState, useEffect, } from 'react';
 import Cookies from 'js-cookie';
+import { axiosInstance } from '../../../requests';
 import { useParams, } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHandHoldingHeart, faBan, } from '@fortawesome/free-solid-svg-icons';
 import { styled } from "../../../stitches.config";
 
 import UserAvatars from "../UserAvatars";
+import Button from "../../core/Button";
 import Heading from "../../core/Heading";
 import Text from "../../core/Text";
-import Button from "../../core/Button";
 
-const DiscussionPostSupportersWrapper = styled('div', {});
+const SupportersWrapper = styled('div', {});
 
 const SupportersHeaderWrapper = styled('div', {});
 
-export const DiscussionPostSupporters = ({ 
-    isAuth, 
-    className, 
+export const CommunityBlogEntrySupporters = ({
+    isAuth,
+    className,
     css,
 }) => {
     const params = useParams();
@@ -33,7 +33,7 @@ export const DiscussionPostSupporters = ({
             console.log('on discussion supporters: no cookies');
             return;
         }
-        
+
         supportPost(slug).then(response => {
             if (response.data.isSuccess) {
                 handleIsSupporter(true);
@@ -66,7 +66,7 @@ export const DiscussionPostSupporters = ({
         let loading = true;
 
         if (!(isAuth)) {
-            console.log('on discussion supporters: no cookies');
+            console.log('on blog supporters: no cookies');
             return;
         }
 
@@ -93,7 +93,7 @@ export const DiscussionPostSupporters = ({
     }, [isSupporter]);
 
     return (
-        <DiscussionPostSupportersWrapper className={' ' + (className ? (' ' + className) : '')} {...css && { css: { ...css } }}>
+        <SupportersWrapper>
             <SupportersHeaderWrapper className="d-flex flex-wrap justify-content-between align-items-center">
                 <Heading type={6} text="Supporters" />
                 {
@@ -108,8 +108,22 @@ export const DiscussionPostSupporters = ({
                 }
             </SupportersHeaderWrapper>
             <UserAvatars users={supporters} css={{ marginTop: '$space-5', }} />
-        </DiscussionPostSupportersWrapper>
+        </SupportersWrapper>
     )
+}
+
+async function getSupporters(slug) {
+    const authToken = JSON.parse(Cookies.get('auth_user_token'));
+
+    return axiosInstance.get(process.env.REACT_APP_BASE_URL + "blog-entries/support/get", {
+        params: {
+            username: JSON.parse(Cookies.get('auth_user')).username,
+            slug: slug,
+        },
+        headers: {
+            Authorization: `Bearer ${authToken}`,
+        }
+    })
 }
 
 function supportPost(slug) {
@@ -119,7 +133,7 @@ function supportPost(slug) {
 
     const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
-    return axiosInstance.post(process.env.REACT_APP_BASE_URL + "discussion-posts/support/store", supportForm, {
+    return axiosInstance.post(process.env.REACT_APP_BASE_URL + "blog-entries/support/store", supportForm, {
         headers: {
             Authorization: `Bearer ${authToken}`,
         }
@@ -133,25 +147,11 @@ function undoSupportPost(slug) {
 
     const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
-    return axiosInstance.post(process.env.REACT_APP_BASE_URL + "discussion-posts/support/destroy", supportForm, {
+    return axiosInstance.post(process.env.REACT_APP_BASE_URL + "blog-entries/support/destroy", supportForm, {
         headers: {
             Authorization: `Bearer ${authToken}`,
         }
     })
 }
 
-async function getSupporters(slug) {
-    const authToken = JSON.parse(Cookies.get('auth_user_token'));
-
-    return axiosInstance.get(process.env.REACT_APP_BASE_URL + "discussion-posts/support/get", {
-        params: {
-            username: JSON.parse(Cookies.get('auth_user')).username,
-            slug: slug,
-        },
-        headers: {
-            Authorization: `Bearer ${authToken}`,
-        }
-    })
-}
-
-export default DiscussionPostSupporters;
+export default CommunityBlogEntrySupporters;

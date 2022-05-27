@@ -76,7 +76,7 @@ export const Discussions = () => {
                     window.scrollTo(0, 0);
 
                     setTimeout(() => {
-                        handleDiscussionPosts(response.data.data.details);                        
+                        handleDiscussionPosts(response.data.data.details);
                     }, 1000);
                 } else {
                     console.error('get discussions ', response.data.data.errorText);

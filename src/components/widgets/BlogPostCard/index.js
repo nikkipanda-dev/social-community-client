@@ -1,6 +1,7 @@
 import { useState, } from 'react';
 import { useNavigate, } from 'react-router-dom';
-import { Link, } from 'react-router-dom';
+import TipTapEditor from '../TipTapEditor';
+import { richTextStyle } from '../../../stitches.config';
 import { styled } from "../../../stitches.config";
 
 import Card from "../../core/Card";
@@ -46,7 +47,6 @@ export const BlogPostCard = () => {
                     <Text type="span" size="large">{(details && details.title) && details.title}</Text>
                 </>
             } 
-            // size="medium"
             css={{ padding: '$space-3', borderRadius: '$default', }}>
                 <BlogPostPreviewWrapper>
                     <Text type="paragraph" css={{ textAlign: 'justify', }}>{(details && details.body) && details.body}</Text>

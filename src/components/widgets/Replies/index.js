@@ -16,7 +16,8 @@ const ReplyGroupWrapper = styled('div', {
 
 const SubmitButtonWrapper = styled('div', {});
 
-export const Replies = ({ 
+export const Replies = ({
+    isComment, 
     className,
     css,
     replies,
@@ -66,7 +67,9 @@ export const Replies = ({
             </ReplyGroupWrapper>
             <hr />
             <RepliesFooterWrapper className="d-flex flex-column flex-lg-row justify-content-between align-items-center">
-                <Text type="span" color="darkGray">Showing {Object.keys(replies).length} of {repliesLen} {(repliesLen > 1) ? 'replies' : 'reply'}</Text>
+                <Text type="span" color="darkGray">
+                    Showing {Object.keys(replies).length} of {repliesLen} {(repliesLen > 1) ? (isComment ? "comments" : "replies") : (isComment ? "comment" : 'reply')}
+                </Text>
                 {
                     (limit < repliesLen) &&
                     <SubmitButtonWrapper>

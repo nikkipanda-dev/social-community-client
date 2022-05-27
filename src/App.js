@@ -9,6 +9,9 @@ import Navbar from './components/widgets/Navbar';
 import LandingPage from './components/pages/landing-page';
 import Home from './components/pages/home';
 import CommunityBlog from './components/pages/community-blog';
+import { CommunityBlog as CommunityBlogSection } from './components/sections/CommunityBlog';
+import CommunityBlogEntry from './components/widgets/CommunityBlogEntry';
+import PostCommunityBlog from './components/sections/PostCommunityBlog';
 import Discussions from './components/pages/discussions';
 import { Discussions as DiscussionsSection } from './components/sections/Discussions';
 import UserDiscussions from './components/sections/UserDiscussions';
@@ -81,7 +84,12 @@ function App() {
                         handleLogIn={handleLogIn}
                         handleLogOut={handleLogOut} />} />
                     <Route path="/home" element={<Home isAuth={isAuth} />} />
-                    <Route path="/community-blog" element={<CommunityBlog />} />
+                    <Route path="/community-blog" element={<CommunityBlog isAuth={isAuth} />} >
+                        <Route index element={<CommunityBlogSection />} />
+                        <Route path="editor" element={<PostCommunityBlog />} />
+                        <Route path="post/:slug" element={<CommunityBlogEntry />} />
+                        <Route path=":slug" element={<CommunityBlogSection />} />
+                    </Route>
                     <Route path="/profile/:username" element={<Profile 
                     isAuth={isAuth}
                     forceRender={forceRender} 

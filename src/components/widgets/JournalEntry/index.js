@@ -1,6 +1,7 @@
 import { 
     useState, 
     useEffect, 
+    useRef,
 } from "react";
 import { useParams, useOutletContext, } from "react-router-dom";
 import Cookies from 'js-cookie';
@@ -21,20 +22,26 @@ import JournalEntryPreview from "../JournalEntryPreview";
 import Text from "../../core/Text";
 import Alert from "../../core/Alert";
 import Modal from "../Modal";
+import Image from "../../core/Image";
 import DeleteJournalEntry from "../DeleteJournalEntry";
 
 const JournalEntryWrapper = styled('div', {
     '.ant-col > label.ant-form-item-required': {
         fontFamily: '$manjari',
-        marginTop: '$space-3',
+        marginTop: '$space-2',
         fontSize: '$default',
     },
-    'div.ant-form-item-control-input > div.ant-form-item-control-input-content > span.ant-input-affix-wrapper, div.ant-form-item-control-input > div.ant-form-item-control-input-content > span.ant-input-affix-wrapper:hover': {
-        borderStyle: 'solid',
-        borderWidth: '0 0 1px',
-        borderColor: '$lightGray2',
+    'div.ant-form-item-control-input > div.ant-form-item-control-input-content > span.ant-input-affix-wrapper > input, div.ant-form-item-control-input > div.ant-form-item-control-input-content > span.ant-input-affix-wrapper, div.ant-form-item-control-input > div.ant-form-item-control-input-content > span.ant-input-affix-wrapper-focused': {
+        outline: 'unset',
         boxShadow: 'unset !important',
-        padding: '$space-3',
+        border: 'unset',
+    },
+    'div.ant-form-item-control-input > div.ant-form-item-control-input-content > span.ant-input-affix-wrapper': {
+        border: '1px solid $lightGray1 !important',
+        padding: '$space-2',
+    },
+    'div.ant-form-item-control-input > div.ant-form-item-control-input-content > span.ant-input-affix-wrapper-focused': {
+        border: '1px solid $lightGray2 !important',
     },
 });
 
@@ -45,6 +52,8 @@ const SubmitButtonWrapper = styled('div', {
 const JournalEntryContentWrapper = styled('div', {
     marginTop: '$space-4',
 });
+
+const ImageWrapper = styled('div', {});
 
 const ActionWrapper = styled('div', {});
 
@@ -70,8 +79,12 @@ const formItemLayout = {
 export const JournalEntry = () => {
     const [form] = Form.useForm();
     const params = useParams();
+    const ref = useRef('');
     const context = useOutletContext();
 
+    const [forceRender, setForceRender] = useState(false);
+    const [files, setFiles] = useState('');
+    const [imageUrls, setImageUrls] = useState('');
     const [values, setValues] = useState('');
     const [output, setOutput] = useState('');
     const [isVisible, setIsVisible] = useState(false);
@@ -81,7 +94,10 @@ export const JournalEntry = () => {
     const [titleHelp, setTitleHelp] = useState('');
     const [status, setStatus] = useState('');
     const [header, setHeader] = useState('');
-
+    
+    const handleForceRender = () => setForceRender(!(forceRender));
+    const handleImageUrls = imageUrls => setImageUrls(imageUrls);
+    const handleFiles = files => setFiles(files);
     const handleStatus = status => setStatus(status);
     const handleHeader = header => setHeader(header);
     const handleValues = values => setValues(values);
@@ -121,7 +137,7 @@ export const JournalEntry = () => {
                 if (response.data.isSuccess) {
                     handleValues({...response.data.data.details, body: JSON.parse(response.data.data.details.body)});
                 } else {
-                    console.log(response.data.data.errorText);
+                    console.error(response.data.data.errorText);
                 }
             })
 
@@ -139,6 +155,11 @@ export const JournalEntry = () => {
         handleTitleHelp('');
         handleHelp('');
 
+        if (!(values.body) && !(output)) {
+            console.log('on update journal: body empty');
+            return;
+        }
+
         if (context.isAuth && (values && values.slug && values.body)) {
             const journalForm = new FormData();
 
@@ -146,6 +167,16 @@ export const JournalEntry = () => {
 
             for (let i in value) {
                 value[i] && journalForm.append(i, value[i]);
+            }
+
+            if (files && (Object.keys(files).length > 0)) {
+                let ctr = 0;
+
+                for (let i of files) {
+                    ++ctr;
+
+                    journalForm.append(`images[${ctr}]`, i);
+                }
             }
 
             journalForm.append('username', JSON.parse(Cookies.get('auth_user')).username);
@@ -162,7 +193,7 @@ export const JournalEntry = () => {
                 if (response.data.isSuccess) {
                     showAlert();
                     setTimeout(() => {
-                        handleValues(response.data.data.details);
+                        handleValues({ ...response.data.data.details, body: JSON.parse(response.data.data.details.body) });
                         handleSubmitPost();
                         message.open({
                             content: <>
@@ -207,6 +238,25 @@ export const JournalEntry = () => {
         }
     }
 
+    const handleImageChange = () => {
+        if (ref.current.files.length > 0) {
+            for (let i of ref.current.files) {
+                if (i.size > (2 * 1024 * 1024)) {
+                    console.log("too large ");
+                    return;
+                }
+            }
+
+            handleFiles(ref.current.files);
+            handleForceRender();
+        }
+    }
+
+    const handleRemoveImage = name => {
+        handleFiles(Object.values(files).filter(file => file.name !== name));
+        handleImageUrls(Object.values(imageUrls).filter(imageUrl => imageUrl.name !== name));
+    }
+
     useEffect(() => {
         let loading = true;
 
@@ -218,6 +268,33 @@ export const JournalEntry = () => {
             loading = false;
         }
     }, []);
+
+    useEffect(() => {
+        let loading = true;
+        let array = [];
+
+        if (loading && (Object.keys(files).length > 0)) {
+            for (let i of files) {
+                console.log(i);
+                array.push({ src: URL.createObjectURL(i), name: i.name });
+            }
+
+            console.log('arra ', array);
+            handleImageUrls(array);
+        }
+
+        return () => {
+            if (array.length > 0) {
+                for (let i of array) {
+                    URL.revokeObjectURL(i);
+                }
+            }
+
+            loading = false;
+        }
+    }, [forceRender]);
+
+    console.log('values ', values);
 
     return (
         (context.isJournalShown && (values && values.title)) &&
@@ -231,7 +308,7 @@ export const JournalEntry = () => {
                 onClick={() => handleToggleEdit()}/>
                 <Button
                 type="button"
-                text={<FontAwesomeIcon icon={faTrash} />}
+                text={<Text type="span"><FontAwesomeIcon icon={faTrash} />Delete</Text>}
                 color="red"
                 className="align-self-md-end flex-grow-1 flex-md-grow-0 ms-0 ms-md-2 mt-3 mt-md-0"
                 onClick={() => handleShowModal()} />
@@ -249,7 +326,6 @@ export const JournalEntry = () => {
             <Form
             name="journal-form"
             form={form}
-            // className="bg-warning"
             validateMessages={validateMessages}
             onFinish={onFinish}
             initialValues={{ title: values.title }}
@@ -270,12 +346,38 @@ export const JournalEntry = () => {
                     }]}>
                         <Input allowClear />
                     </Form.Item>
+                    <input
+                        name="images[]"
+                        type="file"
+                        accept="image/*"
+                        ref={ref}
+                        multiple
+                        onChange={() => handleImageChange()} />
+                    {
+                        (imageUrls && (Object.keys(imageUrls).length > 0)) &&
+                        Object.keys(imageUrls).map((i, val) => {
+                            return (
+                                <ImageWrapper key={i}>
+                                    <Image src={Object.values(imageUrls)[val].src} css={{
+                                        width: '150px',
+                                        height: '150px',
+                                        objectFit: 'cover',
+                                    }} />
+                                    <Button
+                                        type="button"
+                                        text="Remove"
+                                        onClick={() => handleRemoveImage(Object.values(imageUrls)[val].name)} />
+                                </ImageWrapper>
+                            )
+                        })
+                    }
                 </>
             }
             {
                 (values && values.body && values.title && values.created_at) &&
                 <JournalEntryPreview
                 content={values.body}
+                images={(values && values.journal_entry_images) && values.journal_entry_images}
                 date={values.created_at}
                 limit={limit}
                 isTitleShown={isTitleShown}

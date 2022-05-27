@@ -154,3 +154,15 @@ export const richTextStyle = {
         padding: '$space-2',
     },
 };
+
+export const imagePreview = {
+    width: '300px',
+    height: '300px',
+    objectFit: 'cover',
+    margin: '$space-3',
+}
+
+export const imageModalPreview = {
+    width: 'inherit', 
+    padding: '$space-2',
+}

@@ -14,11 +14,7 @@ import { key, showAlert, } from "../../../util";
 import Cookies from 'js-cookie';
 import { useOutletContext, useNavigate, } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-    faCaretLeft,
-    faCircleInfo,
-    faCheckCircle,
-} from '@fortawesome/free-solid-svg-icons';
+import {  faCircleInfo, faCheckCircle, } from '@fortawesome/free-solid-svg-icons';
 import { styled } from "../../../stitches.config";
 
 import Button from "../../core/Button";
@@ -152,7 +148,6 @@ export const PostCommunityBlog = ({ storeFn, }) => {
         }
 
         if (files && (Object.keys(files).length > 0)) {
-            let images = [];
             let ctr = 0;
 
             for (let i of files) {
@@ -230,16 +225,6 @@ export const PostCommunityBlog = ({ storeFn, }) => {
 
     return (
         <PostCommunityBlogWrapper>
-        {
-            showPreview && 
-            <ActionWrapper className="d-flex" css={{ marginTop: '0px', marginBottom: '$space-3', }}>
-                <Button
-                type="button"
-                className="flex-grow-1 flex-sm-grow-0"
-                text={<Text type="span"><FontAwesomeIcon icon={faCaretLeft} className="fa-fw" />Go back</Text>}
-                onClick={() => handleTogglePreview()} />
-            </ActionWrapper>
-        }
             <Form
             name="community-blog-form"
             form={form}

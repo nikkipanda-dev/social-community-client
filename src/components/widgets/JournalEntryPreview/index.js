@@ -3,6 +3,7 @@ import { styled, richTextStyle, } from "../../../stitches.config";
 
 import Heading from "../../core/Heading";
 import Text from "../../core/Text";
+import ImagesPreview from "../ImagesPreview";
 
 const JournalEntryPreviewWrapper = styled('div', {
     padding: '0'
@@ -22,6 +23,7 @@ const JournalEntryHeaderWrapper = styled('div', {});
 
 export const JournalEntryPreview = ({ 
     content, 
+    images,
     isEditable, 
     handleOutput, 
     limit,
@@ -31,14 +33,13 @@ export const JournalEntryPreview = ({
     css,
     date,
 }) => {
-    console.log(date ? date : '');
     return (
         <JournalEntryPreviewWrapper className={"" + (className ? (' ' + className) : '')} {...css && { css: { ...css } }}>
             <JournalEntryHeaderWrapper className="d-flex flex-wrap justify-content-md-between align-items-md-start">
                 <TitleWrapper>
                 {
                     isTitleShown && 
-                    <Heading type={6} text={title ? title : '<Your Title Here>'} />
+                    <Heading type={6} text={title} />
                 }
                 </TitleWrapper>
                 <DateWrapper>
@@ -60,6 +61,9 @@ export const JournalEntryPreview = ({
                 </DateWrapper>
             </JournalEntryHeaderWrapper>
             <JournalEntryContentWrapper className="p-1">
+                <ImagesPreview
+                images={images}
+                bodyClassName="p-1 d-flex flex-wrap justify-content-center align-items-center" />
                 <TipTapEditor
                 isEditable={isEditable}
                 {...handleOutput && { handleOutput: handleOutput }}

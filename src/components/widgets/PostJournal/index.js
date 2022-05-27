@@ -1,15 +1,19 @@
-import { useState, } from "react";
+import { 
+    useState, 
+    useEffect, 
+    useRef,
+} from "react";
 import { useOutletContext, useNavigate, } from "react-router-dom";
 import { Form, Input, message, } from "antd";
 import { key, showAlert, } from "../../../util";
 import Cookies from 'js-cookie';
 import { axiosInstance } from "../../../requests";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleCheck, } from '@fortawesome/free-solid-svg-icons';
+import { faCircleCheck, faCaretLeft, } from '@fortawesome/free-solid-svg-icons';
 import { styled, richTextStyle, } from "../../../stitches.config";
 
 import Button from "../../core/Button";
-import Heading from "../../core/Heading";
+import Image from "../../core/Image";
 import Alert from "../../core/Alert";
 import Text from "../../core/Text";
 import { TipTapEditor, } from "../TipTapEditor";
@@ -18,21 +22,28 @@ import JournalEntryPreview from "../JournalEntryPreview";
 const PostJournalWrapper = styled('div', {
     '.ant-col > label.ant-form-item-required': {
         fontFamily: '$manjari',
-        marginTop: '$space-3',
+        marginTop: '$space-2',
         fontSize: '$default',
     },
-    'div.ant-form-item-control-input > div.ant-form-item-control-input-content > span.ant-input-affix-wrapper, div.ant-form-item-control-input > div.ant-form-item-control-input-content > span.ant-input-affix-wrapper:hover': {
-        borderStyle: 'solid',
-        borderWidth: '0 0 1px',
-        borderColor: '$lightGray2',
+    'div.ant-form-item-control-input > div.ant-form-item-control-input-content > span.ant-input-affix-wrapper > input, div.ant-form-item-control-input > div.ant-form-item-control-input-content > span.ant-input-affix-wrapper, div.ant-form-item-control-input > div.ant-form-item-control-input-content > span.ant-input-affix-wrapper-focused': {
+        outline: 'unset',
         boxShadow: 'unset !important',
-        padding: '$space-3',
+        border: 'unset',
+    },
+    'div.ant-form-item-control-input > div.ant-form-item-control-input-content > span.ant-input-affix-wrapper': {
+        border: '1px solid $lightGray1 !important',
+        padding: '$space-2',
+    },
+    'div.ant-form-item-control-input > div.ant-form-item-control-input-content > span.ant-input-affix-wrapper-focused': {
+        border: '1px solid $lightGray2 !important',
     },
 });
 
 const SubmitButtonWrapper = styled('div', {});
 
 const PreviewWrapper = styled('div', richTextStyle);
+
+const ImageWrapper = styled('div', {});
 
 const validateMessages = {
     required: '${label} is required.',
@@ -55,9 +66,14 @@ const formItemLayout = {
 
 export const PostJournal = () => {
     const navigate = useNavigate();
+    const ref = useRef('');
     const context = useOutletContext();
 
+    const [forceRender, setForceRender] = useState(false);
     const [form] = Form.useForm();
+    const [files, setFiles] = useState('');
+    const [imageUrls, setImageUrls] = useState('');
+    const [title, setTitle] = useState('');
     const [titleHelp, setTitleHelp] = useState('');
     const [showPreview, setShowPreview] = useState(false);
     const [output, setOutput] = useState('');
@@ -65,10 +81,18 @@ export const PostJournal = () => {
     const [status, setStatus] = useState('');
     const [header, setHeader] = useState('');
 
+    const handleForceRender = () => setForceRender(!(forceRender));
+    const handleImageUrls = imageUrls => setImageUrls(imageUrls);
+    const handleFiles = files => setFiles(files);
     const handleStatus = status => setStatus(status);
     const handleHeader = header => setHeader(header);
     const handleHelp = help => setHelp(help);
     const handleTitleHelp = titleHelp => setTitleHelp(titleHelp);
+    const handleTitleChange = title => setTitle(title);
+
+    const onValuesChange = (changedVal, _) => {
+        handleTitleChange(changedVal.title);
+    }
 
     const handleTogglePreview = () => {
         setShowPreview(!showPreview);
@@ -99,6 +123,16 @@ export const PostJournal = () => {
 
             for (let i in value) {
                 value[i] && journalForm.append(i, value[i]);
+            }
+
+            if (files && (Object.keys(files).length > 0)) {
+                let ctr = 0;
+
+                for (let i of files) {
+                    ++ctr;
+
+                    journalForm.append(`images[${ctr}]`, i);
+                }
             }
 
             journalForm.append('username', JSON.parse(Cookies.get('auth_user')).username);
@@ -157,6 +191,50 @@ export const PostJournal = () => {
         }
     }
 
+    const handleRemoveImage = name => {
+        handleFiles(Object.values(files).filter(file => file.name !== name));
+        handleImageUrls(Object.values(imageUrls).filter(imageUrl => imageUrl.name !== name));
+    }
+
+    const handleImageChange = () => {
+        if (ref.current.files.length > 0) {
+            for (let i of ref.current.files) {
+                if (i.size > (2 * 1024 * 1024)) {
+                    console.log("too large ");
+                    return;
+                }
+            }
+
+            handleFiles(ref.current.files);
+            handleForceRender();
+        }
+    }
+
+    useEffect(() => {
+        let loading = true;
+        let array = [];
+
+        if (loading && (Object.keys(files).length > 0)) {
+            for (let i of files) {
+                console.log(i);
+                array.push({ src: URL.createObjectURL(i), name: i.name });
+            }
+
+            console.log('arra ', array);
+            handleImageUrls(array);
+        }
+
+        return () => {
+            if (array.length > 0) {
+                for (let i of array) {
+                    URL.revokeObjectURL(i);
+                }
+            }
+
+            loading = false;
+        }
+    }, [forceRender]);
+
     return (
         <PostJournalWrapper>
         {
@@ -171,9 +249,9 @@ export const PostJournal = () => {
             <Form
             name="journal-form"
             form={form}
-            // className="bg-warning"
             validateMessages={validateMessages}
             onFinish={onFinish}
+            onValuesChange={onValuesChange}
             {...formItemLayout}
             autoComplete="off">
             {
@@ -191,7 +269,31 @@ export const PostJournal = () => {
                     }]}>
                         <Input allowClear />
                     </Form.Item>
-
+                    <input
+                    name="images[]"
+                    type="file"
+                    accept="image/*"
+                    ref={ref}
+                    multiple
+                    onChange={() => handleImageChange()} />
+                    {
+                        (imageUrls && (Object.keys(imageUrls).length > 0)) &&
+                        Object.keys(imageUrls).map((i, val) => {
+                            return (
+                                <ImageWrapper key={i}>
+                                    <Image src={Object.values(imageUrls)[val].src} css={{
+                                        width: '150px',
+                                        height: '150px',
+                                        objectFit: 'cover',
+                                    }} />
+                                    <Button
+                                    type="button"
+                                    text="Remove"
+                                    onClick={() => handleRemoveImage(Object.values(imageUrls)[val].name)} />
+                                </ImageWrapper>
+                            )
+                        })
+                    }
                     <PreviewWrapper>
                         <TipTapEditor
                         limit={limit}
@@ -205,20 +307,23 @@ export const PostJournal = () => {
                 <SubmitButtonWrapper className="d-flex flex-column flex-md-row justify-content-md-between align-items-md-center" css={{ marginTop: showPreview ? '0' : '$space-3' }}>
                     <Button
                     type="button"
-                    text={showPreview ? 'Go back' : 'Show preview'}
+                    text={showPreview ? <Text type="span"><FontAwesomeIcon icon={faCaretLeft} className="fa-fw" />Go back</Text> : 'Show preview'}
                     className="flex-grow-1 flex-md-grow-0"
                     onClick={() => handleTogglePreview()} />
-                    <Button
-                    type="submit"
-                    text="Post"
-                    className="flex-grow-1 flex-md-grow-0 mt-3 mt-md-0"
-                    color="brown" />
+                    {
+                        !(showPreview) && 
+                        <Button
+                        type="submit"
+                        text="Post"
+                        className="flex-grow-1 flex-md-grow-0 mt-3 mt-md-0"
+                        color="brown" />
+                    }
                 </SubmitButtonWrapper>
             </Form>
         {
-            (showPreview && (output && (Object.keys(output).length > 0)) && limit) &&
+            (showPreview) &&
             <JournalEntryPreview 
-            title={form.getFieldsValue().title}
+            title={(title && (title.length > 0)) ? title : "Your Title Here"}
             content={output} 
             limit={limit}
             isTitleShown

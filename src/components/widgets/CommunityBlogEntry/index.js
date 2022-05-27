@@ -1,4 +1,8 @@
-import { useState, useEffect, } from "react";
+import { 
+    useState, 
+    useEffect, 
+    useRef,
+} from "react";
 import TipTapEditor from "../TipTapEditor";
 import { 
     useParams, 
@@ -31,10 +35,30 @@ import Text from "../../core/Text";
 import Button from "../../core/Button";
 import Modal from "../Modal";
 import Alert from "../../core/Alert";
+import Image from "../../core/Image";
+import ImagesPreview from "../ImagesPreview";
 import CommunityBlogEntryReplies from "../CommunityBlogEntryComments";
 import CommunityBlogEntrySupporters from "../CommunityBlogEntrySupporters";
 
-const CommunityBlogEntryWrapper = styled('div', {});
+const CommunityBlogEntryWrapper = styled('div', {
+    '.ant-col > label.ant-form-item-required': {
+        fontFamily: '$manjari',
+        marginTop: '$space-2',
+        fontSize: '$default',
+    },
+    'div.ant-form-item-control-input > div.ant-form-item-control-input-content > span.ant-input-affix-wrapper > input, div.ant-form-item-control-input > div.ant-form-item-control-input-content > span.ant-input-affix-wrapper, div.ant-form-item-control-input > div.ant-form-item-control-input-content > span.ant-input-affix-wrapper-focused': {
+        outline: 'unset',
+        boxShadow: 'unset !important',
+        border: 'unset',
+    },
+    'div.ant-form-item-control-input > div.ant-form-item-control-input-content > span.ant-input-affix-wrapper': {
+        border: '1px solid $lightGray1 !important',
+        padding: '$space-2',
+    },
+    'div.ant-form-item-control-input > div.ant-form-item-control-input-content > span.ant-input-affix-wrapper-focused': {
+        border: '1px solid $lightGray2 !important',
+    },
+});
 
 const CommunityBlogContentWrapper = styled('div', {
     marginTop: '$space-4',
@@ -61,6 +85,8 @@ const CommunityBlogHeaderWrapper = styled('div', {});
 
 const PreviewWrapper = styled('div', richTextStyle);
 
+const ImageWrapper = styled('div', {});
+
 const validateMessages = {
     required: '${label} is required.',
     string: {
@@ -82,15 +108,19 @@ const formItemLayout = {
 
 export const CommunityBlogEntry = () => {
     const params = useParams();
+    const ref = useRef('');
     const context = useOutletContext();
     const navigate = useNavigate();
     const [form] = Form.useForm();
 
     const limit = 10000;
 
+    const [forceRender, setForceRender] = useState(false);
     const [values, setValues] = useState('');
     const [output, setOutput] = useState('');
     const [isVisible, setIsVisible] = useState(false);
+    const [files, setFiles] = useState('');
+    const [imageUrls, setImageUrls] = useState('');
     const [isEditable, setIsEditable] = useState(false);
     const [isTitleShown, setIsTitleShown] = useState(true);
     const [titleHelp, setTitleHelp] = useState('');
@@ -99,7 +129,10 @@ export const CommunityBlogEntry = () => {
     const [header, setHeader] = useState('');
     const [help, setHelp] = useState('');
 
+    const handleForceRender = () => setForceRender(!(forceRender));
     const handleValues = values => setValues(values);
+    const handleImageUrls = imageUrls => setImageUrls(imageUrls);
+    const handleFiles = files => setFiles(files);
     const handleOutput = output => setOutput(output);
     const handleStatus = status => setStatus(status);
     const handleHeader = header => setHeader(header);
@@ -113,6 +146,7 @@ export const CommunityBlogEntry = () => {
         handleHelp(<Text type="span">You are about to delete this community blog entry. Continue?</Text>);
         setIsVisible(true);
     }
+
     const handleHideModal = () => {
         handleHelp('');
         setIsVisible(false);
@@ -142,6 +176,11 @@ export const CommunityBlogEntry = () => {
             return;
         }
 
+        if (!(values.body) && !(output)) {
+            console.log('on update blog: body empty');
+            return;
+        }
+
         if (values && values.slug && values.body) {
             const updateForm = new FormData();
 
@@ -149,9 +188,14 @@ export const CommunityBlogEntry = () => {
                 value[i] && updateForm.append(i, value[i]);
             }
 
-            if (!(values.body) && !(output)) {
-                console.log('on update journal: body empty');
-                return;
+            if (files && (Object.keys(files).length > 0)) {
+                let ctr = 0;
+
+                for (let i of files) {
+                    ++ctr;
+
+                    updateForm.append(`images[${ctr}]`, i);
+                }
             }
 
             updateForm.append('slug', values.slug);
@@ -182,7 +226,6 @@ export const CommunityBlogEntry = () => {
                     return;
                 }
 
-                handleValues({ ...values, title: (response.data.data.details && response.data.data.details.title), body: (response.data.data.details && response.data.data.details.body)})
                 setTimeout(() => {
                     handleValues(response.data.data.details);
                     message.open({
@@ -242,6 +285,25 @@ export const CommunityBlogEntry = () => {
         }
     }
 
+    const handleImageChange = () => {
+        if (ref.current.files.length > 0) {
+            for (let i of ref.current.files) {
+                if (i.size > (2 * 1024 * 1024)) {
+                    console.log("too large ");
+                    return;
+                }
+            }
+
+            handleFiles(ref.current.files);
+            handleForceRender();
+        }
+    }
+
+    const handleRemoveImage = name => {
+        handleFiles(Object.values(files).filter(file => file.name !== name));
+        handleImageUrls(Object.values(imageUrls).filter(imageUrl => imageUrl.name !== name));
+    }
+
     useEffect(() => {
         let loading = true;
 
@@ -252,6 +314,7 @@ export const CommunityBlogEntry = () => {
 
         if (loading && params.slug) {
             getEntry(params.slug).then(response => {
+                console.log(response.data);
                 if (!(response.data.isSuccess)) {
                     console.error('err get entry ', response.data.data.errorText);
                     return;
@@ -269,6 +332,31 @@ export const CommunityBlogEntry = () => {
             loading = false;
         }
     }, []);
+
+    useEffect(() => {
+        let loading = true;
+        let array = [];
+
+        if (loading && (Object.keys(files).length > 0)) {
+            for (let i of files) {
+                console.log(i);
+                array.push({ src: URL.createObjectURL(i), name: i.name });
+            }
+
+            console.log('arra ', array);
+            handleImageUrls(array);
+        }
+
+        return () => {
+            if (array.length > 0) {
+                for (let i of array) {
+                    URL.revokeObjectURL(i);
+                }
+            }
+
+            loading = false;
+        }
+    }, [forceRender]);
 
     return (
         (context.isAuth && values && values.slug) && 
@@ -323,6 +411,12 @@ export const CommunityBlogEntry = () => {
                 </CommunityBlogHeaderWrapper>
                 <PreviewWrapper>
                 {
+                    (values && (Object.keys(values.blog_entry_images).length > 0)) && 
+                    <ImagesPreview 
+                    images={Object.values(values.blog_entry_images) } 
+                    bodyClassName="p-1 d-flex flex-wrap justify-content-center align-items-center" />
+                }
+                {
                     (values && values.body) &&
                     <TipTapEditor
                     content={(values && values.body) && JSON.parse(values.body)}
@@ -334,43 +428,73 @@ export const CommunityBlogEntry = () => {
         }
         {
             (isEditable && values && values.title && values.slug) && 
-            <Form
-            name="blog-form"
-            form={form}
-            validateMessages={validateMessages}
-            onFinish={onFinish}
-            initialValues={{ title: values.title }}
-            {...formItemLayout}>
-            {
-                !(isTitleShown) && 
-                <Form.Item
-                label="Title"
-                name="title"
-                {...titleHelp && { help: titleHelp }}
-                rules={[{
-                    required: true,
-                    type: 'string',
-                    min: 2,
-                    max: 50,
-                }]}>
-                    <Input allowClear />
-                </Form.Item>
-            }
+            <CommunityBlogContentWrapper>
+                <Form
+                name="blog-form"
+                form={form}
+                validateMessages={validateMessages}
+                onFinish={onFinish}
+                initialValues={{ title: values.title }}
+                {...formItemLayout}>
+                {
+                    !(isTitleShown) &&
+                    <>
+                        <Form.Item
+                        label="Title"
+                        name="title"
+                        {...titleHelp && { help: titleHelp }}
+                        rules={[{
+                            required: true,
+                            type: 'string',
+                            min: 2,
+                            max: 50,
+                        }]}>
+                            <Input allowClear />
+                        </Form.Item>
+                        <input
+                        name="images[]"
+                        type="file"
+                        accept="image/*"
+                        ref={ref}
+                        multiple
+                        onChange={() => handleImageChange()} />
+                        {
+                            (imageUrls && (Object.keys(imageUrls).length > 0)) &&
+                            Object.keys(imageUrls).map((i, val) => {
+                                return (
+                                    <ImageWrapper key={i}>
+                                        <Image src={Object.values(imageUrls)[val].src} css={{
+                                            width: '150px',
+                                            height: '150px',
+                                            objectFit: 'cover',
+                                        }} />
+                                        <Button
+                                        type="button"
+                                        text="Remove"
+                                        onClick={() => handleRemoveImage(Object.values(imageUrls)[val].name)} />
+                                    </ImageWrapper>
+                                )
+                            })
+                        }
+                    </>
+                }
                 <PreviewWrapper>
                     <TipTapEditor
                     content={(values && values.body) && JSON.parse(values.body)}
                     isEditable={true}
                     limit={limit}
                     handleOutput={handleOutput} />
+                    <Text type="span" color="red">{bodyHelp}</Text>
                 </PreviewWrapper>
-            {
-                isEditable && 
-                <Button
-                type="submit"
-                text="Save"
-                color="brown" />
-            }
-            </Form>
+                {
+                    isEditable &&
+                    <Button
+                    type="submit"
+                    text="Save"
+                    color="brown" />
+                }
+                </Form>
+            </CommunityBlogContentWrapper>
         }
             <CommunityBlogMiscWrapper className="d-flex flex-column flex-xl-row">
                 <MiscWrapper css={{ flex: '60%', padding: '$space-3', }}>

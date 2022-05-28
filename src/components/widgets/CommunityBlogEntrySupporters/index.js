@@ -30,7 +30,7 @@ export const CommunityBlogEntrySupporters = ({
 
     const handleSupportPost = slug => {
         if (!(isAuth)) {
-            console.log('on discussion supporters: no cookies');
+            console.log('on blog supporters: no cookies');
             return;
         }
 
@@ -47,7 +47,7 @@ export const CommunityBlogEntrySupporters = ({
 
     const handleUndoSupportPost = slug => {
         if (!(isAuth)) {
-            console.log('on discussion supporters: no cookies');
+            console.log('on blog supporters: no cookies');
             return;
         }
 

@@ -128,8 +128,6 @@ export const Reply = ({
         handleActionIcon(faCaretDown);
     }
 
-    console.log(replyValues)
-
     const onUpdateReply = value => {
         if (!(isAuth)) {
             console.error('on update replies: no cookies');

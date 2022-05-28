@@ -29,6 +29,8 @@ import DiscussionPosts from './components/widgets/DiscussionPosts';
 import CommunityBlogEntries from './components/widgets/CommunityBlogEntries';
 import Events from './components/pages/events';
 import { Events as EventsSection } from './components/sections/Events';
+import Event from './components/widgets/Event';
+import PostEvent from './components/sections/PostEvent';
 import Messages from './components/pages/messages';
 import Settings from './components/pages/settings';
 import NotFound from './components/widgets/NotFound';
@@ -119,7 +121,9 @@ function App() {
                         <Route path=":slug" element={<DiscussionsSection />} />
                     </Route>
                     <Route path="/events" element={<Events isAuth={isAuth} />}>
-                        <Route index element={<EventsSection />} />
+                        <Route index element={<EventsSection />} /> 
+                        <Route path="post/:slug" element={<Event />} />
+                        <Route path="editor" element={<PostEvent />} />
                         <Route path=":slug" element={<EventsSection />} />
                     </Route>     
                     <Route path="/messages" element={<Messages />} />

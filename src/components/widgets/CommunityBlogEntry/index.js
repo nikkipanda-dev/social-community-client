@@ -58,6 +58,13 @@ const CommunityBlogEntryWrapper = styled('div', {
     'div.ant-form-item-control-input > div.ant-form-item-control-input-content > span.ant-input-affix-wrapper-focused': {
         border: '1px solid $lightGray2 !important',
     },
+    'a': {
+        textDecoration: 'unset',
+        color: '$pineGreen',
+    },
+    'a:hover': {
+        color: '$darkGray',
+    },
 });
 
 const CommunityBlogContentWrapper = styled('div', {

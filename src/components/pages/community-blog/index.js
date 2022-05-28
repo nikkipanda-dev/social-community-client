@@ -34,8 +34,6 @@ export const CommunityBlog = ({ isAuth, }) => {
     const params = useParams();
     const location = useLocation();
     
-    console.log(location);
-
     return (
         <Section>
             <CommunityBlogWrapper className="mx-auto">

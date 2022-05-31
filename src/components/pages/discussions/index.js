@@ -54,7 +54,7 @@ const FilterWrapper = styled('div', {
 
 const { Option } = Select;
 
-export const Discussions = ({ isAuth }) => {
+export const Discussions = ({ isAuth, }) => {
     const params = useParams();
     const navigate = useNavigate();
     const [isPostDiscussionVisible, setIsPostDiscussionVisible] = useState(false);

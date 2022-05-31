@@ -32,7 +32,9 @@ import { Events as EventsSection } from './components/sections/Events';
 import Event from './components/widgets/Event';
 import PostEvent from './components/sections/PostEvent';
 import Messages from './components/pages/messages';
+import {Messages as MessagesSection} from './components/sections/Messages';
 import Settings from './components/pages/settings';
+import Register from './components/pages/register';
 import NotFound from './components/widgets/NotFound';
 import PostJournal from './components/widgets/PostJournal';
 
@@ -126,7 +128,10 @@ function App() {
                         <Route path="editor" element={<PostEvent />} />
                         <Route path=":slug" element={<EventsSection />} />
                     </Route>     
-                    <Route path="/messages" element={<Messages />} />
+                    <Route path="/messages" element={<Messages isAuth={isAuth} />} >
+                        <Route index element={<MessagesSection />} />
+                    </Route>
+                    <Route path="register/:token" element={<Register isAuth={isAuth} handleLogIn={handleLogIn} />} />
                     <Route path="/:username/settings" element={<Settings />} />
                     <Route path="/:path" element={<NotFound />} />
                 </Routes>

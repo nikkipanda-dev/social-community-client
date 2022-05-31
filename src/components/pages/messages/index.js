@@ -1,12 +1,32 @@
+import { Outlet, } from "react-router-dom";
 import { styled } from "../../../stitches.config";
 
-const MessagesWrapper = styled('div', {});
+import Section from "../../core/Section";
+import Row from "../../core/Row";
+import Column from "../../core/Column";
+import MessagesSidebar from "../../widgets/MessagesSidebar";
 
-export const Messages = () => {
+const MessagesWrapper = styled('div', {
+    maxWidth: '1700px',
+    paddingTop: '$space-5',
+});
+
+export const Messages = ({ isAuth, }) => {
     return (
-        <MessagesWrapper>
-            Messages
-        </MessagesWrapper>
+        <Section>
+            <MessagesWrapper className="mx-auto">
+                <Row className="g-0 m-0" css={{ padding: '$space-3', }}>
+                    <Column className="col-sm-3">
+                        <MessagesSidebar />
+                    </Column>
+                    <Column className="bg-secondary col-sm-9">
+                        <Outlet context={{
+                            isAuth: isAuth,
+                        }} />
+                    </Column>
+                </Row>
+            </MessagesWrapper>
+        </Section>
     )
 }
 

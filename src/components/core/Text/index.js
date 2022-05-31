@@ -1,3 +1,4 @@
+import { forwardRef, } from "react";
 import { styled } from "../../../stitches.config";
 
 import NotFound from '../../widgets/NotFound';
@@ -53,7 +54,7 @@ const textType = {
     span: SpanWrapper,
 }
 
-export const Text = ({
+export const Text = forwardRef(({
     type,
     className,
     css,
@@ -63,7 +64,7 @@ export const Text = ({
     onClick,
     evtOnclick,
     children,
-}) => {
+}, ref) => {
     const TextWrapper = textType[type];
 
     return (
@@ -79,6 +80,6 @@ export const Text = ({
                 {children}
             </TextWrapper> : <NotFound />
     )
-}
+});
 
 export default Text;

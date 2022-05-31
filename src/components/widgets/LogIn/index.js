@@ -94,7 +94,13 @@ export const Login = ({ handleLogIn, handleHideModal, }) => {
                     sameSite: 'strict',
                 });
 
-                if (Cookies.get('auth_user') && Cookies.get('auth_user_token')) {
+                Cookies.set('auth_user_firebase_secret', JSON.stringify(response.data.data.details.firebase.secret), {
+                    expires: .5,
+                    secure: true,
+                    sameSite: 'strict',
+                });
+
+                if (Cookies.get('auth_user') && Cookies.get('auth_user_token') && Cookies.get('auth_user_firebase_secret')) {
                     console.log('valid')
 
                     setStatus('success')

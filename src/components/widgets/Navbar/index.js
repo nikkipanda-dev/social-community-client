@@ -90,6 +90,7 @@ export const Navbar = ({
                     setTimeout(() => {
                         Cookies.remove('auth_user');
                         Cookies.remove('auth_user_token');
+                        Cookies.remove('auth_user_firebase_secret');
                         handleLogOut();
                         navigate('/');
                     }, 1000);

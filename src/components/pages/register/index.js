@@ -16,7 +16,12 @@ const RegisterBodyWrapper = styled('div', {});
 
 const ActionWrapper = styled('div', {});
 
-export const Register = ({ isAuth, handleLogIn, }) => {
+export const Register = ({ 
+    isAuth, 
+    handleLogIn,
+    firebase,
+    handleFirebase,
+}) => {
     const params = useParams();
 
     const [isTokenValid, setIsTokenValid] = useState(false);
@@ -64,7 +69,11 @@ export const Register = ({ isAuth, handleLogIn, }) => {
                         <RegisterBodyWrapper className="d-flex flex-column">
                         {
                             (!(isAuthenticated) && isTokenValid) ? 
-                            <RegisterWidget isAuth={isAuth} handleLogIn={handleLogIn} /> : 
+                            <RegisterWidget 
+                            isAuth={isAuth} 
+                            handleLogIn={handleLogIn}
+                            firebase={firebase}
+                            handleFirebase={handleFirebase} /> : 
                             (isAuthenticated) ? <Navigate to="/home" replace={true} /> : <NotFound />
                         }
                         </RegisterBodyWrapper>

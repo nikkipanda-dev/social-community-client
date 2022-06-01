@@ -12,28 +12,16 @@ const MessagesUserGroupWrapper = styled('div', {
     },
 });
 
-export const MessagesUsers = () => {
-    const users = [
-        {
-            id: 1,
-            first_name: "Jane",
-            last_name: "Doe",
-            username: "janedoe",
-        },
-        {
-            id: 2,
-            first_name: "John",
-            last_name: "Doe",
-            username: "johndoe",
-        },
-    ]
-
+export const MessagesUsers = ({ users, onSelect, }) => {
     return (
         <MessagesUsersWrapper>
             <MessagesUserGroupWrapper>
             {
                 (users && (Object.keys(users).length > 0)) && 
-                Object.keys(users).map((i, val) => <MessagesUserCard key={Object.values(users)[val].id} values={Object.values(users)[val]} />)
+                Object.keys(users).map((i, val) => <MessagesUserCard 
+                key={Object.values(users)[val].uid} 
+                values={Object.values(users)[val]}
+                onSelect={onSelect} />)
             }
             </MessagesUserGroupWrapper>
         </MessagesUsersWrapper>

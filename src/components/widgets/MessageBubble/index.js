@@ -1,3 +1,9 @@
+import { 
+    forwardRef, 
+    useState, 
+    useRef,
+    useEffect,
+} from 'react';
 import Cookies from 'js-cookie';
 import { styled } from "../../../stitches.config";
 
@@ -9,10 +15,43 @@ const MessageBubbleWrapper = styled('div', {
 
 const MiscWrapper = styled('div', {});
 
-export const MessageBubble = ({ values, isAuth, }) => {
+export const MessageBubble = forwardRef(({ 
+    values, 
+    isAuth,
+    firebase,
+}, ref) => {
+    const messageBubbleRef = useRef('');
+    const [message, setMessage] = useState('');
+
+    const handleMessage = message => setMessage(message);
+
+    useEffect(() => {
+        let loading = true;
+
+        if (loading && values && (Object.values(values).length > 0)) {
+            handleMessage(values);
+        }
+
+        return () => {
+            loading = false;
+        }
+    }, []);
+
+    useEffect(() => {
+        let loading = true;
+
+        if (loading) {
+            messageBubbleRef.current?.scrollIntoView({ behavior: 'smooth', });
+        }
+
+        return () => {
+            loading = false;
+        }
+    }, [message]);
+
     return (
-        (values && (Object.keys(values).length > 0) && isAuth) && 
-        <MessageBubbleWrapper className={"d-flex flex-column" + ((values.username === JSON.parse(Cookies.get('auth_user')).username) ? " align-self-end" : " align-self-start")}> 
+        (values && (Object.keys(values).length > 0) && isAuth && firebase && (Object.keys(firebase).length > 0) && firebase[0].auth.currentUser) && 
+        <MessageBubbleWrapper className={"d-flex flex-column" + ((values.sender === firebase[0].auth.currentUser.uid) ? " align-self-end" : " align-self-start")} ref={messageBubbleRef}> 
             <MiscWrapper css={{ 
                 background: '$lightGray1', 
                 padding: '$space-3 $space-3 0px',
@@ -37,12 +76,12 @@ export const MessageBubble = ({ values, isAuth, }) => {
                         year: 'numeric',
                         hour: '2-digit',
                         minute: '2-digit',
-                    }).format(new Date(values.created_at))
+                    }).format(new Date(values.created_at.toDate()))
                 }
                 </Text>
             </MiscWrapper>
         </MessageBubbleWrapper>
     )
-}
+});
 
 export default MessageBubble;

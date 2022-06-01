@@ -1,8 +1,10 @@
+import { useState, useEffect, } from "react";
 import { axiosInstance } from "../../../requests";
 import { Form, Input, } from "antd";
 import Cookies from 'js-cookie';
+import { collection, doc, setDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { authApp, } from "../../../util/Firebase";
+import { getFirebaseValues, } from "../../../util/Firebase";
 import { useNavigate, useParams, } from "react-router-dom";
 import { styled } from "../../../stitches.config";
 
@@ -31,28 +33,19 @@ const formItemLayout = {
     },
 }
 
-export const Register = ({ isAuth, handleLogIn, }) => {
+export const Register = ({ 
+    isAuth, 
+    handleLogIn,
+    firebase,
+    handleFirebase,
+}) => {
     const [form] = Form.useForm();
     const params = useParams();
     const navigate = useNavigate();
+
+    const [details, setDetails] = useState('');
     
-    const handleFirebaseCreateUser = params => {
-        createUserWithEmailAndPassword(
-            params.auth, 
-            params.email, 
-            params.password
-        )
-        .then((userCredential) => {
-            // Signed in 
-            const user = userCredential.user;
-            console.info('userCredential ', user);
-        })
-        .catch((err) => {
-            const error = error.code;
-            const errorMessage = error.message;
-            console.error('err  ', error + " " + errorMessage);
-        });
-    }
+    const handleDetails = details => setDetails(details);
 
     const onFinish = values => {
         const registerForm = new FormData();
@@ -83,18 +76,24 @@ export const Register = ({ isAuth, handleLogIn, }) => {
                     sameSite: 'strict',
                 });
 
+                Cookies.set('auth_user_firebase', JSON.stringify(response.data.data.details.firebase), {
+                    expires: .5,
+                    secure: true,
+                    sameSite: 'strict',
+                });
+
                 Cookies.set('auth_user_firebase_secret', JSON.stringify(response.data.data.details.firebase.secret), {
                     expires: .5,
                     secure: true,
                     sameSite: 'strict',
                 });
 
-                if (Cookies.get('auth_user') && Cookies.get('auth_user_token') && Cookies.get('auth_user_firebase_secret')) {
+                if (Cookies.get('auth_user') && Cookies.get('auth_user_token') && Cookies.get('auth_user_firebase_secret') && Cookies.get('auth_user_firebase')) {
                     const firebaseCred = response.data.data.details.firebase;
 
                     if (Object.keys(firebaseCred).length > 0) {
-                        const params = {
-                            auth: authApp({
+                        handleDetails({
+                            firebase: (Object.keys(firebase).length > 0) ? null : getFirebaseValues({
                                 apiKey: firebaseCred.api_key,
                                 authDomain: firebaseCred.auth_domain,
                                 databaseURL: firebaseCred.database_url,
@@ -103,17 +102,10 @@ export const Register = ({ isAuth, handleLogIn, }) => {
                                 messagingSenderId: firebaseCred.messaging_sender_id,
                                 appId: firebaseCred.app_id,
                             }),
-                            email: response.data.data.details.user.email,
-                            password: firebaseCred.secret,
-                        }
-
-                        handleFirebaseCreateUser(params);
+                            user: response.data.data.details,
+                            secret: firebaseCred.secret,
+                        });
                     }
-
-                    setTimeout(() => {
-                        handleLogIn(true);
-                        navigate('/home');
-                    }, 1000);
                 } else {
                     console.log('invalid');
                     handleLogIn(false);
@@ -129,6 +121,51 @@ export const Register = ({ isAuth, handleLogIn, }) => {
             }
         });
     }
+
+    useEffect(() => {
+        let loading = true;
+
+        if (loading && (Object.keys(details).length > 0)) {
+            console.info(details.firebase[0].auth);
+            console.info(details.user.user.email);
+            console.info(details.secret);
+
+            createUserWithEmailAndPassword(
+                details.firebase ? details.firebase[0].auth : firebase[0].auth,
+                details.user.user.email,
+                details.secret,
+            )
+
+            .then(response => {
+                console.info('res ', response);
+                const db = details.firebase ? details.firebase[0].db : firebase[0].db;
+                setDoc(doc(db, "users", response.user.uid), {
+                    uid: response.user.uid,
+                    first_name: details.user.user.first_name,
+                    last_name: details.user.user.last_name,
+                    email: details.user.user.email,
+                    username: details.user.user.username,
+                    isOnline: true,
+                    created_at: details.user.user.created_at,
+                });
+
+                (details.firebase) && handleFirebase(Object.values(details.firebase));
+
+                setTimeout(() => {
+                    handleLogIn(true);
+                    navigate('/home');
+                }, 1000);
+            })
+
+            .catch(error => {
+                console.error('err catch ', error);
+            });
+        }
+
+        return () => {
+            loading = false;
+        }
+    }, [details]);
 
     return (
         <RegisterWrapper>

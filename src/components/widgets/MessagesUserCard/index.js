@@ -1,15 +1,24 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircle, } from "@fortawesome/free-solid-svg-icons";
 import { styled } from "../../../stitches.config";
 
 import Image from "../../core/Image";
 import Text from "../../core/Text";
 
 const MessagesUserCardWrapper = styled('div', {
-    background: '$lightGray',
-    padding: '$space-3 $space-2',
+    '> div': {
+        background: '$white',
+        padding: '$space-3 $space-2',
+        transition: '$default',
+    },
     'img': {
         width: '60px',
         height: '60px',
         objectFit: 'cover',
+    },
+    '> div:hover': {
+        cursor: 'pointer',
+        background: '$lightGray',
     },
 });
 
@@ -30,26 +39,30 @@ const NotificationWrapper = styled('div', {
     },
 });
 
-export const MessagesUserCard = ({ values, }) => {
+export const MessagesUserCard = ({ values, onSelect, }) => {
     return (
         (values && (Object.keys(values).length > 0)) && 
-        <MessagesUserCardWrapper className="d-flex align-items-start">
-            <Image src="/avatar_medium.png" />
-            <ContentWrapper className="d-flex justify-content-end justify-content-md-between flex-grow-1">
-                <MiscWrapper>
-                    <Text type="span">{values.first_name + " " + values.last_name}</Text><br />
-                    <Text type="span" color="darkGray">{"@" + values.username}</Text>
-                </MiscWrapper>
-                <NotificationWrapper>
-                    <Text type="span" css={{
-                        color: '$white',
-                        fontWeight: 'bold',
-                        background: '$orangeRedCrayola',
-                        maxWidth: 'max-content',
-                        padding: '$space-2 $space-2 $space-1'
-                    }}>1</Text>
-                </NotificationWrapper>
-            </ContentWrapper>
+        <MessagesUserCardWrapper onClick={() => onSelect(values)}>
+            <div className="d-flex align-items-start">
+                <Image src="/avatar_medium.png" />
+                <ContentWrapper className="d-flex justify-content-end justify-content-md-between flex-grow-1">
+                    <MiscWrapper>
+                        <Text type="span">{values.first_name + " " + values.last_name}</Text><br />
+                        <Text type="span" color="darkGray">{"@" + values.username}</Text>
+                    </MiscWrapper>
+                    <NotificationWrapper>
+                        <Text type="span" css={{
+                            color: '$orangeRedCrayola',
+                            fontWeight: 'bold',
+                            maxWidth: 'max-content',
+                            padding: '$space-2 $space-2 $space-1',
+                        }}>1</Text>
+                        <Text type="span" color={values.isOnline ? "green" : "lightGray2"}>
+                            <FontAwesomeIcon icon={faCircle} className="fa-fw fa-xs ms-2" />
+                        </Text>
+                    </NotificationWrapper>
+                </ContentWrapper>
+            </div>
         </MessagesUserCardWrapper>
     )
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Cookies from 'js-cookie';
+import { Navigate, } from "react-router-dom";
 import { isAuth } from "../../../util";
 import { axiosInstance } from "../../../requests";
 import { styled } from "../../../stitches.config";
@@ -20,7 +21,7 @@ const HomeMicroblogEntriesWrapper = styled('div', {
     maxWidth: '700px',
 });
 
-export const Home = () => {
+export const Home = ({ isAuth, }) => {
     const testType = [
         {
             id: 1,
@@ -76,6 +77,7 @@ export const Home = () => {
     const handleMicroblogEntries = microblogEntries => setMicroblogEntries(microblogEntries);
 
     return (
+        isAuth ? 
         <Section>
             <HomeWrapper className="mx-auto" css={{ paddingTop: '$space-5', }}>
                 <Row className="m-0 g-0" css={{ padding: '$space-3', }}>
@@ -93,7 +95,7 @@ export const Home = () => {
                     </Column>
                 </Row>
             </HomeWrapper>
-        </Section>
+        </Section> : <Navigate to="/" replace={true} />
     )
 }
 

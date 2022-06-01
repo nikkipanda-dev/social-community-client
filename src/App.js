@@ -38,14 +38,16 @@ import Register from './components/pages/register';
 import NotFound from './components/widgets/NotFound';
 import PostJournal from './components/widgets/PostJournal';
 
-const Main = styled('main', {});
+const Main = styled('div', {});
 
 function App() {
     globalStyles();
 
     const [isAuth, setIsAuth] = useState(false);
     const [forceRender, setForceRender] = useState(false);
+    const [firebase, setFirebase] = useState(false);
 
+    const handleFirebase = firebase => setFirebase(firebase);
     const handleForceRender = () => setForceRender(!forceRender);
 
     const Wrapper = styled('div', {
@@ -54,7 +56,6 @@ function App() {
     });
 
     const handleLogIn = () => setIsAuth(true);
-
     const handleLogOut = () => setIsAuth(false);
 
     useEffect(() => {
@@ -73,12 +74,26 @@ function App() {
         }
     }, [isAuth]);
 
+    useEffect(() => {
+        let loading = true;
+
+        if (loading && (Object.keys(firebase).length > 0)) {
+            console.info('firebase ', firebase);
+        }
+
+        return () => {
+            loading = false
+        }
+    }, [firebase]);
+
     return (
         <Wrapper>
             <Navbar 
             isAuth={isAuth}
             handleForceRender={handleForceRender}
             handleLogIn={handleLogIn}
+            firebase={firebase}
+            handleFirebase={handleFirebase}
             handleLogOut={handleLogOut} />
             <Main>
                 <Routes>
@@ -128,10 +143,17 @@ function App() {
                         <Route path="editor" element={<PostEvent />} />
                         <Route path=":slug" element={<EventsSection />} />
                     </Route>     
-                    <Route path="/messages" element={<Messages isAuth={isAuth} />} >
+                    <Route path="/messages" element={<Messages 
+                    isAuth={isAuth} 
+                    firebase={firebase}
+                    handleFirebase={handleFirebase} />} >
                         <Route index element={<MessagesSection />} />
                     </Route>
-                    <Route path="register/:token" element={<Register isAuth={isAuth} handleLogIn={handleLogIn} />} />
+                    <Route path="register/:token" element={<Register 
+                    isAuth={isAuth} 
+                    handleLogIn={handleLogIn}
+                    firebase={firebase}
+                    handleFirebase={handleFirebase} />} />
                     <Route path="/:username/settings" element={<Settings />} />
                     <Route path="/:path" element={<NotFound />} />
                 </Routes>

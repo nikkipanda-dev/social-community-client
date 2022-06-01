@@ -13,6 +13,9 @@ const textStyle = {
             darkGray: {
                 color: '$darkGray',
             },
+            lightGray2: {
+                color: '$lightGray2',
+            },
             brown: {
                 color: '$sealBrown',
             },
@@ -21,7 +24,10 @@ const textStyle = {
             },
             red: {
                 color: '$orangeRedCrayola',
-            }
+            },
+            green: {
+                color: '$pineGreen',
+            },
         },
         size: {
             tiny: {

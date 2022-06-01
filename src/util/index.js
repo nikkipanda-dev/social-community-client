@@ -8,7 +8,7 @@ import Text from '../components/core/Text';
 export const isAuth = () => {
     let isAuth = false;
 
-    if ((Cookies.get('auth_user') && JSON.parse(Cookies.get('auth_user'))) && (Cookies.get('auth_user_token') && JSON.parse(Cookies.get('auth_user_token'))) && (Cookies.get('auth_user_firebase_secret') && JSON.parse(Cookies.get('auth_user_firebase_secret')))) {
+    if ((Cookies.get('auth_user') && JSON.parse(Cookies.get('auth_user'))) && (Cookies.get('auth_user_token') && JSON.parse(Cookies.get('auth_user_token'))) && (Cookies.get('auth_user_firebase_secret') && JSON.parse(Cookies.get('auth_user_firebase_secret'))) && (Cookies.get('auth_user_firebase') && JSON.parse(Cookies.get('auth_user_firebase')))) {
         isAuth = true;
     }
 

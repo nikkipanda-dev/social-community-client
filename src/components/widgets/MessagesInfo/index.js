@@ -21,14 +21,17 @@ const MessagesHeaderWrapper = styled('div', {
 
 const MessagesInfoBody = styled('div', {});
 
-export const MessagesInfo = () => {
+export const MessagesInfo = ({ values, }) => {
+    console.info(values);
+
     return (
+        (values && (Object.keys(values).length > 0)) && 
         <MessagesInfoWrapper>
             <MessagesHeaderWrapper className="d-flex flex-column align-items-center">
                 <Image src="/avatar_medium.png" />
             </MessagesHeaderWrapper>
             <MessagesInfoBody className="d-flex flex-column">
-                <Text type="span">Jane Doe</Text>
+                <Text type="span">{values.user.first_name + " " + values.user.last_name}</Text>
             </MessagesInfoBody>
         </MessagesInfoWrapper>
     )

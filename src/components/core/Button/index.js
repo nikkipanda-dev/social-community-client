@@ -1,3 +1,4 @@
+import { forwardRef, } from "react";
 import { styled } from "../../../stitches.config";
 
 const ButtonWrapper = styled('button', {
@@ -103,7 +104,7 @@ const ButtonWrapper = styled('button', {
     }
 });
 
-export const Button = ({
+export const Button = forwardRef(({
     className,
     css,
     text,
@@ -114,11 +115,12 @@ export const Button = ({
     onMouseEnter,
     onMouseLeave,
     type,
-}) => {
+}, ref) => {
     return (
         <ButtonWrapper
             {...color && { color: color }}
             {...outline && { outline: outline }}
+            {...ref && {ref: ref}}
             {...type && { type: type }}
             {...onClick && { onClick: () => onClick() }}
             {...onMouseLeave && { onMouseLeave: () => onMouseLeave() }}
@@ -129,6 +131,6 @@ export const Button = ({
             {text}
         </ButtonWrapper>
     )
-}
+});
 
 export default Button;

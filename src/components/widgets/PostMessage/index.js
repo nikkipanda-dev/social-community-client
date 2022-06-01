@@ -1,4 +1,4 @@
-import { forwardRef, } from "react";
+import { forwardRef, useRef, } from "react";
 import { Form, Input, } from "antd";
 import Picker from 'emoji-picker-react';
 import { styled } from "../../../stitches.config";
@@ -7,6 +7,30 @@ import Button from "../../core/Button";
 
 const PostMessageWrapper = styled('div', {
     height: '15vh',
+    'textarea': {
+        resize: 'none',
+        height: '100% !important',
+    },
+    'label.ant-form-item-required': {
+        fontFamily: '$manjari',
+        marginTop: '35px',
+        fontSize: '$default',
+    },
+    '.ant-form-item-control-input-content > div.ant-input-textarea > span.ant-input-affix-wrapper': {
+        background: 'transparent',
+    },
+    '.ant-form-item-control-input-content > div.ant-input-textarea > span.ant-input-affix-wrapper > textarea, .ant-form-item-control-input-content > div.ant-input-textarea > span.ant-input-affix-wrapper > textarea:focus': {
+        boxShadow: 'unset',
+        borderRadius: '$small',
+        padding: '$space-3',
+    },
+    '.ant-form-item-control-input-content > div.ant-input-textarea > span.ant-input-affix-wrapper > textarea': {
+        border: '1px solid $lightGray1 !important',
+    },
+    '.ant-form-item-control-input-content > div.ant-input-textarea > span.ant-input-affix-wrapper > textarea:focus': {
+        outline: 'unset',
+        border: '1px solid $lightGray2 !important',
+    },
 });
 
 const SubmitButtonWrapper = styled('div', {
@@ -51,6 +75,12 @@ export const PostMessage = forwardRef(({
     isEmojiShown,
     onEmojiClick,
 }, ref) => {
+    const submitBtnRef = useRef('');
+
+    const handleOnKeyDown = evt => {
+        (evt.keyCode === 13) && submitBtnRef.current.click();
+    }
+
     return (
         <PostMessageWrapper 
         className={' ' + (className ? (' ' + className) : '')} 
@@ -81,13 +111,15 @@ export const PostMessage = forwardRef(({
                     allowClear
                     maxLength={10000}
                     rows={2}
-                    showCount />
+                    showCount 
+                    onKeyDown={evt => handleOnKeyDown(evt)}/>
                 </Form.Item>
 
                 <SubmitButtonWrapper className="d-flex justify-content-md-end align-items-center">
                     <Button
                     type="submit"
-                    text="Post"
+                    text="Send"
+                    ref={submitBtnRef}
                     className="flex-grow-1 flex-md-grow-0"
                     color="brown" />
                 </SubmitButtonWrapper>

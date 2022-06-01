@@ -2,7 +2,13 @@ import { useState, useEffect, } from 'react';
 import { useNavigate, NavLink, } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { message, Dropdown, Menu, } from 'antd';
-import { isAuth as isAuthenticated, key, showAlert, } from '../../../util';
+import { signOut, } from 'firebase/auth';
+import { doc, updateDoc, } from 'firebase/firestore';
+import { 
+    isAuth as isAuthenticated, 
+    key, 
+    showAlert,
+} from '../../../util';
 import { axiosInstance } from "../../../requests";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -58,7 +64,11 @@ export const Navbar = ({
     handleForceRender,
     handleLogIn,
     handleLogOut,
-}) => {    
+    firebase,
+    handleFirebase,
+}) => {   
+    // console.info('firebase ', firebase);
+    
     const navigate = useNavigate();
     const [isVisible, setIsVisible] = useState(false);
     const [notifications, setNotifications] = useState('');
@@ -87,27 +97,46 @@ export const Navbar = ({
 
             .then(response => {
                 if (response.data.isSuccess) {
-                    setTimeout(() => {
-                        Cookies.remove('auth_user');
-                        Cookies.remove('auth_user_token');
-                        Cookies.remove('auth_user_firebase_secret');
-                        handleLogOut();
-                        navigate('/');
-                    }, 1000);
-                    showAlert();
-                    setTimeout(() => {
-                        message.open({
-                            content: <><FontAwesomeIcon icon={faCircleCheck} className="me-2"/><Text type="span">Logged out.</Text></>,
-                            key,
-                            duration: 2,
-                            style: {
-                                marginTop: '25vh',
-                                zIndex: '99999999',
-                            }
+                    console.log('success');
+                    Cookies.remove('auth_user');
+                    Cookies.remove('auth_user_token');
+                    Cookies.remove('auth_user_firebase');
+                    Cookies.remove('auth_user_firebase_secret');
+
+                    if (!(Cookies.get('auth_user')) && !(Cookies.get('auth_user_token')) && !(Cookies.get('auth_user_firebase_secret')) && !(Cookies.get('auth_user_firebase'))) {
+                        const db = firebase[0].db;
+
+                        updateDoc(doc(db, "users", firebase[0].auth.currentUser.uid), {
+                            isOnline: false,
                         });
-                    }, 2000);
+
+                        signOut(firebase[0].auth).then(() => {
+                            console.log('signed out ');
+                            handleLogOut();
+                            navigate('/');
+
+                            showAlert();
+                            setTimeout(() => {
+                                message.open({
+                                    content: <><FontAwesomeIcon icon={faCircleCheck} className="me-2" /><Text type="span">Logged out.</Text></>,
+                                    key,
+                                    duration: 2,
+                                    style: {
+                                        marginTop: '25vh',
+                                        zIndex: '99999999',
+                                    }
+                                });
+                            }, 1500);
+                        })
+
+                        .catch (error => {
+                            console.error('err res ', error);
+                        });
+                    } else {
+                        console.error('cookies err');
+                    }
                 } else {
-                    console.log('err res ', response.data.errorText);
+                    console.error('err res ', response.data.errorText);
                 }
             })
 
@@ -255,7 +284,11 @@ export const Navbar = ({
         title="Log In"
         width="550px"
         onCancel={handleHideModal}>
-            <Login handleLogIn={handleLogIn} handleHideModal={handleHideModal}/>
+            <Login 
+            handleLogIn={handleLogIn} 
+            handleHideModal={handleHideModal}
+            firebase={firebase}
+            handleFirebase={handleFirebase}/>
         </Modal>
         </NavbarWrapper>
     )

@@ -34,6 +34,8 @@ export const Messages = () => {
     const [messages, setMessages] = useState('');
     const context = useOutletContext();
 
+    console.info('context ', context);
+
     const handleMessages = messages => setMessages(messages);
     const handleShowLoading = () => setLoading(true);
     const handleUser = user => setUser(user);
@@ -42,59 +44,21 @@ export const Messages = () => {
     const handleProjectId = projectId => setProjectId(projectId);
     const handleKey = key => setKey(key);
 
-    const onFinish = values => {
-        console.log('val ', values);
-
-        if (!(context.isAuth)) {
-            console.error('on message store: no cookies');
-            return;
-        }
-
-        const storeForm = new FormData();
-
-        for (let i in values) {
-            values[i] && storeForm.append(i, values[i]);
-        }
-
-        // storeForm.append('username', JSON.parse(Cookies.get('auth_user')).username)
-
-        // storeMessage(storeForm).then(response => {
-        //     console.info('res ', response.data);
-        // })
-
-        // .catch (err => {
-        //     console.log('err ', err.response && err.response.data.errors);
-        // })
-    }
-
     return (
         <MessagesWrapper className="d-flex flex-column flex-lg-row">
             <ContentWrapper css={{ flex: '65%', }}>
-                <MessagesMain storeFn={onFinish} isAuth={context.isAuth} />
+                <MessagesMain 
+                storeFn={context.storeFn} 
+                isAuth={context.isAuth}
+                form={context.form}
+                firebase={context.firebase}
+                messages={context.selectedChat.messages} />
             </ContentWrapper>
             <ContentWrapper css={{ flex: '35%', }}>
-                <MessagesInfo />
+                <MessagesInfo values={context.selectedChat} />
             </ContentWrapper>
         </MessagesWrapper>
     )
 }
-
-async function storeMessage(form) {
-    const authToken = JSON.parse(Cookies.get('auth_user_token'));
-
-    return axiosInstance.post(process.env.REACT_APP_BASE_URL + "test", form, {
-        headers: {
-            Authorization: `Bearer ${authToken}`,
-        }
-    })
-}
-
-// function createChatEngineUser(form, key) {
-//     return axiosInstance.post(process.env.REACT_APP_CHATENGINE_BASE_URL + "users/", form, {
-//         headers: {
-//             "private-key": key,
-//         }
-//     })
-// }
 
 export default Messages;

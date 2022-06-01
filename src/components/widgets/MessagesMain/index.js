@@ -22,9 +22,15 @@ const MessagesTextareaWrapper = styled('div', {
     },
 });
 
-export const MessagesMain = ({ storeFn, isAuth, }) => {
+export const MessagesMain = ({ 
+    storeFn, 
+    isAuth, 
+    form,
+    messages,
+    firebase,
+}) => {
+    console.info('mes ', messages);
     const textareaRef = useRef('');
-    const [form] = Form.useForm();
     const emojiRef = useRef('');
     const emojiTogglerRef = useRef('');
 
@@ -36,48 +42,48 @@ export const MessagesMain = ({ storeFn, isAuth, }) => {
     const handleEmoji = emoji => setEmoji(emoji);
     const handleMessage = message => setMessage(message);
 
-    const messages = [
-        {
-            id: 1,
-            first_name: "Jane",
-            last_name: "Doe",
-            message: "Hello",
-            username: "janedoe",
-            created_at: new Date(),
-        },
-        {
-            id: 2,
-            first_name: "Jane",
-            last_name: "Doe",
-            message: "Hey",
-            username: "janedoe",
-            created_at: new Date(),
-        },
-        {
-            id: 3,
-            first_name: "Jane",
-            last_name: "Doe",
-            message: "Sup",
-            username: "janedoe",
-            created_at: new Date(),
-        },
-        {
-            id: 4,
-            first_name: "Jane",
-            last_name: "Doe",
-            message: "Waddup",
-            username: "janedoe",
-            created_at: new Date(),
-        },
-        {
-            id: 5,
-            first_name: "Nikki",
-            last_name: "Dummy",
-            message: "hello",
-            username: "spectralsightings",
-            created_at: new Date(),
-        },
-    ];
+    // const messages = [
+    //     {
+    //         id: 1,
+    //         first_name: "Jane",
+    //         last_name: "Doe",
+    //         message: "Hello",
+    //         username: "janedoe",
+    //         created_at: new Date(),
+    //     },
+    //     {
+    //         id: 2,
+    //         first_name: "Jane",
+    //         last_name: "Doe",
+    //         message: "Hey",
+    //         username: "janedoe",
+    //         created_at: new Date(),
+    //     },
+    //     {
+    //         id: 3,
+    //         first_name: "Jane",
+    //         last_name: "Doe",
+    //         message: "Sup",
+    //         username: "janedoe",
+    //         created_at: new Date(),
+    //     },
+    //     {
+    //         id: 4,
+    //         first_name: "Jane",
+    //         last_name: "Doe",
+    //         message: "Waddup",
+    //         username: "janedoe",
+    //         created_at: new Date(),
+    //     },
+    //     {
+    //         id: 5,
+    //         first_name: "Nikki",
+    //         last_name: "Dummy",
+    //         message: "hello",
+    //         username: "spectralsightings",
+    //         created_at: new Date(),
+    //     },
+    // ];
 
     const onEmojiClick = (event, emojiObject) => {
         console.log(emojiObject);
@@ -112,7 +118,10 @@ export const MessagesMain = ({ storeFn, isAuth, }) => {
     return (
         <MessagesMainWrapper>
             <MessagesContainerWrapper>
-                <MessagesContainer messages={messages} isAuth={isAuth} />
+                <MessagesContainer 
+                messages={messages} 
+                isAuth={isAuth}
+                firebase={firebase} />
             </MessagesContainerWrapper>
             <MessagesTextareaWrapper className="d-flex">
                 <Text 

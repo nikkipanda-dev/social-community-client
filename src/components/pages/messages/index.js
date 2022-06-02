@@ -6,12 +6,14 @@ import { Form, } from "antd";
 import { axiosInstance } from "../../../requests";
 import { 
     doc, 
+    setDoc,
     updateDoc, 
     addDoc, 
     collection,
     Timestamp,
     query,
     orderBy,
+    limit,
     onSnapshot,
 } from "firebase/firestore";
 import { signInWithEmailAndPassword, } from "firebase/auth";
@@ -59,13 +61,22 @@ export const Messages = ({
             }
 
             const db = firebase[0].db;
+            const id = (firebase[0].auth.currentUser.uid < selectedChat.user.uid) ? firebase[0].auth.currentUser.uid + "-" + selectedChat.user.uid : selectedChat.user.uid + "-" + firebase[0].auth.currentUser.uid;
 
             //set ID to sender - receiver of the message
-            addDoc(collection(db, "messages", (firebase[0].auth.currentUser.uid < selectedChat.user.uid) ? firebase[0].auth.currentUser.uid + "-" + selectedChat.user.uid : selectedChat.user.uid + "-" + firebase[0].auth.currentUser.uid, "messages"), {
+            addDoc(collection(db, "messages", id, "messages"), {
                 message: values.message,
                 sender: firebase[0].auth.currentUser.uid,
                 recipient: selectedChat.user.uid,
                 created_at: Timestamp.fromDate(new Date()),
+                readAt: '',
+                isRead: false,
+            });
+
+            setDoc(doc(db, "lastMessages", id), {
+                message: values.message,
+                sender: firebase[0].auth.currentUser.uid,
+                recipient: selectedChat.user.uid,
             });
 
             form.resetFields();
@@ -96,7 +107,7 @@ export const Messages = ({
                 user: selected,
                 messages: z,
             });
-        })
+        });
     }
 
     useEffect(() => {
@@ -181,20 +192,6 @@ export const Messages = ({
             </MessagesWrapper>
         </Section>
     )
-}
-
-function getSelectedChat(username) {
-    const authToken = JSON.parse(Cookies.get('auth_user_token'));
-
-    return axiosInstance.get(process.env.REACT_APP_BASE_URL + "friends/user/all", {
-        params: {
-            auth_username: username,
-            username: username,
-        },
-        headers: {
-            Authorization: `Bearer ${authToken}`,
-        }
-    })
 }
 
 export default Messages;

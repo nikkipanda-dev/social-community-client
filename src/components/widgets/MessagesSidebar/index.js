@@ -1,7 +1,14 @@
 import { useState, useEffect, } from "react";
 import Cookies from 'js-cookie';
 import { axiosInstance } from "../../../requests";
-import { collection, query, where, onSnapshot, } from "firebase/firestore";
+import { 
+    collection, 
+    query,
+    getDoc, 
+    doc,
+    where, 
+    onSnapshot,
+} from "firebase/firestore";
 import { styled } from "../../../stitches.config";
 
 import MessagesUsers from "../MessagesUsers";
@@ -21,8 +28,6 @@ export const MessagesSidebar = ({
     isAuth,
     onSelect,
 }) => {
-    console.info('fiorebase msgs ', firebase);
-
     const [users, setUsers] = useState('');
 
     const handleUsers = users => setUsers(users);
@@ -41,7 +46,10 @@ export const MessagesSidebar = ({
                     let u = [];
                     Object.keys(response.data.data.details).map((_, val) => u.push(Object.values(response.data.data.details)[val].username));
 
-                    const usersRef = collection(firebase[0].db, "users");
+                    const db = firebase[0].db;
+                    // const id = (firebase[0].auth.currentUser.uid < selectedChat.user.uid) ? firebase[0].auth.currentUser.uid + "-" + selectedChat.user.uid : selectedChat.user.uid + "-" + firebase[0].auth.currentUser.uid;
+
+                    const usersRef = collection(db, "users");
                     const result = query(usersRef, where('username', "in", u));
                     // console.info('result ', result);
                     onSnapshot(result, querySnapshot => {
@@ -72,7 +80,10 @@ export const MessagesSidebar = ({
             <HeaderWrapper>
                 header nav
             </HeaderWrapper>
-            <MessagesUsers users={users} onSelect={onSelect} />
+            <MessagesUsers 
+            users={users} 
+            onSelect={onSelect}
+            firebase={firebase} />
         </MessagesSidebarWrapper>
     )
 }

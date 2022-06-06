@@ -2,7 +2,14 @@ import { useState, useEffect, } from 'react';
 import { useNavigate, NavLink, } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { message, Dropdown, Menu, } from 'antd';
-import { isAuth as isAuthenticated, key, showAlert, } from '../../../util';
+import { signOut, } from 'firebase/auth';
+import { doc, updateDoc, } from 'firebase/firestore';
+import { auth, db, } from '../../../util/Firebase';
+import { 
+    isAuth as isAuthenticated, 
+    key, 
+    showAlert,
+} from '../../../util';
 import { axiosInstance } from "../../../requests";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -58,7 +65,7 @@ export const Navbar = ({
     handleForceRender,
     handleLogIn,
     handleLogOut,
-}) => {    
+}) => {       
     const navigate = useNavigate();
     const [isVisible, setIsVisible] = useState(false);
     const [notifications, setNotifications] = useState('');
@@ -73,7 +80,7 @@ export const Navbar = ({
     });
 
     const logout = () => {
-        if (isAuthenticated()) {
+        if (isAuth && auth && db) {
             const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
             const logoutForm = new FormData();
@@ -87,26 +94,48 @@ export const Navbar = ({
 
             .then(response => {
                 if (response.data.isSuccess) {
-                    setTimeout(() => {
-                        Cookies.remove('auth_user');
-                        Cookies.remove('auth_user_token');
-                        handleLogOut();
-                        navigate('/');
-                    }, 1000);
-                    showAlert();
-                    setTimeout(() => {
-                        message.open({
-                            content: <><FontAwesomeIcon icon={faCircleCheck} className="me-2"/><Text type="span">Logged out.</Text></>,
-                            key,
-                            duration: 2,
-                            style: {
-                                marginTop: '25vh',
-                                zIndex: '99999999',
-                            }
+                    console.log('success');
+                    Cookies.remove('auth_user');
+                    Cookies.remove('auth_user_token');
+                    Cookies.remove('auth_user_firebase_secret');
+
+                    if (!(Cookies.get('auth_user')) && !(Cookies.get('auth_user_token')) && !(Cookies.get('auth_user_firebase_secret'))) {
+                        console.log('ok no cookies ');
+                        updateDoc(doc(db, "users", auth.currentUser.uid), {
+                            isOnline: false,
+                        }).then(response => {
+                            signOut(auth).then(() => {
+                                console.log('signed out ');
+                                handleLogOut();
+                                navigate('/');
+
+                                showAlert();
+                                setTimeout(() => {
+                                    message.open({
+                                        content: <><FontAwesomeIcon icon={faCircleCheck} className="me-2" /><Text type="span">Logged out.</Text></>,
+                                        key,
+                                        duration: 2,
+                                        style: {
+                                            marginTop: '25vh',
+                                            zIndex: '99999999',
+                                        }
+                                    });
+                                }, 1500);
+                            })
+
+                            .catch(error => {
+                                console.error('err res ', error);
+                            });
+                        })
+                        
+                        .catch(updateErr => {
+                            console.error('err upda ', updateErr);
                         });
-                    }, 2000);
+                    } else {
+                        console.error('cookies err');
+                    }
                 } else {
-                    console.log('err res ', response.data.errorText);
+                    console.error('err res ', response.data.errorText);
                 }
             })
 
@@ -254,7 +283,10 @@ export const Navbar = ({
         title="Log In"
         width="550px"
         onCancel={handleHideModal}>
-            <Login handleLogIn={handleLogIn} handleHideModal={handleHideModal}/>
+            <Login 
+            isAuth={isAuth}
+            handleLogIn={handleLogIn} 
+            handleHideModal={handleHideModal} />
         </Modal>
         </NavbarWrapper>
     )

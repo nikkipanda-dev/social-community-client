@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { isAuth as isAuthenticated } from './util';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth, db, } from './util/Firebase';
+import { doc, updateDoc, } from 'firebase/firestore';
 import { Routes, Route } from "react-router-dom";
+import Cookies from 'js-cookie';
 
 import { globalStyles, styled } from './stitches.config';
 import './App.css';
@@ -32,11 +36,13 @@ import { Events as EventsSection } from './components/sections/Events';
 import Event from './components/widgets/Event';
 import PostEvent from './components/sections/PostEvent';
 import Messages from './components/pages/messages';
+import {Messages as MessagesSection} from './components/sections/Messages';
 import Settings from './components/pages/settings';
+import Register from './components/pages/register';
 import NotFound from './components/widgets/NotFound';
 import PostJournal from './components/widgets/PostJournal';
 
-const Main = styled('main', {});
+const Main = styled('div', {});
 
 function App() {
     globalStyles();
@@ -52,7 +58,6 @@ function App() {
     });
 
     const handleLogIn = () => setIsAuth(true);
-
     const handleLogOut = () => setIsAuth(false);
 
     useEffect(() => {
@@ -61,6 +66,25 @@ function App() {
         if (loading) {
             if (isAuthenticated()) {
                 handleLogIn();
+
+                if (auth && db) {
+                    signInWithEmailAndPassword(
+                        auth,
+                        JSON.parse(Cookies.get('auth_user')).email,
+                        JSON.parse(Cookies.get('auth_user_firebase_secret')),
+                    )
+
+                    .then(response => {
+                        // console.info('res login ', response);
+                        updateDoc(doc(db, "users", response.user.uid), {
+                            isOnline: true,
+                        });
+                    })
+
+                    .catch(err => {
+                        console.error('err ', err);
+                    });
+                }
             } else {
                 handleLogOut();
             }
@@ -126,7 +150,13 @@ function App() {
                         <Route path="editor" element={<PostEvent />} />
                         <Route path=":slug" element={<EventsSection />} />
                     </Route>     
-                    <Route path="/messages" element={<Messages />} />
+                    <Route path="/messages" element={<Messages 
+                    isAuth={isAuth} />} >
+                        <Route index element={<MessagesSection />} />
+                    </Route>
+                    <Route path="register/:token" element={<Register 
+                    isAuth={isAuth} 
+                    handleLogIn={handleLogIn} />} />
                     <Route path="/:username/settings" element={<Settings />} />
                     <Route path="/:path" element={<NotFound />} />
                 </Routes>

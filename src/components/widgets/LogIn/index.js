@@ -49,7 +49,11 @@ const formItemLayout = {
     },
 }
 
-export const Login = ({ handleLogIn, handleHideModal, }) => {
+export const Login = ({
+    isAuth, 
+    handleLogIn, 
+    handleHideModal,
+}) => {
     const navigate = useNavigate();
 
     const [status, setStatus] = useState('');
@@ -57,6 +61,9 @@ export const Login = ({ handleLogIn, handleHideModal, }) => {
     const [alert, setAlert] = useState('');
     const [emailHelp, setEmailHelp] = useState('');
     const [passwordHelp, setPasswordHelp] = useState('');
+    const [details, setDetails] = useState('');
+
+    const handleDetails = details => setDetails(details);
 
     const resetAlerts = () => {
         setAlert('');
@@ -94,7 +101,13 @@ export const Login = ({ handleLogIn, handleHideModal, }) => {
                     sameSite: 'strict',
                 });
 
-                if (Cookies.get('auth_user') && Cookies.get('auth_user_token')) {
+                Cookies.set('auth_user_firebase_secret', JSON.stringify(response.data.data.details.firebase.secret), {
+                    expires: .5,
+                    secure: true,
+                    sameSite: 'strict',
+                });
+
+                if (Cookies.get('auth_user') && Cookies.get('auth_user_token') && Cookies.get('auth_user_firebase_secret')) {
                     console.log('valid')
 
                     setStatus('success')
@@ -136,10 +149,6 @@ export const Login = ({ handleLogIn, handleHideModal, }) => {
             }
         });
     }
-
-    // const onChange = evt => {
-    //     console.log('evt ', evt.target.checked);
-    // }
 
     return (
         <LoginWrapper>

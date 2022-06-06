@@ -1,3 +1,4 @@
+import { forwardRef, } from "react";
 import { styled } from "../../../stitches.config";
 
 import NotFound from '../../widgets/NotFound';
@@ -12,6 +13,9 @@ const textStyle = {
             darkGray: {
                 color: '$darkGray',
             },
+            lightGray2: {
+                color: '$lightGray2',
+            },
             brown: {
                 color: '$sealBrown',
             },
@@ -20,7 +24,10 @@ const textStyle = {
             },
             red: {
                 color: '$orangeRedCrayola',
-            }
+            },
+            green: {
+                color: '$pineGreen',
+            },
         },
         size: {
             tiny: {
@@ -53,7 +60,7 @@ const textType = {
     span: SpanWrapper,
 }
 
-export const Text = ({
+export const Text = forwardRef(({
     type,
     className,
     css,
@@ -63,7 +70,7 @@ export const Text = ({
     onClick,
     evtOnclick,
     children,
-}) => {
+}, ref) => {
     const TextWrapper = textType[type];
 
     return (
@@ -79,6 +86,6 @@ export const Text = ({
                 {children}
             </TextWrapper> : <NotFound />
     )
-}
+});
 
 export default Text;

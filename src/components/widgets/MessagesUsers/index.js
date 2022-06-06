@@ -15,7 +15,6 @@ const MessagesUserGroupWrapper = styled('div', {
 export const MessagesUsers = ({ 
     users, 
     onSelect,
-    firebase,
 }) => {
     return (
         <MessagesUsersWrapper>
@@ -24,7 +23,6 @@ export const MessagesUsers = ({
                 (users && (Object.keys(users).length > 0)) && 
                 Object.keys(users).map((i, val) => <MessagesUserCard 
                 key={Object.values(users)[val].uid} 
-                firebase={firebase}
                 values={Object.values(users)[val]}
                 onSelect={onSelect} />)
             }

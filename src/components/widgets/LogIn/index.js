@@ -2,9 +2,6 @@ import { useNavigate, } from 'react-router-dom';
 import { useState, useEffect, } from 'react';
 import { message, Form, Input, Checkbox, } from 'antd';
 import Cookies from 'js-cookie';
-import { getFirebaseValues, } from '../../../util/Firebase';
-import { signInWithEmailAndPassword, } from 'firebase/auth';
-import { doc, updateDoc, } from 'firebase/firestore';
 import { key, showAlert } from '../../../util';
 import { axiosInstance } from '../../../requests';
 import { styled } from "../../../stitches.config";
@@ -52,11 +49,10 @@ const formItemLayout = {
     },
 }
 
-export const Login = ({ 
+export const Login = ({
+    isAuth, 
     handleLogIn, 
     handleHideModal,
-    firebase,
-    handleFirebase,
 }) => {
     const navigate = useNavigate();
 
@@ -105,19 +101,13 @@ export const Login = ({
                     sameSite: 'strict',
                 });
 
-                Cookies.set('auth_user_firebase', JSON.stringify(response.data.data.details.firebase), {
-                    expires: .5,
-                    secure: true,
-                    sameSite: 'strict',
-                });
-
                 Cookies.set('auth_user_firebase_secret', JSON.stringify(response.data.data.details.firebase.secret), {
                     expires: .5,
                     secure: true,
                     sameSite: 'strict',
                 });
 
-                if (Cookies.get('auth_user') && Cookies.get('auth_user_token') && Cookies.get('auth_user_firebase_secret') && Cookies.get('auth_user_firebase')) {
+                if (Cookies.get('auth_user') && Cookies.get('auth_user_token') && Cookies.get('auth_user_firebase_secret')) {
                     console.log('valid')
 
                     setStatus('success')
@@ -159,59 +149,6 @@ export const Login = ({
             }
         });
     }
-
-    // useEffect(() => {
-    //     let loading = true;
-
-    //     if (loading && details && (Object.keys(details).length > 0)) {
-    //         console.log('secret ', details.secret);
-
-    //         signInWithEmailAndPassword(
-    //             details.firebase ? details.firebase[0].auth : firebase[0].auth,
-    //             details.user.user.email,
-    //             details.secret,
-    //         )
-
-    //         .then(response => {
-    //             console.info('res login ', response);
-    //             const db = details.firebase ? details.firebase[0].db : firebase[0].db;
-    //             updateDoc(doc(db, "users", response.user.uid), {
-    //                 isOnline: true,
-    //             });
-
-    //             (details.firebase) && handleFirebase(Object.values(details.firebase));
-
-    //             setStatus('success')
-    //             setHeader('Login successful');
-    //             setAlert('Redirecting...');
-
-    //             setTimeout(() => {
-    //                 handleHideModal();
-    //                 handleLogIn(true);
-    //                 navigate('/home');
-    //                 setTimeout(() => {
-    //                     message.open({
-    //                         content: <><Text type="span" size="medium" className="me-2">👋</Text><Text type="span">{'Hi, ' + details.user.user.first_name + '!'}</Text></>,
-    //                         key,
-    //                         duration: 2,
-    //                         style: {
-    //                             marginTop: '25vh',
-    //                             zIndex: '99999999',
-    //                         }
-    //                     });
-    //                 }, 2000);
-    //             }, 1000);
-    //         })
-
-    //         .catch(err => {
-    //             console.error('err ', err);
-    //         });
-    //     }
-
-    //     return () => {
-    //         loading = false;
-    //     }
-    // }, [details]); 
 
     return (
         <LoginWrapper>

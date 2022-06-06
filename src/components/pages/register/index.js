@@ -5,7 +5,6 @@ import { styled } from "../../../stitches.config";
 import Section from "../../core/Section";
 import Row from "../../core/Row";
 import Column from "../../core/Column";
-import Button from "../../core/Button";
 import {Register as RegisterWidget} from "../../widgets/Register";
 
 import NotFound from "../../widgets/NotFound";
@@ -14,13 +13,9 @@ const RegisterWrapper = styled('div', {});
 
 const RegisterBodyWrapper = styled('div', {});
 
-const ActionWrapper = styled('div', {});
-
 export const Register = ({ 
     isAuth, 
     handleLogIn,
-    firebase,
-    handleFirebase,
 }) => {
     const params = useParams();
 
@@ -71,9 +66,7 @@ export const Register = ({
                             (!(isAuthenticated) && isTokenValid) ? 
                             <RegisterWidget 
                             isAuth={isAuth} 
-                            handleLogIn={handleLogIn}
-                            firebase={firebase}
-                            handleFirebase={handleFirebase} /> : 
+                            handleLogIn={handleLogIn} /> : 
                             (isAuthenticated) ? <Navigate to="/home" replace={true} /> : <NotFound />
                         }
                         </RegisterBodyWrapper>

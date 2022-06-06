@@ -2,9 +2,9 @@ import { useState, useEffect, } from "react";
 import { axiosInstance } from "../../../requests";
 import { Form, Input, } from "antd";
 import Cookies from 'js-cookie';
-import { collection, doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { getFirebaseValues, } from "../../../util/Firebase";
+import { auth, db, } from "../../../util/Firebase";
 import { useNavigate, useParams, } from "react-router-dom";
 import { styled } from "../../../stitches.config";
 
@@ -36,8 +36,6 @@ const formItemLayout = {
 export const Register = ({ 
     isAuth, 
     handleLogIn,
-    firebase,
-    handleFirebase,
 }) => {
     const [form] = Form.useForm();
     const params = useParams();
@@ -76,32 +74,17 @@ export const Register = ({
                     sameSite: 'strict',
                 });
 
-                Cookies.set('auth_user_firebase', JSON.stringify(response.data.data.details.firebase), {
-                    expires: .5,
-                    secure: true,
-                    sameSite: 'strict',
-                });
-
                 Cookies.set('auth_user_firebase_secret', JSON.stringify(response.data.data.details.firebase.secret), {
                     expires: .5,
                     secure: true,
                     sameSite: 'strict',
                 });
 
-                if (Cookies.get('auth_user') && Cookies.get('auth_user_token') && Cookies.get('auth_user_firebase_secret') && Cookies.get('auth_user_firebase')) {
+                if (Cookies.get('auth_user') && Cookies.get('auth_user_token') && Cookies.get('auth_user_firebase_secret')) {
                     const firebaseCred = response.data.data.details.firebase;
 
                     if (Object.keys(firebaseCred).length > 0) {
                         handleDetails({
-                            firebase: (Object.keys(firebase).length > 0) ? null : getFirebaseValues({
-                                apiKey: firebaseCred.api_key,
-                                authDomain: firebaseCred.auth_domain,
-                                databaseURL: firebaseCred.database_url,
-                                projectId: firebaseCred.project_id,
-                                storageBucket: firebaseCred.storage_bucket,
-                                messagingSenderId: firebaseCred.messaging_sender_id,
-                                appId: firebaseCred.app_id,
-                            }),
                             user: response.data.data.details,
                             secret: firebaseCred.secret,
                         });
@@ -126,19 +109,14 @@ export const Register = ({
         let loading = true;
 
         if (loading && (Object.keys(details).length > 0)) {
-            console.info(details.firebase[0].auth);
-            console.info(details.user.user.email);
-            console.info(details.secret);
-
             createUserWithEmailAndPassword(
-                details.firebase ? details.firebase[0].auth : firebase[0].auth,
+                auth,
                 details.user.user.email,
                 details.secret,
             )
 
             .then(response => {
                 console.info('res ', response);
-                const db = details.firebase ? details.firebase[0].db : firebase[0].db;
                 setDoc(doc(db, "users", response.user.uid), {
                     uid: response.user.uid,
                     first_name: details.user.user.first_name,
@@ -149,7 +127,6 @@ export const Register = ({
                     created_at: details.user.user.created_at,
                 });
 
-                (details.firebase) && handleFirebase(Object.values(details.firebase));
 
                 setTimeout(() => {
                     handleLogIn(true);

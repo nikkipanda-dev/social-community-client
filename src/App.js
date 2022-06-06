@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { isAuth as isAuthenticated } from './util';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth, db, } from './util/Firebase';
+import { doc, updateDoc, } from 'firebase/firestore';
 import { Routes, Route } from "react-router-dom";
+import Cookies from 'js-cookie';
 
 import { globalStyles, styled } from './stitches.config';
 import './App.css';
@@ -45,9 +49,7 @@ function App() {
 
     const [isAuth, setIsAuth] = useState(false);
     const [forceRender, setForceRender] = useState(false);
-    const [firebase, setFirebase] = useState(false);
 
-    const handleFirebase = firebase => setFirebase(firebase);
     const handleForceRender = () => setForceRender(!forceRender);
 
     const Wrapper = styled('div', {
@@ -64,6 +66,25 @@ function App() {
         if (loading) {
             if (isAuthenticated()) {
                 handleLogIn();
+
+                if (auth && db) {
+                    signInWithEmailAndPassword(
+                        auth,
+                        JSON.parse(Cookies.get('auth_user')).email,
+                        JSON.parse(Cookies.get('auth_user_firebase_secret')),
+                    )
+
+                    .then(response => {
+                        // console.info('res login ', response);
+                        updateDoc(doc(db, "users", response.user.uid), {
+                            isOnline: true,
+                        });
+                    })
+
+                    .catch(err => {
+                        console.error('err ', err);
+                    });
+                }
             } else {
                 handleLogOut();
             }
@@ -74,26 +95,12 @@ function App() {
         }
     }, [isAuth]);
 
-    useEffect(() => {
-        let loading = true;
-
-        if (loading && (Object.keys(firebase).length > 0)) {
-            console.info('firebase ', firebase);
-        }
-
-        return () => {
-            loading = false
-        }
-    }, [firebase]);
-
     return (
         <Wrapper>
             <Navbar 
             isAuth={isAuth}
             handleForceRender={handleForceRender}
             handleLogIn={handleLogIn}
-            firebase={firebase}
-            handleFirebase={handleFirebase}
             handleLogOut={handleLogOut} />
             <Main>
                 <Routes>
@@ -144,16 +151,12 @@ function App() {
                         <Route path=":slug" element={<EventsSection />} />
                     </Route>     
                     <Route path="/messages" element={<Messages 
-                    isAuth={isAuth} 
-                    firebase={firebase}
-                    handleFirebase={handleFirebase} />} >
+                    isAuth={isAuth} />} >
                         <Route index element={<MessagesSection />} />
                     </Route>
                     <Route path="register/:token" element={<Register 
                     isAuth={isAuth} 
-                    handleLogIn={handleLogIn}
-                    firebase={firebase}
-                    handleFirebase={handleFirebase} />} />
+                    handleLogIn={handleLogIn} />} />
                     <Route path="/:username/settings" element={<Settings />} />
                     <Route path="/:path" element={<NotFound />} />
                 </Routes>

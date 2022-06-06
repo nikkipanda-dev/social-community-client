@@ -9,6 +9,7 @@ import {
     where, 
     onSnapshot,
 } from "firebase/firestore";
+import { auth, db, } from "../../../util/Firebase";
 import { styled } from "../../../stitches.config";
 
 import MessagesUsers from "../MessagesUsers";
@@ -24,7 +25,6 @@ const MessagesSidebarWrapper = styled('div', {
 });
 
 export const MessagesSidebar = ({ 
-    firebase, 
     isAuth,
     onSelect,
 }) => {
@@ -35,7 +35,7 @@ export const MessagesSidebar = ({
     useEffect(() => {
         let loading = true;
 
-        if (loading && isAuth && firebase && (Object.keys(firebase).length > 0)) {
+        if (loading && isAuth && auth && db) {
             getFriends(JSON.parse(Cookies.get('auth_user')).username).then(response => {
                 if (!(response.data.isSuccess)) {
                     console.error('err res ', response.data.data.errorText);
@@ -46,7 +46,6 @@ export const MessagesSidebar = ({
                     let u = [];
                     Object.keys(response.data.data.details).map((_, val) => u.push(Object.values(response.data.data.details)[val].username));
 
-                    const db = firebase[0].db;
                     // const id = (firebase[0].auth.currentUser.uid < selectedChat.user.uid) ? firebase[0].auth.currentUser.uid + "-" + selectedChat.user.uid : selectedChat.user.uid + "-" + firebase[0].auth.currentUser.uid;
 
                     const usersRef = collection(db, "users");
@@ -82,8 +81,7 @@ export const MessagesSidebar = ({
             </HeaderWrapper>
             <MessagesUsers 
             users={users} 
-            onSelect={onSelect}
-            firebase={firebase} />
+            onSelect={onSelect} />
         </MessagesSidebarWrapper>
     )
 }

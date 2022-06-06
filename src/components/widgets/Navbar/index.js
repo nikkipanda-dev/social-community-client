@@ -4,6 +4,7 @@ import Cookies from 'js-cookie';
 import { message, Dropdown, Menu, } from 'antd';
 import { signOut, } from 'firebase/auth';
 import { doc, updateDoc, } from 'firebase/firestore';
+import { auth, db, } from '../../../util/Firebase';
 import { 
     isAuth as isAuthenticated, 
     key, 
@@ -64,11 +65,7 @@ export const Navbar = ({
     handleForceRender,
     handleLogIn,
     handleLogOut,
-    firebase,
-    handleFirebase,
-}) => {   
-    // console.info('firebase ', firebase);
-    
+}) => {       
     const navigate = useNavigate();
     const [isVisible, setIsVisible] = useState(false);
     const [notifications, setNotifications] = useState('');
@@ -83,7 +80,7 @@ export const Navbar = ({
     });
 
     const logout = () => {
-        if (isAuthenticated()) {
+        if (isAuth && auth && db) {
             const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
             const logoutForm = new FormData();
@@ -100,37 +97,39 @@ export const Navbar = ({
                     console.log('success');
                     Cookies.remove('auth_user');
                     Cookies.remove('auth_user_token');
-                    Cookies.remove('auth_user_firebase');
                     Cookies.remove('auth_user_firebase_secret');
 
-                    if (!(Cookies.get('auth_user')) && !(Cookies.get('auth_user_token')) && !(Cookies.get('auth_user_firebase_secret')) && !(Cookies.get('auth_user_firebase'))) {
-                        const db = firebase[0].db;
-
-                        updateDoc(doc(db, "users", firebase[0].auth.currentUser.uid), {
+                    if (!(Cookies.get('auth_user')) && !(Cookies.get('auth_user_token')) && !(Cookies.get('auth_user_firebase_secret'))) {
+                        console.log('ok no cookies ');
+                        updateDoc(doc(db, "users", auth.currentUser.uid), {
                             isOnline: false,
-                        });
+                        }).then(response => {
+                            signOut(auth).then(() => {
+                                console.log('signed out ');
+                                handleLogOut();
+                                navigate('/');
 
-                        signOut(firebase[0].auth).then(() => {
-                            console.log('signed out ');
-                            handleLogOut();
-                            navigate('/');
+                                showAlert();
+                                setTimeout(() => {
+                                    message.open({
+                                        content: <><FontAwesomeIcon icon={faCircleCheck} className="me-2" /><Text type="span">Logged out.</Text></>,
+                                        key,
+                                        duration: 2,
+                                        style: {
+                                            marginTop: '25vh',
+                                            zIndex: '99999999',
+                                        }
+                                    });
+                                }, 1500);
+                            })
 
-                            showAlert();
-                            setTimeout(() => {
-                                message.open({
-                                    content: <><FontAwesomeIcon icon={faCircleCheck} className="me-2" /><Text type="span">Logged out.</Text></>,
-                                    key,
-                                    duration: 2,
-                                    style: {
-                                        marginTop: '25vh',
-                                        zIndex: '99999999',
-                                    }
-                                });
-                            }, 1500);
+                            .catch(error => {
+                                console.error('err res ', error);
+                            });
                         })
-
-                        .catch (error => {
-                            console.error('err res ', error);
+                        
+                        .catch(updateErr => {
+                            console.error('err upda ', updateErr);
                         });
                     } else {
                         console.error('cookies err');
@@ -285,10 +284,9 @@ export const Navbar = ({
         width="550px"
         onCancel={handleHideModal}>
             <Login 
+            isAuth={isAuth}
             handleLogIn={handleLogIn} 
-            handleHideModal={handleHideModal}
-            firebase={firebase}
-            handleFirebase={handleFirebase}/>
+            handleHideModal={handleHideModal} />
         </Modal>
         </NavbarWrapper>
     )

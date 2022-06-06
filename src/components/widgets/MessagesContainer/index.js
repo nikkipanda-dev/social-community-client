@@ -17,7 +17,6 @@ const MessagesContainerWrapper = styled('div', {
 export const MessagesContainer = forwardRef(({ 
     messages, 
     isAuth,
-    firebase,
 }, ref) => {
     return (
         <MessagesContainerWrapper className="d-flex flex-column bg-light">
@@ -26,7 +25,6 @@ export const MessagesContainer = forwardRef(({
             Object.keys(messages).map((_, val) => <MessageBubble 
             key={Object.values(messages)[val].created_at.seconds} 
             values={Object.values(messages)[val]}
-            firebase={firebase}
             isAuth={isAuth} />)
         }
         </MessagesContainerWrapper>

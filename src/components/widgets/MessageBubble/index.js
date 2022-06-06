@@ -5,6 +5,7 @@ import {
     useEffect,
 } from 'react';
 import Cookies from 'js-cookie';
+import { auth, db, } from '../../../util/Firebase';
 import { styled } from "../../../stitches.config";
 
 import Text from "../../core/Text";
@@ -18,7 +19,6 @@ const MiscWrapper = styled('div', {});
 export const MessageBubble = forwardRef(({ 
     values, 
     isAuth,
-    firebase,
 }, ref) => {
     const messageBubbleRef = useRef('');
     const [message, setMessage] = useState('');
@@ -50,8 +50,8 @@ export const MessageBubble = forwardRef(({
     }, [message]);
 
     return (
-        (values && (Object.keys(values).length > 0) && isAuth && firebase && (Object.keys(firebase).length > 0) && firebase[0].auth.currentUser) && 
-        <MessageBubbleWrapper className={"d-flex flex-column" + ((values.sender === firebase[0].auth.currentUser.uid) ? " align-self-end" : " align-self-start")} ref={messageBubbleRef}> 
+        (values && (Object.keys(values).length > 0) && isAuth && auth.currentUser) && 
+        <MessageBubbleWrapper className={"d-flex flex-column" + ((values.sender === auth.currentUser.uid) ? " align-self-end" : " align-self-start")} ref={messageBubbleRef}> 
             <MiscWrapper css={{ 
                 background: '$lightGray1', 
                 padding: '$space-3 $space-3 0px',

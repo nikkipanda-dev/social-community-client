@@ -25,24 +25,9 @@ const validateMessages = {
 };
 
 export const Messages = () => {
-    const [form] = Form.useForm();
-    const [loading, setLoading] = useState(true);
-    const [projectId, setProjectId] = useState('');
-    const [user, setUser] = useState('');
-    const [secret, setSecret] = useState('');
-    const [key, setKey] = useState('');
-    const [messages, setMessages] = useState('');
     const context = useOutletContext();
 
     console.info('context ', context);
-
-    const handleMessages = messages => setMessages(messages);
-    const handleShowLoading = () => setLoading(true);
-    const handleUser = user => setUser(user);
-    const handleSecret = secret => setSecret(secret);
-    const handleHideLoading = () => setLoading(false);
-    const handleProjectId = projectId => setProjectId(projectId);
-    const handleKey = key => setKey(key);
 
     return (
         <MessagesWrapper className="d-flex flex-column flex-lg-row">
@@ -51,7 +36,6 @@ export const Messages = () => {
                 storeFn={context.storeFn} 
                 isAuth={context.isAuth}
                 form={context.form}
-                firebase={context.firebase}
                 messages={context.selectedChat.messages} />
             </ContentWrapper>
             <ContentWrapper css={{ flex: '35%', }}>

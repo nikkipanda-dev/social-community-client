@@ -27,7 +27,6 @@ export const MessagesMain = ({
     isAuth, 
     form,
     messages,
-    firebase,
 }) => {
     console.info('mes ', messages);
     const textareaRef = useRef('');
@@ -120,8 +119,7 @@ export const MessagesMain = ({
             <MessagesContainerWrapper>
                 <MessagesContainer 
                 messages={messages} 
-                isAuth={isAuth}
-                firebase={firebase} />
+                isAuth={isAuth} />
             </MessagesContainerWrapper>
             <MessagesTextareaWrapper className="d-flex">
                 <Text 

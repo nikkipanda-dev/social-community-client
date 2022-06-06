@@ -1,5 +1,6 @@
 import { useState, useEffect, } from "react";
 import { doc, onSnapshot,  } from "firebase/firestore";
+import { auth, db, } from "../../../util/Firebase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircle, } from "@fortawesome/free-solid-svg-icons";
 import { styled } from "../../../stitches.config";
@@ -44,7 +45,6 @@ const NotificationWrapper = styled('div', {
 export const MessagesUserCard = ({ 
     values, 
     onSelect,
-    firebase,
 }) => {
     console.log('vakues ', values);
 
@@ -52,14 +52,13 @@ export const MessagesUserCard = ({
 
     const handleLastMessage = lastMessage => setLastMessage(lastMessage);
 
-    console.info('messae ', lastMessage);
+    console.info('last message: ', lastMessage);
 
     useEffect(() => {
         let loading = true;
 
-        if (loading && firebase && (Object.keys(firebase).length > 0) && firebase[0].auth.currentUser) {
-            const db = firebase[0].db;
-            const id = (firebase[0].auth.currentUser.uid < values.uid) ? firebase[0].auth.currentUser.uid + "-" + values.uid : values.uid + "-" + firebase[0].auth.currentUser.uid;
+        if (loading && auth && auth.currentUser) {
+            const id = (auth.currentUser.uid < values.uid) ? auth.currentUser.uid + "-" + values.uid : values.uid + "-" + auth.currentUser.uid;
 
             const docRef = doc(db, "lastMessages", id);
             let lastMessage = [];

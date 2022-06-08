@@ -6,7 +6,6 @@ import { signOut, } from 'firebase/auth';
 import { doc, updateDoc, } from 'firebase/firestore';
 import { auth, db, } from '../../../util/Firebase';
 import { 
-    isAuth as isAuthenticated, 
     key, 
     showAlert,
 } from '../../../util';
@@ -62,6 +61,7 @@ export const Navbar = ({
     className,
     css,
     isAuth,
+    displayPhoto,
     handleForceRender,
     handleLogIn,
     handleLogOut,
@@ -78,6 +78,10 @@ export const Navbar = ({
         zIndex: '$default',
         background: isAuth ? "50% 80% / cover no-repeat url('/navbar_backdrop.png')" : "transparent",
     });
+
+    const handleNavigator = params => {
+        navigate(params, { replace: true, });
+    }
 
     const logout = () => {
         if (isAuth && auth && db) {
@@ -97,6 +101,7 @@ export const Navbar = ({
                     console.log('success');
                     Cookies.remove('auth_user');
                     Cookies.remove('auth_user_token');
+                    Cookies.get('auth_user_display_photo') && Cookies.remove('auth_user_display_photo');
                     Cookies.remove('auth_user_firebase_secret');
 
                     if (!(Cookies.get('auth_user')) && !(Cookies.get('auth_user_token')) && !(Cookies.get('auth_user_firebase_secret'))) {
@@ -191,7 +196,7 @@ export const Navbar = ({
                     children: [
                         {
                             key: '1',
-                            label: <Text type="span">Settings</Text>,
+                            label: <Text type="span" onClick={() => handleNavigator("/settings/information")}>Settings</Text>,
                         },
                     ],
                 },
@@ -257,9 +262,14 @@ export const Navbar = ({
                                 <Dropdown overlay={menu} arrow>
                                     <a onClick={e => e.preventDefault()}>
                                         <Image
-                                        src="/avatar_medium.png"
+                                        src={displayPhoto ? displayPhoto : "/avatar_medium.png"}
                                         className="ms-3"
-                                        css={{ width: '60px', }} />
+                                        css={{ 
+                                            width: '60px',
+                                            height: '60px',
+                                            objectFit: 'cover',
+                                            borderRadius: '100%',
+                                        }} />
                                     </a>
                                 </Dropdown>
                             </> : 

@@ -89,7 +89,14 @@ export const Login = ({
 
         .then(response => {
             if (response.data.isSuccess) {
+                console.info(response.data.data.details);
                 Cookies.set('auth_user', JSON.stringify(response.data.data.details.user), {
+                    expires: .5,
+                    secure: true,
+                    sameSite: 'strict',
+                });
+
+                response.data.data.details.display_photo && Cookies.set('auth_user_display_photo', JSON.stringify(response.data.data.details.display_photo), {
                     expires: .5,
                     secure: true,
                     sameSite: 'strict',

@@ -4,6 +4,7 @@ import {
     faCircleInfo, 
     faBell,
     faUser,
+    faAddressCard,
 } from "@fortawesome/free-solid-svg-icons";
 import { styled } from "../../../stitches.config";
 
@@ -45,6 +46,9 @@ export const SettingsSidebar = () => {
             <SettingsNavWrapper className="d-flex flex-column">
                 <NavLink to="information" className={({ isActive }) => isActive ? 'active-nav' : undefined}>
                     <FontAwesomeIcon icon={faCircleInfo} className="fa-fw fa-xl me-2" /><Text type="span">Information</Text>
+                </NavLink>
+                <NavLink to="profile" className={({ isActive }) => isActive ? 'active-nav' : undefined}>
+                    <FontAwesomeIcon icon={faAddressCard} className="fa-fw fa-xl me-2" /><Text type="span">Profile</Text>
                 </NavLink>
                 <NavLink to="alerts" className={({ isActive }) => isActive ? 'active-nav' : undefined}>
                     <FontAwesomeIcon icon={faBell} className="fa-fw fa-xl me-2" /><Text type="span">Alerts</Text>

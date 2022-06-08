@@ -1,18 +1,15 @@
 import { useEffect, useState, } from "react";
-import { 
-    useParams, 
-    Navigate,
-    useOutletContext,
-} from "react-router-dom";
+import { useParams, useOutletContext, } from "react-router-dom";
 import { styled } from "../../../stitches.config";
 
 import SettingsInformation from "../../widgets/SettingsInformation";
+import SettingsProfile from "../../widgets/SettingsProfile";
 import SettingsAlert from "../../widgets/SettingsAlert";
 import SettingsAccount from "../../widgets/SettingsAccount";
 
 const SettingsWrapper = styled('div', {
     '> div': {
-        padding: '$space-2',
+        padding: '$space-2 $space-2 $space-5',
         borderRadius: '$default',
     },
 });
@@ -22,11 +19,14 @@ export const Settings = () => {
     const context = useOutletContext();
 
     const [isInfoShown, setIsInfoShown] = useState(false);
+    const [isProfileShown, setIsProfileShown] = useState(false);
     const [isAccountShown, setIsAccountShown] = useState(false);
     const [isAlertShown, setIsAlertShown] = useState(false);
 
     const handleShowInfo = () => setIsInfoShown(true);
     const handleHideInfo = () => setIsInfoShown(false);
+    const handleShowProfile = () => setIsProfileShown(true);
+    const handleHideProfile = () => setIsProfileShown(false);
     const handleShowAccount = () => setIsAccountShown(true);
     const handleHideAccount = () => setIsAccountShown(false);
     const handleShowAlert = () => setIsAlertShown(true);
@@ -39,10 +39,15 @@ export const Settings = () => {
             handleHideInfo();
             handleHideAccount();
             handleHideAlert();
+            handleHideProfile();
 
             if (params.slug === "information") {
                 handleShowInfo();
             } 
+
+            if (params.slug === "profile") {
+                handleShowProfile();
+            }
 
             if (params.slug === "alerts") {
                 handleShowAlert();
@@ -65,6 +70,9 @@ export const Settings = () => {
             isAuth={context.isAuth} 
             displayPhoto={context.displayPhoto}
             handleDisplayPhoto={context.handleDisplayPhoto} />
+        }
+        {
+            isProfileShown && <SettingsProfile isAuth={context.isAuth} />
         }
         {
             isAlertShown && <SettingsAlert isAuth={context.isAuth} />

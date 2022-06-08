@@ -81,9 +81,21 @@ export const SettingsInformation = ({
     const [passwordHelp, setPasswordHelp] = useState('');
     const [imageHelp, setImageHelp] = useState('');
 
-    const handleToggleNameForm = () => setIsNameFormShown(!(isNameFormShown));
-    const handleToggleEmailForm = () => setIsEmailFormShown(!(isEmailFormShown));
-    const handleTogglePasswordForm = () => setIsPasswordFormShown(!(isPasswordFormShown));
+    const handleToggleNameForm = () => {
+        setIsNameFormShown(!(isNameFormShown));
+        nameForm.resetFields();
+    };
+
+    const handleToggleEmailForm = () => {
+        setIsEmailFormShown(!(isEmailFormShown));
+        emailForm.resetFields();
+    };
+    
+    const handleTogglePasswordForm = () => {
+        setIsPasswordFormShown(!(isPasswordFormShown));
+        passwordForm.resetFields();
+    }
+
     const handleForceRender = () => setForceRender(!(forceRender));
     const handleImageUrls = imageUrls => setImageUrls(imageUrls);
     const handleFiles = files => setFiles(files);

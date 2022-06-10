@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
 import { isAuth as isAuthenticated } from './util';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, onAuthStateChanged, } from 'firebase/auth';
 import { auth, db, } from './util/Firebase';
 import { doc, updateDoc, } from 'firebase/firestore';
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, } from "react-router-dom";
 import Cookies from 'js-cookie';
 
 import { globalStyles, styled } from './stitches.config';
 import './App.css';
 
-import { AuthWrapper } from './components/sections/Wrapper';
 import Navbar from './components/widgets/Navbar';
 import LandingPage from './components/pages/landing-page';
 import Home from './components/pages/home';
@@ -44,8 +43,6 @@ import Register from './components/pages/register';
 import NotFound from './components/widgets/NotFound';
 import PostJournal from './components/widgets/PostJournal';
 
-const Main = styled('div', {});
-
 function App() {
     globalStyles();
 
@@ -65,7 +62,7 @@ function App() {
         if (loading) {
             if (isAuthenticated()) {
                 handleLogIn();
-                handleDisplayPhoto(JSON.parse(Cookies.get('auth_user_display_photo')));
+                Cookies.get('auth_user_display_photo') && handleDisplayPhoto(JSON.parse(Cookies.get('auth_user_display_photo')));
 
                 if (auth && db) {
                     signInWithEmailAndPassword(
@@ -94,9 +91,31 @@ function App() {
             loading = false
         }
     }, [isAuth]);
+    
+    useEffect(() => {
+        let loading = true;
+
+        if (loading) {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    console.info('signed in ', auth.currentUser.uid);
+                } else {
+                    console.info('signed out');
+                }
+            });
+        }
+
+        return () => {
+            loading = false;
+        }
+    }, [auth]);
+
+    const AuthWrapper = styled('div', {
+        background: !(isAuth) ? "center / cover no-repeat url('/backdrop_ver_1.png')" : "transparent",
+    });
 
     return (
-        <AuthWrapper isAuth={isAuth}>
+        <AuthWrapper>
             <Navbar 
             isAuth={isAuth}
             displayPhoto={displayPhoto}
@@ -150,8 +169,7 @@ function App() {
                     <Route path="editor" element={<PostEvent />} />
                     <Route path=":slug" element={<EventsSection />} />
                 </Route>     
-                <Route path="/messages" element={<Messages 
-                isAuth={isAuth} />} >
+                <Route path="/messages" element={<Messages isAuth={isAuth} displayPhoto={displayPhoto} />}>
                     <Route index element={<MessagesSection />} />
                 </Route>
                 <Route path="register/:token" element={<Register 

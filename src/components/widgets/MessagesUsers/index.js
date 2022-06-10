@@ -15,7 +15,7 @@ const MessagesUserGroupWrapper = styled('div', {
 export const MessagesUsers = ({ 
     users, 
     onSelect,
-}) => {
+}) => {    
     return (
         <MessagesUsersWrapper>
             <MessagesUserGroupWrapper>

@@ -5,7 +5,6 @@ import Cookies from 'js-cookie';
 import { useOutletContext, } from "react-router-dom";
 import { styled } from "../../../stitches.config";
 
-import Button from "../../core/Button";
 import MessagesMain from "../../widgets/MessagesMain";
 import MessagesInfo from "../../widgets/MessagesInfo";
 
@@ -13,21 +12,8 @@ const MessagesWrapper = styled('div', {});
 
 const ContentWrapper = styled('div', {});
 
-const SubmitButtonWrapper = styled('div', {
-    marginTop: '30px',
-});
-
-const validateMessages = {
-    required: '${label} is required.',
-    string: {
-        range: "${label} must be at least ${min} and maximum of ${max} characters.",
-    }
-};
-
 export const Messages = () => {
     const context = useOutletContext();
-
-    console.info('context ', context);
 
     return (
         <MessagesWrapper className="d-flex flex-column flex-lg-row">
@@ -36,7 +22,14 @@ export const Messages = () => {
                 storeFn={context.storeFn} 
                 isAuth={context.isAuth}
                 form={context.form}
-                messages={context.selectedChat.messages} />
+                friendUsername={context.selectedChat ? context.selectedChat.user.username : ''}
+                friendId={context.selectedChat ? context.selectedChat.uid : ''}
+                messages={context.selectedChat.messages}
+                imageUrls={context.imageUrls}
+                handleImageChange={context.handleImageChange}
+                handleRemoveImage={context.handleRemoveImage}
+                displayPhoto={context.displayPhoto}
+                ref={context.messagesRef} />
             </ContentWrapper>
             <ContentWrapper css={{ flex: '35%', }}>
                 <MessagesInfo values={context.selectedChat} />

@@ -22,8 +22,6 @@ const MessagesHeaderWrapper = styled('div', {
 const MessagesInfoBody = styled('div', {});
 
 export const MessagesInfo = ({ values, }) => {
-    console.info(values);
-
     return (
         (values && (Object.keys(values).length > 0)) && 
         <MessagesInfoWrapper>

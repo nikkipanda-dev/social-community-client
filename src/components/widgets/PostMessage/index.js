@@ -10,7 +10,6 @@ import Text from "../../core/Text";
 import Image from "../../core/Image";
 
 const PostMessageWrapper = styled('div', {
-    height: '15vh',
     'textarea': {
         resize: 'none',
         height: '100% !important',

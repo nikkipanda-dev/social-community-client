@@ -15,14 +15,14 @@ const MessagesUserGroupWrapper = styled('div', {
 export const MessagesUsers = ({ 
     users, 
     onSelect,
-}) => {    
+}) => { 
     return (
         <MessagesUsersWrapper>
             <MessagesUserGroupWrapper>
             {
                 (users && (Object.keys(users).length > 0)) && 
-                Object.keys(users).map((i, val) => <MessagesUserCard 
-                key={Object.values(users)[val].uid} 
+                Object.keys(users).map((_, val) => <MessagesUserCard 
+                key={Object.values(users)[val].user.uid} 
                 values={Object.values(users)[val]}
                 onSelect={onSelect} />)
             }

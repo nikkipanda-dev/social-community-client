@@ -20,7 +20,12 @@ import MessagesContainer from "../MessagesContainer";
 
 const MessagesMainWrapper = styled('div', {});
 
-const MessagesContainerWrapper = styled('div', {});
+const MessagesContainerWrapper = styled('div', {
+    width: '100%',
+    height: '60vh',
+    overflow: 'auto',
+    overflowX: 'hidden',
+});
 
 const MessagesTextareaWrapper = styled('div', {
     '.emoji-toggler:hover': {
@@ -32,25 +37,30 @@ const ImageWrapper = styled('div', {});
 
 const ContainerWrapper = styled('div', {});
 
-const LabelWrapper = styled('label', {});
+const LabelWrapper = styled('label', {
+    ':hover': {
+        cursor: 'pointer',
+    },
+});
 
 export const MessagesMain = forwardRef(({ 
     storeFn, 
     isAuth, 
     form,
+    handleShowModal,
     messages,
     imageUrls,
+    friendDisplayPhoto,
     friendUsername,
-    friendId,
     handleImageChange,
     handleRemoveImage,
     displayPhoto,
 }, ref) => {
-    // console.info('mes ', messages);
+    //TODO: paginate messages
+    
     const emojiRef = useRef('');
 
     const [isEmojiShown, setIsEmojiShown] = useState(false);
-    const [emoji, setEmoji] = useState('');
     const [message, setMessage] = useState('');
 
     const handleToggleEmoji = () => setIsEmojiShown(!(isEmojiShown));
@@ -80,9 +90,10 @@ export const MessagesMain = forwardRef(({
                 <MessagesContainer 
                 messages={messages} 
                 isAuth={isAuth}
+                handleShowModal={handleShowModal}
                 displayPhoto={displayPhoto}
+                friendDisplayPhoto={friendDisplayPhoto}
                 friendUsername={friendUsername}
-                friendId={friendId}
                 ref={ref} />
             </MessagesContainerWrapper>
             <MessagesTextareaWrapper className="d-flex flex-column">
@@ -167,6 +178,7 @@ export const MessagesMain = forwardRef(({
                     handleImageChange={handleImageChange}
                     imageUrls={imageUrls}
                     css={{
+                        height: '15vh',
                         margin: '0px 0px 0px $space-2',
                         '@media screen and (max-width: 575px)': {
                             margin: '0px',

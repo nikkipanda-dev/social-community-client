@@ -23,13 +23,12 @@ const MediaWrapper = styled('div', {});
 export const MessageBubble = forwardRef(({ 
     values, 
     isAuth,
+    handleShowModal,
     displayPhoto,
     friendDisplayPhoto,
 }, ref) => {
     const messageBubbleRef = useRef('');
     const [message, setMessage] = useState('');
-    const date = new Date();
-    const createdAt = new Date(values.created_at.toDate());
 
     const handleMessage = message => setMessage(message);
 
@@ -90,7 +89,7 @@ export const MessageBubble = forwardRef(({
                     }}>
                         {
                             Object.keys(values.images).map((i, val) => {
-                                return <MediaWrapper key={i}>
+                                return <MediaWrapper key={i} onClick={() => handleShowModal(Object.values(values.images)[val])}>
                                     <Image src={Object.values(values.images)[val]} />
                                 </MediaWrapper>
                             })
@@ -102,8 +101,8 @@ export const MessageBubble = forwardRef(({
                 src={`${((values.sender === auth.currentUser.uid) && displayPhoto) ? displayPhoto : 
                 (friendDisplayPhoto) ? friendDisplayPhoto : "/avatar_medium.png"}`} 
                 css={{ 
-                    width: '35px',
-                    height: '35px',
+                    width: '30px',
+                    height: '30px',
                     objectFit: 'cover',
                     borderRadius: '100%',
                     margin: (values.sender === auth.currentUser.uid) ? '0px 0px 0px $space-2' : '0px $space-2 0px 0px',
@@ -133,7 +132,7 @@ export const MessageBubble = forwardRef(({
                 </Text>
             }
             {
-                (values.readAt) && 
+                (values.read_at) && 
                 <Text
                 type="span"
                 size="tiny"
@@ -154,7 +153,7 @@ export const MessageBubble = forwardRef(({
                             hour: '2-digit',
                             minute: '2-digit',
                             second: '2-digit',
-                        }).format(new Date(values.readAt.toDate()))
+                        }).format(new Date(values.read_at.toDate()))
                     }
                     </Text>
                 </Text>

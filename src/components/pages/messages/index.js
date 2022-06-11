@@ -16,7 +16,6 @@ import {
     Timestamp,
     query,
     orderBy,
-    limit,
     onSnapshot,
     arrayUnion,
     arrayRemove,
@@ -33,8 +32,8 @@ import { styled } from "../../../stitches.config";
 import { 
     ref, 
     uploadBytes,
-    getStorage,
     getDownloadURL,
+    listAll,
 } from "firebase/storage";
 import Section from "../../core/Section";
 import Row from "../../core/Row";
@@ -55,7 +54,6 @@ export const Messages = ({
     const [selectedUser, setSelectedUser] = useState('');
     const [selectedChat, setSelectedChat] = useState('');
     const [files, setFiles] = useState('');
-    const [viewers, setViewers] = useState('');
     const [imageUrls, setImageUrls] = useState('');
     const [forceRender, setForceRender] = useState(false);
     const [previousId, setPreviousId] = useState('');
@@ -63,7 +61,6 @@ export const Messages = ({
     const handleForceRender = () => setForceRender(!(forceRender));
     const handleImageUrls = imageUrls => setImageUrls(imageUrls);
     const handleFiles = files => setFiles(files);
-    const handleViewers = viewers => setViewers(viewers);
     const handleSelectedUser = selectedUser => setSelectedUser(selectedUser);
     const handleSelectedChat = selectedChat => setSelectedChat(selectedChat);
     const handlePreviousId = previousId => setPreviousId(previousId);
@@ -73,32 +70,29 @@ export const Messages = ({
     }
 
     const onStore = values => {
-        console.log('val ', values);
-
-        if (!(isAuth) && !(selectedChat) && (Object.keys(selectedChat).length > 0) && (!(auth) || !(db) || !(storage))) {
+        if (!(isAuth && selectedChat && (Object.keys(selectedChat).length > 0) && (Object.keys(selectedChat.user.user).length > 0)) && (!(auth) || !(db) || !(storage))) {
             console.error('on message store: no cookies');
             return;
         }
 
         if (auth.currentUser.uid) {
-            console.info('valid');
             const storeForm = new FormData();
 
             for (let i in values) {
                 values[i] && storeForm.append(i, values[i]);
             }
 
-            const id = (auth.currentUser.uid < selectedChat.user.uid) ? auth.currentUser.uid + "-" + selectedChat.user.uid : selectedChat.user.uid + "-" + auth.currentUser.uid;
+            const id = (auth.currentUser.uid < selectedChat.user.user.uid) ? auth.currentUser.uid + "-" + selectedChat.user.user.uid : selectedChat.user.user.uid + "-" + auth.currentUser.uid;
 
             //set ID to sender - receiver of the message
             addDoc(collection(db, "messages", id, "messages"), {
                 message: values.message,
                 sender: auth.currentUser.uid,
-                recipient: selectedChat.user.uid,
+                recipient: selectedChat.user.user.uid,
                 created_at: Timestamp.fromDate(new Date()),
-                readAt: '',
+                read_at: '',
                 images: '',
-                isRead: false,
+                is_read: false,
             }).then(response => {
                 if (files && (Object.keys(files).length > 0)) {
                     let ctr = 0;
@@ -106,7 +100,7 @@ export const Messages = ({
                     for (let i of files) {
                         ++ctr;
 
-                        const storageRef = ref(storage, response.id + '/' + ctr + '-' + i.name);
+                        const storageRef = ref(storage, id + '/' + ctr + '-' + i.name);
 
                         uploadBytes(storageRef, i).then((snapshot) => {
                             getDownloadURL(ref(storage, snapshot.ref.fullPath)).then((downloadURL) => {
@@ -132,7 +126,7 @@ export const Messages = ({
             setDoc(doc(db, "lastMessages", id), {
                 message: values.message,
                 sender: auth.currentUser.uid,
-                recipient: selectedChat.user.uid,
+                recipient: selectedChat.user.user.uid,
             })
 
             form.resetFields();
@@ -140,14 +134,12 @@ export const Messages = ({
     }
 
     const onSelect = selected => {
-        console.info('selected ', selected);
-
         if (!(isAuth) && (!(auth.currentUser) || !(db))) {
             console.error('err on select: no firebase cred');
             return;
         }
 
-        const id = (auth.currentUser.uid < selected.uid) ? auth.currentUser.uid + "-" + selected.uid : selected.uid + "-" + auth.currentUser.uid;
+        const id = (auth.currentUser.uid < selected.user.uid) ? auth.currentUser.uid + "-" + selected.user.uid : selected.user.uid + "-" + auth.currentUser.uid;
 
         // Create message meta(to check if message is open, etc) if it does not exist yet
         const meta = doc(db, "messagesMeta", id);
@@ -166,7 +158,6 @@ export const Messages = ({
                     console.error('err create ', errCreateResponse);
                 });
             } else {
-                console.info("already existing");
                 addMessageViewer(id, auth.currentUser.uid);
             }
         });
@@ -179,8 +170,6 @@ export const Messages = ({
 
             addMessageViewer(id, auth.currentUser.uid);
         }
-
-        console.info('VIEWERS ', viewers)
 
         handleSelectedUser(selected);
     }
@@ -255,12 +244,12 @@ export const Messages = ({
     useEffect(() => {
         let loading = true;
 
-        if (!(auth.currentUser && db && selectedUser && (Object.keys(selectedUser).length > 0))) {
+        if (!(auth.currentUser && db && selectedUser && (Object.keys(selectedUser).length > 0) && (Object.keys(selectedUser.user).length > 0))) {
             console.error("on update meta: firebase error");
             return;
         }
 
-        const id = (auth.currentUser.uid < selectedUser.uid) ? auth.currentUser.uid + "-" + selectedUser.uid : selectedUser.uid + "-" + auth.currentUser.uid;
+        const id = (auth.currentUser.uid < selectedUser.user.uid) ? auth.currentUser.uid + "-" + selectedUser.user.uid : selectedUser.user.uid + "-" + auth.currentUser.uid;
         let unsubscribe;
 
         if (loading) {
@@ -322,15 +311,15 @@ export const Messages = ({
 function markAsRead(id, authId) {
     const messagesRef = collection(db, "messages", id, "messages");
 
-    const q = query(messagesRef, where("isRead", "==", false), where("recipient", "==", authId), orderBy("created_at", "asc"));
+    const q = query(messagesRef, where("is_read", "==", false), where("recipient", "==", authId), orderBy("created_at", "asc"));
 
     getDocs(q).then(response => {
         response.forEach(message => {
             // doc.data() is never undefined for query doc snapshots
             const messageRef = doc(db, "messages", id, "messages", message.id);
             updateDoc(messageRef, {
-                isRead: true,
-                readAt: Timestamp.fromDate(new Date()),
+                is_read: true,
+                read_at: Timestamp.fromDate(new Date()),
             }).then(() => {
                 console.info('doc id ', message.id + " updated");
             })

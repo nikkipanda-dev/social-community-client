@@ -4,8 +4,6 @@ import { axiosInstance } from "../../../requests";
 import { 
     collection, 
     query,
-    getDoc, 
-    doc,
     where, 
     onSnapshot,
 } from "firebase/firestore";
@@ -48,16 +46,27 @@ export const MessagesSidebar = ({
 
                     const usersRef = collection(db, "users");
                     const result = query(usersRef, where('username', "in", u));
-                    // console.info('result ', result);
+
                     onSnapshot(result, querySnapshot => {
                         let z = [];
+                        let c = [];
+
                         querySnapshot.forEach((doc) => {
                         // doc.data() is never undefined for query doc snapshots
-                            console.log('doc ', doc.data());
+                            // console.log('doc ', doc.data());
                             z.push(doc.data());
                         })
 
-                        handleUsers(z);
+                        for (let i of response.data.data.details) {
+                            for (let b of z) {
+                                (i.username === b.username) && c.push({
+                                    user: b,
+                                    display_photo: i.display_photo,
+                                });
+                            }
+                        }
+
+                        handleUsers(c);
                     })
                 }
             })

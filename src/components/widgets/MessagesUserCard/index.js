@@ -55,22 +55,18 @@ export const MessagesUserCard = ({
     values, 
     onSelect,
 }) => {
-    // console.log('vakues ', values);
-
     const [lastMessage, setLastMessage] = useState();
-    const [displayPhoto, setDisplayPhoto] = useState();
     const [unreadCount, setUnreadCount] = useState();
 
     const handleLastMessage = lastMessage => setLastMessage(lastMessage);
-    const handleDisplayPhoto = displayPhoto => setDisplayPhoto(displayPhoto);
     const handleUnreadCount = unreadCount => setUnreadCount(unreadCount);
 
     useEffect(() => {
         let loading = true;
         let unsubscribe;
 
-        if (loading && auth && auth.currentUser) {
-            const id = (auth.currentUser.uid < values.uid) ? auth.currentUser.uid + "-" + values.uid : values.uid + "-" + auth.currentUser.uid;
+        if (loading && auth && auth.currentUser && values && (Object.keys(values.user).length > 0)) {
+            const id = (auth.currentUser.uid < values.user.uid) ? auth.currentUser.uid + "-" + values.user.uid : values.user.uid + "-" + auth.currentUser.uid;
 
             const docRef = doc(db, "lastMessages", id);
             let lastMessage = [];
@@ -83,16 +79,6 @@ export const MessagesUserCard = ({
                 } else {
                     console.log("CURRENT DATA: NONE"); 
                 }
-            });
-
-            getDisplayPhoto(values.username).then(response => {
-                if (response.data.isSuccess) {
-                    handleDisplayPhoto(response.data.data.details);
-                }
-            })
-
-            .catch (err => {
-                console.error('err ', err);
             });
 
             unsubscribe = onSnapshot(getUnreadMessages(id, auth.currentUser.uid), doc => {
@@ -113,7 +99,7 @@ export const MessagesUserCard = ({
     }, []);
 
     return (
-        (values && (Object.keys(values).length > 0)) && 
+        (values && (Object.keys(values).length > 0) && (Object.keys(values.user).length > 0)) && 
         <MessagesUserCardWrapper onClick={() => onSelect(values)}>
             <ContentWrapper className="d-flex align-items-start" css={{ 
                 'img' : {
@@ -123,12 +109,12 @@ export const MessagesUserCard = ({
                     borderRadius: '100%',
                 },
             }}>
-                <Image src={displayPhoto ? displayPhoto : "/avatar_medium.png"} />
+                <Image src={values.display_photo ? values.display_photo : "/avatar_medium.png"} />
                 <ContentWrapper className="d-flex flex-column flex-grow-1">
                     <ContentWrapper className="d-flex justify-content-end justify-content-md-between flex-grow-1">
                         <MiscWrapper>
-                            <Text type="span">{values.first_name + " " + values.last_name}</Text><br />
-                            <Text type="span" color="darkGray">{"@" + values.username}</Text>
+                            <Text type="span">{values.user.first_name + " " + values.user.last_name}</Text><br />
+                            <Text type="span" color="darkGray">{"@" + values.user.username}</Text>
                         </MiscWrapper>
                         <NotificationWrapper>
                             <Text type="span" css={{
@@ -137,7 +123,7 @@ export const MessagesUserCard = ({
                                 maxWidth: 'max-content',
                                 padding: '$space-2 $space-2 $space-1',
                             }}>{unreadCount}</Text>
-                            <Text type="span" color={values.isOnline ? "green" : "lightGray2"}>
+                            <Text type="span" color={values.user.isOnline ? "green" : "lightGray2"}>
                                 <FontAwesomeIcon icon={faCircle} className="fa-fw fa-xs ms-2" />
                             </Text>
                         </NotificationWrapper>
@@ -156,23 +142,10 @@ export const MessagesUserCard = ({
     )
 }
 
-async function getDisplayPhoto(username) {
-    const authToken = JSON.parse(Cookies.get('auth_user_token'));
-
-    return axiosInstance.get(process.env.REACT_APP_BASE_URL + "user/display-photo/get", {
-        params: {
-            username: username,
-        },
-        headers: {
-            Authorization: `Bearer ${authToken}`,
-        }
-    })
-}
-
 function getUnreadMessages(id, userId) {
     const messagesMetaRef = collection(db, "messages", id, "messages");
 
-    const q = query(messagesMetaRef, where("isRead", "==", false), where("sender", "!=", userId));
+    const q = query(messagesMetaRef, where("is_read", "==", false), where("sender", "!=", userId));
 
     return q;
 }

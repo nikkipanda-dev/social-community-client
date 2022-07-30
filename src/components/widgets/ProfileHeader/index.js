@@ -13,6 +13,28 @@ import {
     faCircleCheck,
     faHourglass,
 } from '@fortawesome/free-solid-svg-icons';
+import {
+    doc,
+    setDoc,
+    updateDoc,
+    addDoc,
+    collection,
+    Timestamp,
+    query,
+    orderBy,
+    onSnapshot,
+    arrayUnion,
+    arrayRemove,
+    getDoc,
+    getDocs,
+    where,
+    increment,
+} from "firebase/firestore";
+import {
+    auth,
+    db,
+    storage,
+} from "../../../util/Firebase";
 import { styled } from "../../../stitches.config";
 
 import Heading from '../../core/Heading';
@@ -125,6 +147,7 @@ export const ProfileHeader = ({
                     handleFriendStatus(response.data.data.details.status);
                     handleIsSender(response.data.data.details.is_sender);
                     showAlert();
+
                     setTimeout(() => {
                         message.open({
                             content: <>
@@ -267,8 +290,38 @@ export const ProfileHeader = ({
     useEffect(() => {
         let loading = true;
 
-        if (loading && (friendStatus && (friendStatus === 'accepted'))) {
-            handleShowContent();
+        if (loading && isAuth) {
+            const notifications = doc(db, "notifications", params.username);
+
+            if (!(friendStatus) && ((friendStatus !== 'pending') || (friendStatus === 'accepted'))) {
+                getDoc(notifications).then(res => {
+                    if (res.exists()) {
+                        updateDoc(notifications, {
+                            friend_requests: arrayRemove(JSON.parse(Cookies.get('auth_user')).username),
+                        });
+                    }
+                })
+            }
+
+            if (friendStatus && (friendStatus === 'pending')) {
+                getDoc(notifications).then(res => {
+                    if (res.exists()) {
+                        updateDoc(notifications, {
+                            seen: false,
+                            friend_requests: arrayUnion(JSON.parse(Cookies.get('auth_user')).username),
+                        });
+                    } else {
+                        setDoc(notifications, {
+                            seen: false,
+                            friend_requests: arrayUnion(JSON.parse(Cookies.get('auth_user')).username),
+                        });
+                    }
+                })
+            }
+
+            if (friendStatus && (friendStatus === 'accepted')) {
+                handleShowContent();
+            }
         }
 
         return () => {

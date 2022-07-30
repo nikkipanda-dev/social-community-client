@@ -2,7 +2,12 @@ import { useState, useEffect } from 'react';
 import { isAuth as isAuthenticated } from './util';
 import { signInWithEmailAndPassword, onAuthStateChanged, } from 'firebase/auth';
 import { auth, db, } from './util/Firebase';
-import { doc, updateDoc, } from 'firebase/firestore';
+import { 
+    doc, 
+    updateDoc,
+    onSnapshot,
+    getDoc,
+} from 'firebase/firestore';
 import { Routes, Route, } from "react-router-dom";
 import Cookies from 'js-cookie';
 
@@ -49,12 +54,26 @@ function App() {
     const [displayPhoto, setDisplayPhoto] = useState('');
     const [isAuth, setIsAuth] = useState(false);
     const [forceRender, setForceRender] = useState(false);
+    const [notifications, setNotifications] = useState('');
 
     const handleDisplayPhoto = displayPhoto => setDisplayPhoto(displayPhoto);
     const handleForceRender = () => setForceRender(!forceRender);
+    const handleNotifications = notifications => setNotifications(notifications);
 
     const handleLogIn = () => setIsAuth(true);
     const handleLogOut = () => setIsAuth(false);
+
+    const onClearNotifications = () => {
+        const notificationsRef = doc(db, "notifications", JSON.parse(Cookies.get('auth_user')).username);
+
+        getDoc(notificationsRef).then(res => {
+            if (res.exists()) {
+                updateDoc(notificationsRef, {
+                    seen: true,
+                });
+            }
+        })
+    }
 
     useEffect(() => {
         let loading = true;
@@ -95,12 +114,22 @@ function App() {
     useEffect(() => {
         let loading = true;
 
-        if (loading) {
+        if (loading && isAuth) {
+            // if () {}
+            console.info(JSON.parse(Cookies.get('auth_user')).username);
+            const unsubscribe = onSnapshot(doc(db, "notifications", JSON.parse(Cookies.get('auth_user')).username), doc => {
+                console.log("Current data: ", doc.data());
+                handleNotifications({
+                    ...doc.data(),
+                });
+            });
+
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     console.info('signed in ', auth.currentUser.uid);
                 } else {
                     console.info('signed out');
+                    unsubscribe();
                 }
             });
         }
@@ -108,7 +137,7 @@ function App() {
         return () => {
             loading = false;
         }
-    }, [auth]);
+    }, [isAuth]);
 
     const AuthWrapper = styled('div', {
         background: !(isAuth) ? "center / cover no-repeat url('/backdrop_ver_1.png')" : "transparent",
@@ -121,7 +150,9 @@ function App() {
             displayPhoto={displayPhoto}
             handleForceRender={handleForceRender}
             handleLogIn={handleLogIn}
-            handleLogOut={handleLogOut} />
+            handleLogOut={handleLogOut}
+            notifications={notifications}
+            onClearNotifications={onClearNotifications} />
             <Routes>
                 <Route path="/" element={
                     <LandingPage
@@ -179,6 +210,12 @@ function App() {
                 isAuth={isAuth} 
                 displayPhoto={displayPhoto} 
                 handleDisplayPhoto={handleDisplayPhoto} />}>
+                    <Route path=":slug" element={<SettingsSection />} />
+                </Route>
+                <Route path="/notifications" element={<Settings
+                    isAuth={isAuth}
+                    displayPhoto={displayPhoto}
+                    handleDisplayPhoto={handleDisplayPhoto} />}>
                     <Route path=":slug" element={<SettingsSection />} />
                 </Route>
                 <Route path="/:path" element={<NotFound />} />

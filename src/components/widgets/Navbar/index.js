@@ -1,9 +1,18 @@
 import { useState, useEffect, } from 'react';
 import { useNavigate, NavLink, } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { message, Dropdown, Menu, } from 'antd';
+import { 
+    message, 
+    Dropdown, 
+    Menu,
+    Badge,
+} from 'antd';
 import { signOut, } from 'firebase/auth';
-import { doc, updateDoc, } from 'firebase/firestore';
+import { 
+    doc, 
+    getDoc, 
+    updateDoc,
+} from 'firebase/firestore';
 import { auth, db, } from '../../../util/Firebase';
 import { 
     key, 
@@ -24,6 +33,7 @@ import Text from '../../core/Text';
 import Image from '../../core/Image';
 import Modal from '../Modal';
 import Login from '../LogIn';
+import { ref } from 'firebase/storage';
 
 const LogoWrapper = styled('div', {});
 
@@ -65,10 +75,12 @@ export const Navbar = ({
     handleForceRender,
     handleLogIn,
     handleLogOut,
-}) => {       
+    notifications,
+    onClearNotifications,
+}) => {      
     const navigate = useNavigate();
     const [isVisible, setIsVisible] = useState(false);
-    const [notifications, setNotifications] = useState('');
+    let mailable;
 
     const handleShowModal = () => setIsVisible(true);
     const handleHideModal = () => setIsVisible(false);
@@ -152,40 +164,61 @@ export const Navbar = ({
         }
     }
 
-    // TODO: set json for Menu items
-
-    const mailable = (
-        <Menu
-            items={[
-                {
-                    type: 'group',
-                    label: <Text type="span" color="darkGray">Admin</Text>,
-                    children: [
-                        {
-                            key: '1',
-                            label: <Text type="span">Dashboard</Text>,
-                        },
-                    ],
-                },
-                {
-                    type: 'group',
-                    label: <Text type="span" color="darkGray">Account</Text>,
-                    children: [
-                        {
-                            key: '2',
-                            label: <Text type="span">Settings</Text>,
-                        },
-                    ],
-                },
-                {
-                    type: 'divider',
-                },
-                {
-                    label: <Text type="span" onClick={() => logout()}>Sign out</Text>,
-                },
-            ]}
-        />
-    );
+    if (notifications && notifications.notifications) {
+        mailable = (
+            <Menu
+                items={[
+                    {
+                        type: 'group',
+                        label: <Text type="span" color="darkGray">Admin</Text>,
+                        children: [
+                            {
+                                key: '1',
+                                label: <Text type="span">Dashboard</Text>,
+                            },
+                        ],
+                    },
+                    {
+                        type: 'group',
+                        label: <Text type="span" color="darkGray">Account</Text>,
+                        children: [
+                            {
+                                key: '2',
+                                label: <Text type="span">Settings</Text>,
+                            },
+                        ],
+                    },
+                    {
+                        type: 'divider',
+                    },
+                    {
+                        label: 
+                        notifications.friend_requests && 
+                        <Text type="span" onClick={() => handleNavigator('/profile/' + JSON.parse(Cookies.get('auth_user')).username + '/friends/invitations') }>You have {notifications.friend_requests.length} friend request{notifications.friend_requests.length > 1 ? 's' : ''}</Text>,
+                    },
+                    {
+                        label:
+                        <Text type="span" onClick={() => handleNavigator('/notifications')}>View all</Text>,
+                    },
+                ]}
+            />
+        );
+    } else {
+        mailable = (
+            <Menu
+                items={[
+                    {
+                        label: <Text type="span" css={{ '&:hover': { cursor: 'default', } }}>No new notifications yet.</Text>,
+                    },
+                    {
+                        label:
+                        <Text type="span" onClick={() => handleNavigator('/notifications')}>View all</Text>,
+                    },
+                ]}
+            />
+        );
+    }
+    
 
     const menu = (
         <Menu
@@ -254,11 +287,17 @@ export const Navbar = ({
                                 <NavLink to="/messages" className={({ isActive }) => isActive ? 'active-nav' : undefined}>
                                     <FontAwesomeIcon icon={faEnvelope} className="ms-3 fa-xl" />
                                 </NavLink>
-                                <Dropdown overlay={notifications} arrow>
-                                    <a onClick={e => e.preventDefault()}>
-                                        <FontAwesomeIcon icon={faBell} className="ms-3 fa-xl" />
-                                    </a>
-                                </Dropdown>
+                                <Badge
+                                color={notifications && !(notifications.seen) ? "#007B70" : '#DDDDDD'}
+                                dot
+                                size='default'
+                                offset={[10, 5]}>
+                                    <Dropdown overlay={mailable} arrow>
+                                        <a onMouseEnter={() => onClearNotifications()} onClick={e => e.preventDefault()}>
+                                            <FontAwesomeIcon icon={faBell} className="ms-3 fa-xl" />
+                                        </a>
+                                    </Dropdown>
+                                </Badge>
                                 <Dropdown overlay={menu} arrow>
                                     <a onClick={e => e.preventDefault()}>
                                         <Image

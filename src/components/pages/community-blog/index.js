@@ -30,7 +30,7 @@ const CommunityBlogContentWrapper = styled('div', {
     flex: "70%",
 });
 
-export const CommunityBlog = ({ isAuth, }) => {
+export const CommunityBlog = ({ isAuth, authUser, }) => {
     const params = useParams();
     const location = useLocation();
     
@@ -49,6 +49,7 @@ export const CommunityBlog = ({ isAuth, }) => {
                             <CommunityBlogContentWrapper>
                                 <Outlet context={{
                                     isAuth: isAuth,
+                                    authUser: authUser,
                                 }} />
                             </CommunityBlogContentWrapper>
                         </CommunityBlogBodyWrapper>

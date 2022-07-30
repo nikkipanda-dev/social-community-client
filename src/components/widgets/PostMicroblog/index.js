@@ -1,10 +1,17 @@
 import { useState, useEffect, } from 'react';
 import { Form, Input, message, } from 'antd';
-import { isAuth, key, showAlert, } from '../../../util';
+import { key, showAlert, } from '../../../util';
 import Cookies from 'js-cookie';
 import { axiosInstance, } from '../../../requests'; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleCheck, } from '@fortawesome/free-solid-svg-icons';
+import { 
+    doc,
+    setDoc,
+    updateDoc,
+    getDoc,
+} from 'firebase/firestore';
+import { db, auth, } from '../../../util/Firebase';
 import { styled } from "../../../stitches.config";
 
 import Text from '../../core/Text';
@@ -45,7 +52,12 @@ const validateMessages = {
     }
 };
 
-export const PostMicroblog = ({ handleMicroblogEntries, }) => {
+export const PostMicroblog = ({ 
+    handleMicroblogEntries, 
+    authUser,
+    isAuth,
+}) => {
+    console.info(authUser);
     const [form] = Form.useForm();
     const [help, setHelp] = useState('');
 
@@ -58,7 +70,7 @@ export const PostMicroblog = ({ handleMicroblogEntries, }) => {
     const onFinish = value => {
         const microblogForm = new FormData();
 
-        if (isAuth()) {
+        if (isAuth) {
             const authToken = JSON.parse(Cookies.get('auth_user_token'));
 
             for (let i in value) {

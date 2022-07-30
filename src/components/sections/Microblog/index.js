@@ -1,5 +1,9 @@
 import { useOutletContext, } from "react-router-dom";
-import { useState, useEffect, useRef, } from "react";
+import { 
+    useState, 
+    useEffect, 
+    useRef,
+} from "react";
 import { useParams, } from "react-router-dom";
 import Cookies from 'js-cookie';
 import { axiosInstance } from "../../../requests";
@@ -215,9 +219,13 @@ export const Microblog = () => {
                 <MicroblogContentWrapper className="flex-grow-1" ref={entriesRef}>
                 {
                     isPostMicroblogVisible &&
-                    <PostMicroblog handleMicroblogEntries={handleMicroblogEntries} />
+                    <PostMicroblog 
+                    handleMicroblogEntries={handleMicroblogEntries}
+                    authUser={context.authUser}
+                    isAuth={context.isAuth} />
                 }
                     <MicroblogEntries
+                    authUser={context.authUser}
                     microblogEntries={microblogEntries}
                     microblogEntriesLen={microblogEntriesLen}
                     pageCount={pageCount}

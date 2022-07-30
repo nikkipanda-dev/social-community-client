@@ -505,7 +505,11 @@ export const CommunityBlogEntry = () => {
         }
             <CommunityBlogMiscWrapper className="d-flex flex-column flex-xl-row">
                 <MiscWrapper css={{ flex: '60%', padding: '$space-3', }}>
-                    <CommunityBlogEntryReplies isAuth={context.isAuth} slug={(values && values.slug)} />
+                    <CommunityBlogEntryReplies 
+                    isAuth={context.isAuth}
+                    authUser={context.authUser} 
+                    values={values}
+                    slug={(values && values.slug)} />
                 </MiscWrapper>
                 <MiscWrapper css={{
                     flex: '40%', 

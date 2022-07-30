@@ -20,7 +20,7 @@ const EventsContentWrapper = styled('div', {
     flex: "70%",
 });
 
-export const Events = ({ isAuth, }) => {
+export const Events = ({ isAuth, authUser, }) => {
     return (
         <Section>
             <EventsWrapper className="mx-auto">
@@ -33,6 +33,7 @@ export const Events = ({ isAuth, }) => {
                             <EventsContentWrapper>
                                 <Outlet context={{
                                     isAuth: isAuth,
+                                    authUser, authUser,
                                 }} />
                             </EventsContentWrapper>
                         </EventsBodyWrapper>

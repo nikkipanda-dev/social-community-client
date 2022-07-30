@@ -1,7 +1,21 @@
-import { useState, useEffect, useRef, } from 'react';
-import { isAuth, key, showAlert, } from '../../../util';
+import { 
+    useState, 
+    useEffect, 
+    useRef,
+} from 'react';
+import { 
+    isAuth, 
+    key, 
+    showAlert,
+} from '../../../util';
+import { useParams, } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { message, Form, Menu, Dropdown, } from 'antd';
+import { 
+    message, 
+    Form, 
+    Menu, 
+    Dropdown,
+} from 'antd';
 import { axiosInstance } from '../../../requests';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -13,6 +27,14 @@ import {
     faTrash,
     faPencil,
 } from '@fortawesome/free-solid-svg-icons';
+import { 
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc,
+    Timestamp,
+} from 'firebase/firestore';
+import { db, auth, } from '../../../util/Firebase';
 import { styled } from "../../../stitches.config";
 
 import Card from "../../core/Card";
@@ -51,9 +73,10 @@ const MicroblogPostCommentWrapper = styled('div', {
     marginTop: '$space-3',
 });
 
-export const MicroblogEntry = ({ microblogEntry, }) => {    
+export const MicroblogEntry = ({ microblogEntry, authUser, }) => {    
     const [form] = Form.useForm();
     const entryRef = useRef();
+    const params = useParams();
 
     const [isVisible, setIsVisible] = useState(false);
     const [values, setValues] = useState('');
@@ -65,6 +88,7 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
     const [isCommentsGroupVisible, setIsCommentsGroupVisible] = useState(false);
     const [isHeart, setIsHeart] = useState(false);
     const [heartCount, setHeartCount] = useState(0);
+    const [newComment, setNewComment] = useState('');
 
     const handleShowModal = () => setIsVisible(true);
     const handleHideModal = () => setIsVisible(false);
@@ -79,6 +103,7 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
     const handleTogglePostComment = () => setIsPostCommentVisible(!isPostCommentVisible);
     const handleToggleCommentsGroup = () => setIsCommentsGroupVisible(!isCommentsGroupVisible);
     const handlePaginateComment = () => window.scrollTo(0, ((entryRef.current.getBoundingClientRect().top + window.scrollY)) - 100);
+    const handleNewComment = newComment => setNewComment(newComment);
 
     const handleShowModalUpdate = () => {
         handleAction('update');
@@ -164,7 +189,8 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
         }
     }
 
-    const handlePostedComment = (comments) => {
+    const handlePostedComment = comment => {
+        handleNewComment(comment);
         handleForceRender();
         form.resetFields();
     }
@@ -190,7 +216,7 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
 
             .then(response => {
                 if (response.data.isSuccess) {
-                    handlePostedComment(response.data.data.details);
+                    handlePostedComment(response.data.data.details[0]);
                     showAlert();
                     setTimeout(() => {
                         message.open({
@@ -253,6 +279,54 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
             loading = false;
         }
     }, []);
+
+    useEffect(() => {
+        let loading = true;
+
+        if (loading && newComment && (params.username !== authUser.username)) {
+            const notifications = doc(db, "notifications", params.username);
+
+            getDoc(notifications).then(res => {
+                if (res.exists()) {
+                    let formatted = [];
+
+                    if (res.data().new.microblog_posts && res.data().new.microblog_posts) {
+                        formatted = [...res.data().new.microblog_posts];
+                    }
+
+                    formatted.push({
+                        user: authUser.username,
+                        body: newComment.body,
+                        post_slug: microblogEntry.slug,
+                        comment_slug: newComment.slug,
+                        is_comment: true,
+                        is_heart: false,
+                    });
+
+                    updateDoc(notifications, {
+                        "new.microblog_posts": formatted,
+                    });
+                } else {
+                    setDoc(notifications, {
+                        new: {
+                            microblog_posts: {
+                                user: authUser.username,
+                                body: newComment.body,
+                                post_slug: microblogEntry.slug,
+                                comment_slug: newComment.slug,
+                                is_comment: true,
+                                is_heart: false,
+                            },
+                        }
+                    });
+                }
+            });
+        }
+
+        return () => {
+            loading = false;
+        }
+    }, [newComment]);
 
     return (
         <MicroblogEntryWrapper ref={entryRef}>
@@ -336,6 +410,7 @@ export const MicroblogEntry = ({ microblogEntry, }) => {
                 {
                     (isCommentsGroupVisible && (microblogEntry && microblogEntry.slug)) && 
                     <Comments 
+                    newComment={newComment}
                     entrySlug={microblogEntry.slug} 
                     handlePaginateComment={handlePaginateComment}
                     css={{ marginTop: '40px', }}

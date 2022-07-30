@@ -10,8 +10,8 @@ import {
 import { signOut, } from 'firebase/auth';
 import { 
     doc, 
-    getDoc, 
     updateDoc,
+    onSnapshot,
 } from 'firebase/firestore';
 import { auth, db, } from '../../../util/Firebase';
 import { 
@@ -33,7 +33,6 @@ import Text from '../../core/Text';
 import Image from '../../core/Image';
 import Modal from '../Modal';
 import Login from '../LogIn';
-import { ref } from 'firebase/storage';
 
 const LogoWrapper = styled('div', {});
 
@@ -71,17 +70,18 @@ export const Navbar = ({
     className,
     css,
     isAuth,
+    authUser,
     displayPhoto,
     handleForceRender,
     handleLogIn,
     handleLogOut,
-    notifications,
-    onClearNotifications,
+    // onClearNotifications,
 }) => {      
     const navigate = useNavigate();
     const [isVisible, setIsVisible] = useState(false);
-    let mailable;
+    const [notifications, setNotifications] = useState('');
 
+    const handleNotifications = notifications => setNotifications(notifications);
     const handleShowModal = () => setIsVisible(true);
     const handleHideModal = () => setIsVisible(false);
 
@@ -94,6 +94,18 @@ export const Navbar = ({
     const handleNavigator = params => {
         navigate(params, { replace: true, });
     }
+
+    // const onClearNotifications = () => {
+    //     const notificationsRef = doc(db, "notifications", JSON.parse(Cookies.get('auth_user')).username);
+
+    //     getDoc(notificationsRef).then(res => {
+    //         if (res.exists()) {
+    //             updateDoc(notificationsRef, {
+    //                 seen: true,
+    //             });
+    //         }
+    //     })
+    // }
 
     const logout = () => {
         if (isAuth && auth && db) {
@@ -164,62 +176,44 @@ export const Navbar = ({
         }
     }
 
-    if (notifications && notifications.notifications) {
-        mailable = (
-            <Menu
-                items={[
-                    {
-                        type: 'group',
-                        label: <Text type="span" color="darkGray">Admin</Text>,
-                        children: [
-                            {
-                                key: '1',
-                                label: <Text type="span">Dashboard</Text>,
-                            },
-                        ],
-                    },
-                    {
-                        type: 'group',
-                        label: <Text type="span" color="darkGray">Account</Text>,
-                        children: [
-                            {
-                                key: '2',
-                                label: <Text type="span">Settings</Text>,
-                            },
-                        ],
-                    },
-                    {
-                        type: 'divider',
-                    },
-                    {
-                        label: 
-                        notifications.friend_requests && 
-                        <Text type="span" onClick={() => handleNavigator('/profile/' + JSON.parse(Cookies.get('auth_user')).username + '/friends/invitations') }>You have {notifications.friend_requests.length} friend request{notifications.friend_requests.length > 1 ? 's' : ''}</Text>,
-                    },
-                    {
-                        label:
-                        <Text type="span" onClick={() => handleNavigator('/notifications')}>View all</Text>,
-                    },
-                ]}
-            />
-        );
-    } else {
-        mailable = (
-            <Menu
-                items={[
-                    {
-                        label: <Text type="span" css={{ '&:hover': { cursor: 'default', } }}>No new notifications yet.</Text>,
-                    },
-                    {
-                        label:
-                        <Text type="span" onClick={() => handleNavigator('/notifications')}>View all</Text>,
-                    },
-                ]}
-            />
-        );
-    }
+    // const mailable = (
+    //         <Menu
+    //             items={[
+    //                 {
+    //                     type: 'group',
+    //                     label: <Text type="span" color="darkGray">Friend requests</Text>,
+    //                     children: [
+    //                         {
+    //                             key: '1',
+    //                             label: notifications.friend_requests && (notifications.friend_requests.length > 0) ? 
+    //                             <Text type="span" onClick={() => handleNavigator('/profile/' + authUser.username + '/friends/invitations') }> You have { notifications.friend_requests.length } friend request{ notifications.friend_requests.length > 1 ? 's' : '' }</Text> : 
+    //                             <Text type="span"> You have no friend requests yet.</Text>,
+    //                         },
+    //                     ],
+    //                 },
+    //                 {
+    //                     type: 'group',
+    //                     label: <Text type="span" color="darkGray">Microblog</Text>,
+    //                     children: [
+    //                         {
+    //                             key: '2',
+    //                             label: notifications.microblog_posts && (notifications.microblog_posts.length > 0) ?
+    //                             <Text type="span" onClick={() => handleNavigator('/profile/' + authUser.username + '/friends/invitations')}> You have {notifications.friend_requests.length} friend request{notifications.friend_requests.length > 1 ? 's' : ''}</Text> :
+    //                             <Text type="span"> You have no friend requests yet.</Text>,
+    //                         },
+    //                     ],
+    //                 },
+    //                 {
+    //                     type: 'divider',
+    //                 },
+    //                 {
+    //                     label:
+    //                     <Text type="span" onClick={() => handleNavigator('/notifications')}>View all</Text>,
+    //                 },
+    //             ]}
+    //         />
+    // );
     
-
     const menu = (
         <Menu
             items={[
@@ -242,6 +236,30 @@ export const Navbar = ({
             ]}
         />
     );
+
+    // useEffect(() => {
+    //     let loading = true;
+
+    //     if (loading && isAuth) {
+    //         const notificationsRef = doc(db, "notifications", authUser.username);
+
+    //         onSnapshot(notificationsRef, doc => {
+    //             console.info('doc ', doc.data());
+    //             let formatted = {
+    //                 friend_requests: doc.data().friend_requests,
+    //                 ...doc.data().new,
+    //             }
+
+    //             // handleNotifications(formatted);
+    //         });
+    //     }
+
+    //     return () => {
+    //         loading = false;
+    //     }
+    // }, []);
+
+    console.info('notif ', notifications);
 
     return (
         <NavbarWrapper className={'sticky-top' + (className ? (' ' + className) : '')} css={{ ...css }}>
@@ -270,7 +288,7 @@ export const Navbar = ({
                                     <Text type="span" size="medium">Home</Text>
                                 </NavLink>
                                 <NavLink 
-                                to={"/profile/" + JSON.parse(Cookies.get('auth_user')).username} 
+                                to={"/profile/" + authUser.username} 
                                 className={({ isActive }) => isActive ? 'active-nav' : undefined}
                                 onClick={() => handleForceRender()}>
                                     <Text type="span" size="medium">Profile</Text>
@@ -287,17 +305,17 @@ export const Navbar = ({
                                 <NavLink to="/messages" className={({ isActive }) => isActive ? 'active-nav' : undefined}>
                                     <FontAwesomeIcon icon={faEnvelope} className="ms-3 fa-xl" />
                                 </NavLink>
-                                <Badge
+                                {/* <Badge
                                 color={notifications && !(notifications.seen) ? "#007B70" : '#DDDDDD'}
                                 dot
                                 size='default'
                                 offset={[10, 5]}>
                                     <Dropdown overlay={mailable} arrow>
-                                        <a onMouseEnter={() => onClearNotifications()} onClick={e => e.preventDefault()}>
+                                        <a onClick={e => e.preventDefault()}>
                                             <FontAwesomeIcon icon={faBell} className="ms-3 fa-xl" />
                                         </a>
                                     </Dropdown>
-                                </Badge>
+                                </Badge> */}
                                 <Dropdown overlay={menu} arrow>
                                     <a onClick={e => e.preventDefault()}>
                                         <Image

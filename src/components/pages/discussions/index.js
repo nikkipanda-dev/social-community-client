@@ -54,7 +54,7 @@ const FilterWrapper = styled('div', {
 
 const { Option } = Select;
 
-export const Discussions = ({ isAuth, }) => {
+export const Discussions = ({ isAuth, authUser, }) => {
     const params = useParams();
     const navigate = useNavigate();
     const [isPostDiscussionVisible, setIsPostDiscussionVisible] = useState(false);
@@ -113,6 +113,7 @@ export const Discussions = ({ isAuth, }) => {
                                     isPostDiscussionVisible: isPostDiscussionVisible,
                                     handleIsPostVisible: handleIsPostVisible,
                                     category: params.slug ? categories[params.slug] : null,
+                                    authUser: authUser,
                                 }} />
                                 <DiscussionsSidebar 
                                 className="flex-lg-shrink-0" 

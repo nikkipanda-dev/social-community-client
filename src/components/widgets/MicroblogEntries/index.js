@@ -44,6 +44,7 @@ const PaginatorWrapper = styled('div', {
 });
 
 export const MicroblogEntries = ({ 
+    authUser,
     microblogEntries,
     pageCount,
     microblogEntriesLen,
@@ -61,7 +62,8 @@ export const MicroblogEntries = ({
             Object.keys(microblogEntries).map((_, val) => {
                 return <MicroblogEntry 
                 key={Object.values(microblogEntries)[val].slug}
-                microblogEntry={Object.values(microblogEntries)[val]} />
+                microblogEntry={Object.values(microblogEntries)[val]}
+                authUser={authUser} />
             })
         }
         {

@@ -15,6 +15,7 @@ const RegisterBodyWrapper = styled('div', {});
 
 export const Register = ({ 
     isAuth, 
+    authUser,
     handleLogIn,
 }) => {
     const params = useParams();
@@ -66,6 +67,7 @@ export const Register = ({
                             (!(isAuthenticated) && isTokenValid) ? 
                             <RegisterWidget 
                             isAuth={isAuth} 
+                            authUser={authUser}
                             handleLogIn={handleLogIn} /> : 
                             (isAuthenticated) ? <Navigate to="/home" replace={true} /> : <NotFound />
                         }

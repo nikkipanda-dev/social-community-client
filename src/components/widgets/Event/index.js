@@ -330,7 +330,11 @@ export const Event = () => {
             </EventBodyWrapper>
             <EventMiscWrapper className="d-flex flex-column flex-xl-row">
                 <MiscWrapper css={{ flex: '60%', padding: '$space-3', }}>
-                    <EventReplies isAuth={context.isAuth} slug={(event && event.slug)} />
+                    <EventReplies 
+                    isAuth={context.isAuth} 
+                    authUser={context.authUser}
+                    values={event}
+                    slug={(event && event.slug)} />
                 </MiscWrapper>
                 <MiscWrapper css={{
                     flex: '40%',

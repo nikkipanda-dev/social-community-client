@@ -272,7 +272,10 @@ export const DiscussionPost = () => {
             </DiscussionPostContentWrapper>
             <DiscussionPostMiscWrapper className="d-flex flex-column flex-xl-row">
                 <MiscWrapper css={{ flex: '60%' }}>
-                    <DiscussionPostReplies slug={(values && values.slug) && values.slug} isAuth={context.isAuth} />
+                    <DiscussionPostReplies 
+                    values={values}
+                    isAuth={context.isAuth}
+                    authUser={context.authUser} />
                 </MiscWrapper>
                 <MiscWrapper css={{ 
                     flex: '40%', 

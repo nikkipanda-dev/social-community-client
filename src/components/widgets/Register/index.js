@@ -35,6 +35,7 @@ const formItemLayout = {
 
 export const Register = ({ 
     isAuth, 
+    authUser,
     handleLogIn,
 }) => {
     const [form] = Form.useForm();
@@ -143,6 +144,32 @@ export const Register = ({
             loading = false;
         }
     }, [details]);
+
+    useEffect(() => {
+        let loading = true;
+
+        if (loading && isAuth) {
+            setDoc(db, "notifications", authUser.username, {
+                friend_requests: '',
+                new: {
+                    microblog_posts: {},
+                    discussion_posts: {},
+                    event_posts: {},
+                    blog_posts: {},
+                },
+                history: {
+                    microblog_posts: {},
+                    discussion_posts: {},
+                    event_posts: {},
+                    blog_posts: {},
+                }
+            });
+        }
+
+        return () => {
+            loading = false;
+        }
+    }, [isAuth]);
 
     return (
         <RegisterWrapper>

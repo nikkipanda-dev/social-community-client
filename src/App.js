@@ -53,27 +53,15 @@ function App() {
 
     const [displayPhoto, setDisplayPhoto] = useState('');
     const [isAuth, setIsAuth] = useState(false);
+    const [authUser, setAuthUser] = useState('');
     const [forceRender, setForceRender] = useState(false);
-    const [notifications, setNotifications] = useState('');
 
     const handleDisplayPhoto = displayPhoto => setDisplayPhoto(displayPhoto);
     const handleForceRender = () => setForceRender(!forceRender);
-    const handleNotifications = notifications => setNotifications(notifications);
+    const handleAuthUser = authUser => setAuthUser(authUser);
 
     const handleLogIn = () => setIsAuth(true);
     const handleLogOut = () => setIsAuth(false);
-
-    const onClearNotifications = () => {
-        const notificationsRef = doc(db, "notifications", JSON.parse(Cookies.get('auth_user')).username);
-
-        getDoc(notificationsRef).then(res => {
-            if (res.exists()) {
-                updateDoc(notificationsRef, {
-                    seen: true,
-                });
-            }
-        })
-    }
 
     useEffect(() => {
         let loading = true;
@@ -81,6 +69,11 @@ function App() {
         if (loading) {
             if (isAuthenticated()) {
                 handleLogIn();
+                handleAuthUser({
+                    display_photo: Cookies.get('auth_user_display_photo') ? JSON.parse(Cookies.get('auth_user_display_photo')) : '',
+                    ...JSON.parse(Cookies.get('auth_user'))
+                })
+
                 Cookies.get('auth_user_display_photo') && handleDisplayPhoto(JSON.parse(Cookies.get('auth_user_display_photo')));
 
                 if (auth && db) {
@@ -102,6 +95,7 @@ function App() {
                 }
             } else {
                 handleLogOut();
+                handleAuthUser('');
                 handleDisplayPhoto('');
             }
         }
@@ -115,21 +109,11 @@ function App() {
         let loading = true;
 
         if (loading && isAuth) {
-            // if () {}
-            console.info(JSON.parse(Cookies.get('auth_user')).username);
-            const unsubscribe = onSnapshot(doc(db, "notifications", JSON.parse(Cookies.get('auth_user')).username), doc => {
-                console.log("Current data: ", doc.data());
-                handleNotifications({
-                    ...doc.data(),
-                });
-            });
-
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     console.info('signed in ', auth.currentUser.uid);
                 } else {
                     console.info('signed out');
-                    unsubscribe();
                 }
             });
         }
@@ -147,12 +131,11 @@ function App() {
         <AuthWrapper>
             <Navbar 
             isAuth={isAuth}
+            authUser={authUser}
             displayPhoto={displayPhoto}
             handleForceRender={handleForceRender}
             handleLogIn={handleLogIn}
-            handleLogOut={handleLogOut}
-            notifications={notifications}
-            onClearNotifications={onClearNotifications} />
+            handleLogOut={handleLogOut} />
             <Routes>
                 <Route path="/" element={
                     <LandingPage
@@ -160,7 +143,7 @@ function App() {
                     handleLogIn={handleLogIn}
                     handleLogOut={handleLogOut} />} />
                 <Route path="/home" element={<Home isAuth={isAuth} />} />
-                <Route path="/community-blog" element={<CommunityBlog isAuth={isAuth} />} >
+                <Route path="/community-blog" element={<CommunityBlog isAuth={isAuth} authUser={authUser} />} >
                     <Route index element={<CommunityBlogSection />} />
                     <Route path="editor" element={<PostCommunityBlog />} />
                     <Route path="post/:slug" element={<CommunityBlogEntry />} />
@@ -168,6 +151,7 @@ function App() {
                 </Route>
                 <Route path="/profile/:username" element={<Profile 
                 isAuth={isAuth}
+                authUser={authUser}
                 forceRender={forceRender} 
                 handleForceRender={handleForceRender}/>}>
                     <Route index element={<Microblog />} />
@@ -189,12 +173,12 @@ function App() {
                     </Route>
                     <Route path="community-blog" element={<CommunityBlogEntries />} />
                 </Route>
-                <Route path="/discussions" element={<Discussions isAuth={isAuth} />}>
+                <Route path="/discussions" element={<Discussions isAuth={isAuth} authUser={authUser} />}>
                     <Route index element={<DiscussionsSection />} />
                     <Route path="post/:slug" element={<DiscussionPost />} />
                     <Route path=":slug" element={<DiscussionsSection />} />
                 </Route>
-                <Route path="/events" element={<Events isAuth={isAuth} />}>
+                <Route path="/events" element={<Events isAuth={isAuth} authUser={authUser} />}>
                     <Route index element={<EventsSection />} /> 
                     <Route path="post/:slug" element={<Event />} />
                     <Route path="editor" element={<PostEvent />} />
@@ -205,6 +189,7 @@ function App() {
                 </Route>
                 <Route path="register/:token" element={<Register 
                 isAuth={isAuth} 
+                authUser={authUser}
                 handleLogIn={handleLogIn} />} />
                 <Route path="/settings" element={<Settings 
                 isAuth={isAuth} 

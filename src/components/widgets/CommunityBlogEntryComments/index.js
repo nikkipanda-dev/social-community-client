@@ -3,6 +3,13 @@ import Cookies from 'js-cookie'
 import { Form, message, } from 'antd';
 import { axiosInstance } from '../../../requests';
 import { key, showAlert, } from '../../../util';
+import { 
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc, 
+} from 'firebase/firestore';
+import { db, auth, } from '../../../util/Firebase';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleCheck, faCircleInfo, } from '@fortawesome/free-solid-svg-icons';
 import { styled } from "../../../stitches.config";
@@ -13,7 +20,11 @@ import Replies from "../Replies";
 
 const RepliesWrapper = styled('div', {});
 
-export const CommunityBlogEntryReplies = ({ isAuth, slug, }) => {
+export const CommunityBlogEntryReplies = ({ 
+    isAuth, 
+    authUser,
+    values,
+}) => {
     const [form] = Form.useForm();
 
     const [forceRender, setForceRender] = useState();
@@ -24,6 +35,7 @@ export const CommunityBlogEntryReplies = ({ isAuth, slug, }) => {
     const [replies, setReplies] = useState('');
     const [repliesLen, setRepliesLen] = useState(0);
     const [limit, setLimit] = useState(5);
+    const [newReply, setNewReply] = useState('');
 
     const handleForceRender = () => setForceRender(!forceRender);
     const handleHelp = help => setHelp(help);
@@ -33,6 +45,7 @@ export const CommunityBlogEntryReplies = ({ isAuth, slug, }) => {
     const handleLimit = limit => setLimit(limit);
     const handleReplies = replies => setReplies(replies);
     const handleRepliesLen = repliesLen => setRepliesLen(repliesLen);
+    const handleNewReply = newReply => setNewReply(newReply);
 
     const handlePostedComment = value => {
         if (!(isAuth)) {
@@ -40,10 +53,10 @@ export const CommunityBlogEntryReplies = ({ isAuth, slug, }) => {
             return;
         }
 
-        if (isAuth && slug) {
+        if (isAuth && values) {
             const storeForm = new FormData();
             storeForm.append('username', JSON.parse(Cookies.get('auth_user')).username);
-            storeForm.append('slug', slug);
+            storeForm.append('slug', values.slug);
 
             for (let i in value) {
                 value[i] && storeForm.append(i, value[i]);
@@ -68,6 +81,7 @@ export const CommunityBlogEntryReplies = ({ isAuth, slug, }) => {
 
                 form.resetFields();
                 handleForceRender();
+                handleNewReply(response.data.data.details);
                 setTimeout(() => {
                     message.open({
                         content: <><FontAwesomeIcon icon={faCircleCheck} className="me-2" style={{ color: '#007B70', }} /><Text type="span" className="fa-xl">Posted.</Text></>,
@@ -96,8 +110,8 @@ export const CommunityBlogEntryReplies = ({ isAuth, slug, }) => {
             return;
         }
 
-        if (loading && isAuth && slug) {
-            getComments(slug).then(response => {
+        if (loading && isAuth && values) {
+            getComments(values.slug).then(response => {
                 console.log('res ', response.data)
                 if (!(response.data.isSuccess)) {
                     console.error('err get comments ', response.data.data.errorText);
@@ -121,8 +135,8 @@ export const CommunityBlogEntryReplies = ({ isAuth, slug, }) => {
     useEffect(() => {
         let loading = true;
 
-        if (loading && isAuth && slug && Number.isInteger(limit)) {
-            getPaginatedComments(slug, limit).then(response => {
+        if (loading && isAuth && values && Number.isInteger(limit)) {
+            getPaginatedComments(values.slug, limit).then(response => {
                 if (!(response.data.isSuccess)) {
                     console.error('err ', response.data.data.errorText);
                     return;
@@ -142,6 +156,48 @@ export const CommunityBlogEntryReplies = ({ isAuth, slug, }) => {
             loading = false;
         }
     }, [limit]);
+
+    useEffect(() => {
+        let loading = true;
+
+        if (loading && newReply && values && (values.user.username !== authUser.username)) {
+            const notifications = doc(db, "notifications", values.user.username);
+
+            getDoc(notifications).then(res => {
+                if (res.exists()) {
+                    let formatted = [];
+
+                    if (res.data().new.blog_posts && res.data().new.blog_posts.comments) {
+                        formatted = [...res.data().new.blog_posts.comments];
+                    }
+
+                    formatted.push({
+                        user: authUser.username,
+                        body: newReply.body,
+                    });
+
+                    updateDoc(notifications, {
+                        "new.blog_posts.comments": formatted,
+                    });
+                } else {
+                    setDoc(notifications, {
+                        new: {
+                            blog_posts: {
+                                comments: {
+                                    user: authUser.username,
+                                    body: newReply.body,
+                                }
+                            },
+                        }
+                    });
+                }
+            });
+        }
+
+        return () => {
+            loading = false;
+        }
+    }, [newReply]);
 
     return (
         <RepliesWrapper>

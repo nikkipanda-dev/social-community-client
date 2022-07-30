@@ -3,6 +3,13 @@ import Cookies from 'js-cookie';
 import { axiosInstance } from '../../../requests';
 import { Form, message, } from 'antd';
 import { key, showAlert, } from '../../../util';
+import { 
+    doc, 
+    getDoc, 
+    setDoc, 
+    updateDoc,
+} from 'firebase/firestore';
+import { db, auth, } from '../../../util/Firebase';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleCheck, faCircleInfo, } from '@fortawesome/free-solid-svg-icons';
 import { styled } from "../../../stitches.config";
@@ -13,7 +20,11 @@ import Replies from '../Replies';
 
 const EventRepliesWrapper = styled('div', {});
 
-export const EventReplies = ({ isAuth, slug, }) => {
+export const EventReplies = ({ 
+    isAuth, 
+    authUser,
+    values,
+}) => {
     const [form] = Form.useForm();
 
     const [forceRender, setForceRender] = useState();
@@ -24,6 +35,7 @@ export const EventReplies = ({ isAuth, slug, }) => {
     const [replies, setReplies] = useState('');
     const [repliesLen, setRepliesLen] = useState(0);
     const [limit, setLimit] = useState(5);
+    const [newReply, setNewReply] = useState('');
 
     const handleForceRender = () => setForceRender(!forceRender);
     const handleHelp = help => setHelp(help);
@@ -33,6 +45,7 @@ export const EventReplies = ({ isAuth, slug, }) => {
     const handleLimit = limit => setLimit(limit);
     const handleReplies = replies => setReplies(replies);
     const handleRepliesLen = repliesLen => setRepliesLen(repliesLen);
+    const handleNewReply = newReply => setNewReply(newReply);
 
     const handlePostedComment = value => {
         if (!(isAuth)) {
@@ -40,10 +53,10 @@ export const EventReplies = ({ isAuth, slug, }) => {
             return;
         }
 
-        if (isAuth && slug) {
+        if (isAuth && values) {
             const storeForm = new FormData();
             storeForm.append('username', JSON.parse(Cookies.get('auth_user')).username);
-            storeForm.append('slug', slug);
+            storeForm.append('slug', values.slug);
 
             for (let i in value) {
                 value[i] && storeForm.append(i, value[i]);
@@ -68,6 +81,7 @@ export const EventReplies = ({ isAuth, slug, }) => {
 
                 form.resetFields();
                 handleForceRender();
+                handleNewReply(response.data.data.details);
                 setTimeout(() => {
                     message.open({
                         content: <><FontAwesomeIcon icon={faCircleCheck} className="me-2" style={{ color: '#007B70', }} /><Text type="span" className="fa-xl">Posted.</Text></>,
@@ -96,9 +110,8 @@ export const EventReplies = ({ isAuth, slug, }) => {
             return;
         }
 
-        if (loading && isAuth && slug) {
-            getReplies(slug).then(response => {
-                console.log('res ', response.data)
+        if (loading && isAuth && values) {
+            getReplies(values.slug).then(response => {
                 if (!(response.data.isSuccess)) {
                     console.error('err get replies ', response.data.data.errorText);
                     return;
@@ -108,9 +121,9 @@ export const EventReplies = ({ isAuth, slug, }) => {
                 handleRepliesLen(Object.keys(response.data.data.details).length);
             })
 
-                .catch(err => {
-                    console.error('err ', err.response ? err.response.data.errors : err);
-                })
+            .catch(err => {
+                console.error('err ', err.response ? err.response.data.errors : err);
+            })
         }
 
         return () => {
@@ -121,8 +134,8 @@ export const EventReplies = ({ isAuth, slug, }) => {
     useEffect(() => {
         let loading = true;
 
-        if (loading && isAuth && slug && Number.isInteger(limit)) {
-            getPaginatedReplies(slug, limit).then(response => {
+        if (loading && isAuth && values && Number.isInteger(limit)) {
+            getPaginatedReplies(values.slug, limit).then(response => {
                 if (!(response.data.isSuccess)) {
                     console.error('err ', response.data.data.errorText);
                     return;
@@ -142,6 +155,48 @@ export const EventReplies = ({ isAuth, slug, }) => {
             loading = false;
         }
     }, [limit]);
+
+    useEffect(() => {
+        let loading = true;
+
+        if (loading && newReply && values && (values.user.username !== authUser.username)) {
+            const notifications = doc(db, "notifications", values.user.username);
+
+            getDoc(notifications).then(res => {
+                if (res.exists()) {
+                    let formatted = [];
+
+                    if (res.data().new.event_posts && res.data().new.event_posts.comments) {
+                        formatted = [...res.data().new.event_posts.comments];
+                    }
+
+                    formatted.push({
+                        user: authUser.username,
+                        body: newReply.body,
+                    });
+
+                    updateDoc(notifications, {
+                        "new.event_posts.comments": formatted,
+                    });
+                } else {
+                    setDoc(notifications, {
+                        new: {
+                            event_posts: {
+                                comments: {
+                                    user: authUser.username,
+                                    body: newReply.body,
+                                }
+                            },
+                        }
+                    });
+                }
+            });
+        }
+
+        return () => {
+            loading = false;
+        }
+    }, [newReply]);
 
     return (
         <EventRepliesWrapper>

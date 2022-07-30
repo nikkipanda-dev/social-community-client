@@ -21,6 +21,7 @@ const ProfileContentWrapper = styled('div', {
 
 export const Profile = ({ 
     isAuth,
+    authUser,
     forceRender, 
     handleForceRender,
 }) => {
@@ -117,6 +118,7 @@ export const Profile = ({
                                 handleForceRender: handleForceRender,
                                 forceRender: forceRender,
                                 isAuth: isAuth,
+                                authUser: authUser,
                             }}/>
                         </ProfileContentWrapper>
                     </Column>

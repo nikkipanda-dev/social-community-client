@@ -77,7 +77,7 @@ export const Home = ({ isAuth, }) => {
     const handleMicroblogEntries = microblogEntries => setMicroblogEntries(microblogEntries);
 
     return (
-        isAuth ? 
+        isAuth && 
         <Section>
             <HomeWrapper className="mx-auto" css={{ paddingTop: '$space-5', }}>
                 <Row className="m-0 g-0" css={{ padding: '$space-3', }}>
@@ -95,7 +95,7 @@ export const Home = ({ isAuth, }) => {
                     </Column>
                 </Row>
             </HomeWrapper>
-        </Section> : <Navigate to="/" replace={true} />
+        </Section>
     )
 }
 

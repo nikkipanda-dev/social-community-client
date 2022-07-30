@@ -307,12 +307,10 @@ export const ProfileHeader = ({
                 getDoc(notifications).then(res => {
                     if (res.exists()) {
                         updateDoc(notifications, {
-                            seen: false,
                             friend_requests: arrayUnion(JSON.parse(Cookies.get('auth_user')).username),
                         });
                     } else {
                         setDoc(notifications, {
-                            seen: false,
                             friend_requests: arrayUnion(JSON.parse(Cookies.get('auth_user')).username),
                         });
                     }

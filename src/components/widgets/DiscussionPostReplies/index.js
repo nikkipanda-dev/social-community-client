@@ -4,6 +4,13 @@ import { axiosInstance } from '../../../requests';
 import { Form, message, } from 'antd';
 import { key, showAlert, } from '../../../util';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc, 
+} from 'firebase/firestore';
+import { db, } from '../../../util/Firebase';
 import { faCircleCheck, faCircleInfo, } from '@fortawesome/free-solid-svg-icons';
 import { styled } from "../../../stitches.config";
 
@@ -13,7 +20,11 @@ import Text from '../../core/Text';
 
 const DiscussionPostRepliesWrapper = styled('div', {});
 
-export const DiscussionPostReplies = ({ slug, isAuth, }) => {
+export const DiscussionPostReplies = ({ 
+    values,
+    isAuth,
+    authUser,
+}) => {
     const [form] = Form.useForm();
 
     const [forceRender, setForceRender] = useState();
@@ -24,6 +35,7 @@ export const DiscussionPostReplies = ({ slug, isAuth, }) => {
     const [replies, setReplies] = useState('');
     const [repliesLen, setRepliesLen] = useState(0);
     const [limit, setLimit] = useState(5);
+    const [newReply, setNewReply] = useState('');
 
     const handleForceRender = () => setForceRender(!forceRender);
     const handleHelp = help => setHelp(help);
@@ -33,6 +45,7 @@ export const DiscussionPostReplies = ({ slug, isAuth, }) => {
     const handleReplies = replies => setReplies(replies);
     const handleLimit = limit => setLimit(limit);
     const handleRepliesLen = repliesLen => setRepliesLen(repliesLen);
+    const handleNewReply = newReply => setNewReply(newReply);
 
     const handlePostedReply = value => {
         if (!(isAuth)) {
@@ -40,10 +53,10 @@ export const DiscussionPostReplies = ({ slug, isAuth, }) => {
             return;
         }
 
-        if (isAuth && slug) {
+        if (isAuth && values) {
             const storeReplyForm = new FormData();
             storeReplyForm.append('username', JSON.parse(Cookies.get('auth_user')).username);
-            storeReplyForm.append('slug', slug);
+            storeReplyForm.append('slug', values.slug);
 
             for (let i in value) {
                 value[i] && storeReplyForm.append(i, value[i]);
@@ -68,6 +81,8 @@ export const DiscussionPostReplies = ({ slug, isAuth, }) => {
 
                 form.resetFields();
                 handleForceRender();
+                handleNewReply(response.data.data.details[0]);
+
                 setTimeout(() => {
                     message.open({
                         content: <><FontAwesomeIcon icon={faCircleCheck} className="me-2" style={{ color: '#007B70', }} /><Text type="span" className="fa-xl">Posted.</Text></>,
@@ -96,8 +111,8 @@ export const DiscussionPostReplies = ({ slug, isAuth, }) => {
             return;
         }
 
-        if (loading && isAuth && slug) {
-            getReplies(slug).then(response => {   
+        if (loading && isAuth && values) {
+            getReplies(values.slug).then(response => {   
                 if (!(response.data.isSuccess)) {
                     console.error('err get replies ', response.data.data.errorText);
                     return;
@@ -122,8 +137,8 @@ export const DiscussionPostReplies = ({ slug, isAuth, }) => {
     useEffect(() => {
         let loading = true;
 
-        if (loading && isAuth && slug && Number.isInteger(limit)) {
-            getPaginatedReplies(slug, limit).then(response => {
+        if (loading && isAuth && values && Number.isInteger(limit)) {
+            getPaginatedReplies(values.slug, limit).then(response => {
                 if (!(response.data.isSuccess)) {
                     console.error('err ', response.data.data.errorText);
                     return;
@@ -141,6 +156,54 @@ export const DiscussionPostReplies = ({ slug, isAuth, }) => {
             loading = false;
         }
     }, [limit]);
+
+    useEffect(() => {
+        let loading = true;
+
+        if (loading && newReply && values && (values.user.username !== authUser.username)) {
+            const notifications = doc(db, "notifications", values.user.username);
+
+            getDoc(notifications).then(res => {
+                if (res.exists()) {
+                    let formatted = [];
+
+                    if (res.data().new.discussion_posts && res.data().new.discussion_posts) {
+                        formatted = [...res.data().new.discussion_posts];
+                    }
+
+                    formatted.push({
+                        user: authUser.username,
+                        body: newReply.body,
+                        post_slug: values.slug,
+                        comment_slug: newReply.slug,
+                        is_comment: true,
+                        is_heart: false,
+                    });
+
+                    updateDoc(notifications, {
+                        "new.discussion_posts": formatted,
+                    });
+                } else {
+                    setDoc(notifications, {
+                        new: {
+                            discussion_posts: {
+                                user: authUser.username,
+                                body: newReply.body,
+                                post_slug: values.slug,
+                                comment_slug: newReply.slug,
+                                is_comment: true,
+                                is_heart: false,
+                            },
+                        }
+                    });
+                }
+            });
+        }
+
+        return () => {
+            loading = false;
+        }
+    }, [newReply]);
 
     return (
         <DiscussionPostRepliesWrapper>

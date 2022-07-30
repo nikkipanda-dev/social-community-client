@@ -36,14 +36,17 @@ export const AuthWrapper = ({ children, isAuth, }) => {
     return (
         <Wrapper>
         {
-            isLoading ? 
+            isLoading && 
             <SpinnerWrapper className="d-flex justify-content-center align-items-center">
                 <FontAwesomeIcon 
                 icon={faTree} 
                 className="fa-4x fa-fade" 
                 style={{ color: '#007B70', }} />
-            </SpinnerWrapper> : 
-            isAuth ? children : <Navigate to="/" replace={true} />
+            </SpinnerWrapper>
+        }
+        {
+            (!(isLoading) && isAuth) && 
+            children
         }
         </Wrapper>
     )

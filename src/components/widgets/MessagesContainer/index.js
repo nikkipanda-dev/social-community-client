@@ -5,10 +5,6 @@ import MessageBubble from "../MessageBubble";
 
 const MessagesContainerWrapper = styled('div', {
     padding: '$space-3',
-    width: '100%',
-    height: '60vh',
-    overflow: 'auto',
-    overflowX: 'hidden',
     '> div:nth-child(n+2)': {
         marginTop: '$space-4',
     },
@@ -17,14 +13,20 @@ const MessagesContainerWrapper = styled('div', {
 export const MessagesContainer = forwardRef(({ 
     messages, 
     isAuth,
+    handleShowModal,
+    displayPhoto,
+    friendDisplayPhoto,
 }, ref) => {
     return (
-        <MessagesContainerWrapper className="d-flex flex-column bg-light">
+        <MessagesContainerWrapper className="d-flex flex-column bg-light" ref={ref}>
         {
             (messages && (Object.keys(messages).length > 0)) && 
             Object.keys(messages).map((_, val) => <MessageBubble 
             key={Object.values(messages)[val].created_at.seconds} 
             values={Object.values(messages)[val]}
+            displayPhoto={displayPhoto}
+            friendDisplayPhoto={friendDisplayPhoto}
+            handleShowModal={handleShowModal}
             isAuth={isAuth} />)
         }
         </MessagesContainerWrapper>

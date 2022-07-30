@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react';
 import { isAuth as isAuthenticated } from './util';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, onAuthStateChanged, } from 'firebase/auth';
 import { auth, db, } from './util/Firebase';
-import { doc, updateDoc, } from 'firebase/firestore';
-import { Routes, Route } from "react-router-dom";
+import { 
+    doc, 
+    updateDoc,
+    onSnapshot,
+    getDoc,
+} from 'firebase/firestore';
+import { Routes, Route, } from "react-router-dom";
 import Cookies from 'js-cookie';
 
 import { globalStyles, styled } from './stitches.config';
 import './App.css';
 
-import { AuthWrapper } from './components/sections/Wrapper';
 import Navbar from './components/widgets/Navbar';
 import LandingPage from './components/pages/landing-page';
 import Home from './components/pages/home';
@@ -44,20 +48,32 @@ import Register from './components/pages/register';
 import NotFound from './components/widgets/NotFound';
 import PostJournal from './components/widgets/PostJournal';
 
-const Main = styled('div', {});
-
 function App() {
     globalStyles();
 
     const [displayPhoto, setDisplayPhoto] = useState('');
     const [isAuth, setIsAuth] = useState(false);
     const [forceRender, setForceRender] = useState(false);
+    const [notifications, setNotifications] = useState('');
 
     const handleDisplayPhoto = displayPhoto => setDisplayPhoto(displayPhoto);
     const handleForceRender = () => setForceRender(!forceRender);
+    const handleNotifications = notifications => setNotifications(notifications);
 
     const handleLogIn = () => setIsAuth(true);
     const handleLogOut = () => setIsAuth(false);
+
+    const onClearNotifications = () => {
+        const notificationsRef = doc(db, "notifications", JSON.parse(Cookies.get('auth_user')).username);
+
+        getDoc(notificationsRef).then(res => {
+            if (res.exists()) {
+                updateDoc(notificationsRef, {
+                    seen: true,
+                });
+            }
+        })
+    }
 
     useEffect(() => {
         let loading = true;
@@ -65,7 +81,7 @@ function App() {
         if (loading) {
             if (isAuthenticated()) {
                 handleLogIn();
-                handleDisplayPhoto(JSON.parse(Cookies.get('auth_user_display_photo')));
+                Cookies.get('auth_user_display_photo') && handleDisplayPhoto(JSON.parse(Cookies.get('auth_user_display_photo')));
 
                 if (auth && db) {
                     signInWithEmailAndPassword(
@@ -94,15 +110,49 @@ function App() {
             loading = false
         }
     }, [isAuth]);
+    
+    useEffect(() => {
+        let loading = true;
+
+        if (loading && isAuth) {
+            // if () {}
+            console.info(JSON.parse(Cookies.get('auth_user')).username);
+            const unsubscribe = onSnapshot(doc(db, "notifications", JSON.parse(Cookies.get('auth_user')).username), doc => {
+                console.log("Current data: ", doc.data());
+                handleNotifications({
+                    ...doc.data(),
+                });
+            });
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    console.info('signed in ', auth.currentUser.uid);
+                } else {
+                    console.info('signed out');
+                    unsubscribe();
+                }
+            });
+        }
+
+        return () => {
+            loading = false;
+        }
+    }, [isAuth]);
+
+    const AuthWrapper = styled('div', {
+        background: !(isAuth) ? "center / cover no-repeat url('/backdrop_ver_1.png')" : "transparent",
+    });
 
     return (
-        <AuthWrapper isAuth={isAuth}>
+        <AuthWrapper>
             <Navbar 
             isAuth={isAuth}
             displayPhoto={displayPhoto}
             handleForceRender={handleForceRender}
             handleLogIn={handleLogIn}
-            handleLogOut={handleLogOut} />
+            handleLogOut={handleLogOut}
+            notifications={notifications}
+            onClearNotifications={onClearNotifications} />
             <Routes>
                 <Route path="/" element={
                     <LandingPage
@@ -150,8 +200,7 @@ function App() {
                     <Route path="editor" element={<PostEvent />} />
                     <Route path=":slug" element={<EventsSection />} />
                 </Route>     
-                <Route path="/messages" element={<Messages 
-                isAuth={isAuth} />} >
+                <Route path="/messages" element={<Messages isAuth={isAuth} displayPhoto={displayPhoto} />}>
                     <Route index element={<MessagesSection />} />
                 </Route>
                 <Route path="register/:token" element={<Register 
@@ -161,6 +210,12 @@ function App() {
                 isAuth={isAuth} 
                 displayPhoto={displayPhoto} 
                 handleDisplayPhoto={handleDisplayPhoto} />}>
+                    <Route path=":slug" element={<SettingsSection />} />
+                </Route>
+                <Route path="/notifications" element={<Settings
+                    isAuth={isAuth}
+                    displayPhoto={displayPhoto}
+                    handleDisplayPhoto={handleDisplayPhoto} />}>
                     <Route path=":slug" element={<SettingsSection />} />
                 </Route>
                 <Route path="/:path" element={<NotFound />} />

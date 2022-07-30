@@ -1,8 +1,17 @@
 import { useState, useEffect, } from "react";
-import { doc, onSnapshot,  } from "firebase/firestore";
+import { 
+    doc, 
+    onSnapshot,
+    collection,
+    getDocs,
+    query,
+    where,
+} from "firebase/firestore";
 import { auth, db, } from "../../../util/Firebase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircle, } from "@fortawesome/free-solid-svg-icons";
+import Cookies from 'js-cookie';
+import { axiosInstance } from "../../../requests";
 import { styled } from "../../../stitches.config";
 
 import Image from "../../core/Image";
@@ -46,25 +55,24 @@ export const MessagesUserCard = ({
     values, 
     onSelect,
 }) => {
-    console.log('vakues ', values);
-
     const [lastMessage, setLastMessage] = useState();
+    const [unreadCount, setUnreadCount] = useState();
 
     const handleLastMessage = lastMessage => setLastMessage(lastMessage);
-
-    console.info('last message: ', lastMessage);
+    const handleUnreadCount = unreadCount => setUnreadCount(unreadCount);
 
     useEffect(() => {
         let loading = true;
+        let unsubscribe;
 
-        if (loading && auth && auth.currentUser) {
-            const id = (auth.currentUser.uid < values.uid) ? auth.currentUser.uid + "-" + values.uid : values.uid + "-" + auth.currentUser.uid;
+        if (loading && auth && auth.currentUser && values && (Object.keys(values.user).length > 0)) {
+            const id = (auth.currentUser.uid < values.user.uid) ? auth.currentUser.uid + "-" + values.user.uid : values.user.uid + "-" + auth.currentUser.uid;
 
             const docRef = doc(db, "lastMessages", id);
             let lastMessage = [];
 
             onSnapshot(docRef, doc => {
-                console.log("CURRENT DATA: ", doc.data());
+                // console.log("CURRENT DATA: ", doc.data());
                 lastMessage.push(doc.data());
                 if (doc.exists()) {
                     handleLastMessage(doc.data());
@@ -72,23 +80,41 @@ export const MessagesUserCard = ({
                     console.log("CURRENT DATA: NONE"); 
                 }
             });
+
+            unsubscribe = onSnapshot(getUnreadMessages(id, auth.currentUser.uid), doc => {
+                let z = [];
+                doc.forEach(message => {
+                    // doc.data() is never undefined for query doc snapshots
+                    z.push(message.data());
+                });
+
+                z.length > 0 ? handleUnreadCount(z.length) : handleUnreadCount(''); 
+            });
         }
 
         return () => {
+            unsubscribe();
             loading = false;
         }
     }, []);
 
     return (
-        (values && (Object.keys(values).length > 0)) && 
+        (values && (Object.keys(values).length > 0) && (Object.keys(values.user).length > 0)) && 
         <MessagesUserCardWrapper onClick={() => onSelect(values)}>
-            <div className="d-flex align-items-start">
-                <Image src="/avatar_medium.png" />
-                <ContentWrapper className="d-flex flex-column">
+            <ContentWrapper className="d-flex align-items-start" css={{ 
+                'img' : {
+                    width: '70px',
+                    height: '70px',
+                    objectFit: 'cover',
+                    borderRadius: '100%',
+                },
+            }}>
+                <Image src={values.display_photo ? values.display_photo : "/avatar_medium.png"} />
+                <ContentWrapper className="d-flex flex-column flex-grow-1">
                     <ContentWrapper className="d-flex justify-content-end justify-content-md-between flex-grow-1">
                         <MiscWrapper>
-                            <Text type="span">{values.first_name + " " + values.last_name}</Text><br />
-                            <Text type="span" color="darkGray">{"@" + values.username}</Text>
+                            <Text type="span">{values.user.first_name + " " + values.user.last_name}</Text><br />
+                            <Text type="span" color="darkGray">{"@" + values.user.username}</Text>
                         </MiscWrapper>
                         <NotificationWrapper>
                             <Text type="span" css={{
@@ -96,8 +122,8 @@ export const MessagesUserCard = ({
                                 fontWeight: 'bold',
                                 maxWidth: 'max-content',
                                 padding: '$space-2 $space-2 $space-1',
-                            }}>1</Text>
-                            <Text type="span" color={values.isOnline ? "green" : "lightGray2"}>
+                            }}>{unreadCount}</Text>
+                            <Text type="span" color={values.user.isOnline ? "green" : "lightGray2"}>
                                 <FontAwesomeIcon icon={faCircle} className="fa-fw fa-xs ms-2" />
                             </Text>
                         </NotificationWrapper>
@@ -111,9 +137,17 @@ export const MessagesUserCard = ({
                         </ContentWrapper>
                     }
                 </ContentWrapper>
-            </div>
+            </ContentWrapper>
         </MessagesUserCardWrapper>
     )
+}
+
+function getUnreadMessages(id, userId) {
+    const messagesMetaRef = collection(db, "messages", id, "messages");
+
+    const q = query(messagesMetaRef, where("is_read", "==", false), where("sender", "!=", userId));
+
+    return q;
 }
 
 export default MessagesUserCard;

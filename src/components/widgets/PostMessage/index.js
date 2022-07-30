@@ -1,12 +1,15 @@
 import { forwardRef, useRef, } from "react";
 import { Form, Input, } from "antd";
 import Picker from 'emoji-picker-react';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faImages, } from "@fortawesome/free-solid-svg-icons";
 import { styled } from "../../../stitches.config";
 
 import Button from "../../core/Button";
+import Text from "../../core/Text";
+import Image from "../../core/Image";
 
 const PostMessageWrapper = styled('div', {
-    height: '15vh',
     'textarea': {
         resize: 'none',
         height: '100% !important',
@@ -33,10 +36,6 @@ const PostMessageWrapper = styled('div', {
     },
 });
 
-const SubmitButtonWrapper = styled('div', {
-    marginTop: '30px',
-});
-
 const formItemLayout = {
     labelCol: {
         span: 24,
@@ -57,15 +56,19 @@ const validateMessages = {
     }
 };
 
-const MessagesEmojiWrapper = styled('div', {});
-
-const pickerStyle = {
-    width: '20%',
+const MessagesEmojiWrapper = styled('div', {
+    maxWidth: '100%',
     position: 'absolute',
     zIndex: '999999',
     bottom: '23vh',
-    left: 'auto'
-}
+    left: 'auto',
+    '@media screen and (max-width: 575px)': {
+        position: 'relative',
+        margin: 'auto auto -300px',
+        bottom: '0px',
+        padding: '$space-3 $space-3 $space-3 0px',
+    },
+});
 
 export const PostMessage = forwardRef(({ 
     storeFn, 
@@ -88,8 +91,8 @@ export const PostMessage = forwardRef(({
         ref={ref}>
         {
             isEmojiShown &&
-            <MessagesEmojiWrapper ref={ref} >
-                <Picker onEmojiClick={onEmojiClick} pickerStyle={{ ...pickerStyle }} />
+            <MessagesEmojiWrapper ref={ref}>
+                <Picker onEmojiClick={onEmojiClick} />
             </MessagesEmojiWrapper>
         }
             <Form
@@ -97,16 +100,11 @@ export const PostMessage = forwardRef(({
             form={form}
             validateMessages={validateMessages}
             onFinish={storeFn}
+            className="d-flex flex-column flex-sm-row"
             {...formItemLayout}>
                 <Form.Item
                 name="message"
-                // {...help && { help: help }}
-                rules={[{
-                    required: true,
-                    type: 'string',
-                    min: 2,
-                    max: 10000,
-                }]}>
+                className="flex-grow-1">
                     <Input.TextArea
                     allowClear
                     maxLength={10000}
@@ -115,14 +113,14 @@ export const PostMessage = forwardRef(({
                     onKeyDown={evt => handleOnKeyDown(evt)}/>
                 </Form.Item>
 
-                <SubmitButtonWrapper className="d-flex justify-content-md-end align-items-center">
+                <Form.Item className="d-flex ms-sm-3">
                     <Button
                     type="submit"
                     text="Send"
                     ref={submitBtnRef}
-                    className="flex-grow-1 flex-md-grow-0"
-                    color="brown" />
-                </SubmitButtonWrapper>
+                    color="brown"
+                    css={{ width: '100%', }} />
+                </Form.Item>
             </Form>
         </PostMessageWrapper>
     )
